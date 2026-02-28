@@ -1,0 +1,22 @@
+[
+  {"pattern": "\\bBluthochdruck\\b", "flags": "gi", "replacement": "Bluthochdruck"},
+  {"pattern": "\\bDiabetis\\b", "flags": "gi", "replacement": "Diabetes"},
+  {"pattern": "\\bDiabetez\\b", "flags": "gi", "replacement": "Diabetes"},
+  {"pattern": "\\bLungenentzuendung\\b", "flags": "gi", "replacement": "Lungenentzündung"},
+  {"pattern": "\\bBronchites\\b", "flags": "gi", "replacement": "Bronchitis"},
+  {"pattern": "\\bCholesterin\\b", "flags": "gi", "replacement": "Cholesterin"},
+  {"pattern": "\\bSchilddruese\\b", "flags": "gi", "replacement": "Schilddrüse"},
+  {"pattern": "\\bHerzinfarkt\\b", "flags": "gi", "replacement": "Herzinfarkt"},
+  {"pattern": "\\bMetformin\\b", "flags": "gi", "replacement": "Metformin"},
+  {"pattern": "\\bOmeprasol\\b", "flags": "gi", "replacement": "Omeprazol"},
+  {"pattern": "\\bIbuprofen\\b", "flags": "gi", "replacement": "Ibuprofen"},
+  {"pattern": "\\bParacetamól\\b", "flags": "gi", "replacement": "Paracetamol"},
+  {"pattern": "\\bAmoxicillin\\b", "flags": "gi", "replacement": "Amoxicillin"},
+  {"pattern": "\\bAzithromicin\\b", "flags": "gi", "replacement": "Azithromycin"},
+  {"pattern": "\\bParodontites\\b", "flags": "gi", "replacement": "Parodontitis"},
+  {"pattern": "\\bGingivites\\b", "flags": "gi", "replacement": "Gingivitis"},
+  {"pattern": "\\bZahnfleischentzuendung\\b", "flags": "gi", "replacement": "Zahnfleischentzündung"},
+  {"pattern": "\\bEndodontie\\b", "flags": "gi", "replacement": "Endodontie"},
+  {"pattern": "\\bMaloklusion\\b", "flags": "gi", "replacement": "Malokklusion"},
+  {"pattern": "\\bNierensuffizienz\\b", "flags": "gi", "replacement": "Niereninsuffizienz"}
+]

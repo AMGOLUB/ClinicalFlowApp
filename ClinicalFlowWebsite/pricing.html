@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing — ClinicalFlow</title>
+  <meta name="description" content="ClinicalFlow pricing — 14-day free trial, Pro at $25/month, Team at $19/seat/month. AI-powered clinical documentation that works online and offline.">
+  <meta property="og:title" content="Pricing — ClinicalFlow">
+  <meta property="og:description" content="Simple, transparent pricing for AI-powered clinical documentation. Start your 14-day free trial — no credit card required.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       PRICING PAGE — Additional styles
+       Uses existing design tokens from styles.css
+       ═══════════════════════════════════════════════════════════ */
+
+    /* ─── Hero ─── */
+    .pricing-hero {
+      padding: calc(var(--nav-height) + 80px) 0 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .pricing-hero::before {
+      content: '';
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 900px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(8,145,178,0.10) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .pricing-hero h1 {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .pricing-hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto;
+      position: relative;
+      line-height: 1.65;
+    }
+
+    /* ─── Billing toggle ─── */
+    .billing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin: 40px 0 48px;
+      position: relative;
+    }
+    .billing-toggle-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .billing-toggle-label.active {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .billing-toggle-switch {
+      width: 52px;
+      height: 28px;
+      border-radius: 14px;
+      background: var(--border-med);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s ease;
+      border: none;
+      padding: 0;
+    }
+    .billing-toggle-switch.annual {
+      background: var(--accent);
+    }
+    .billing-toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .billing-toggle-switch.annual::after {
+      transform: translateX(24px);
+    }
+    .billing-save-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--glow-soft);
+      border: 1px solid var(--border-med);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── Plan cards ─── */
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1080px;
+      margin: 0 auto;
+      align-items: start;
+    }
+    .pricing-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      position: relative;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.45s ease, border-color 0.3s ease;
+    }
+    .pricing-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.10), 0 0 80px rgba(8, 145, 178, 0.14);
+    }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 4px 30px rgba(8, 145, 178, 0.15), 0 0 80px rgba(8, 145, 178, 0.10);
+    }
+    .pricing-card.featured:hover {
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.10), 0 0 100px rgba(8, 145, 178, 0.25);
+    }
+    .pricing-card-badge {
+      position: absolute;
+      top: -13px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gradient-btn);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 18px;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .pricing-card-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .pricing-card-desc {
+      font-size: 14px;
+      color: var(--text-tertiary);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .pricing-card-price {
+      margin-bottom: 8px;
+    }
+    .pricing-card-price .amount {
+      font-size: 52px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .pricing-card-price .period {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-tertiary);
+    }
+    .pricing-card-annual-note {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-bottom: 28px;
+      min-height: 20px;
+    }
+    .pricing-card-annual-note strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .pricing-card .btn {
+      width: 100%;
+      margin-bottom: 28px;
+    }
+    .pricing-card-features {
+      list-style: none;
+      padding: 0;
+    }
+    .pricing-card-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      padding: 8px 0;
+      line-height: 1.5;
+    }
+    .pricing-card-features li:not(:last-child) {
+      border-bottom: 1px solid rgba(8, 145, 178, 0.05);
+    }
+    .pricing-card-features .check {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      color: var(--accent);
+      margin-top: 1px;
+    }
+
+    /* ─── Enterprise banner ─── */
+    .enterprise-banner {
+      max-width: 1080px;
+      margin: 48px auto 0;
+      background: var(--bg-dark);
+      border-radius: var(--radius-lg);
+      padding: 48px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      box-shadow: var(--shadow-xl);
+    }
+    .enterprise-banner-text h3 {
+      color: var(--text-on-dark);
+      margin-bottom: 8px;
+      font-size: 24px;
+    }
+    .enterprise-banner-text p {
+      color: var(--text-on-dark-secondary);
+      font-size: 15px;
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    /* ─── Comparison table ─── */
+    .comparison-section {
+      padding: var(--section-gap) 0;
+    }
+    .comparison-section h2 {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .comparison-section > .container > p {
+      text-align: center;
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .comparison-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+      background: var(--bg-white);
+    }
+    .comparison-table th,
+    .comparison-table td {
+      padding: 14px 20px;
+      font-size: 14px;
+      text-align: center;
+      border-bottom: 1px solid rgba(8, 145, 178, 0.06);
+    }
+    .comparison-table th:first-child,
+    .comparison-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-primary);
+      padding-left: 28px;
+    }
+    .comparison-table thead th {
+      background: var(--bg-surface);
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-tertiary);
+      border-bottom: 1px solid var(--border-med);
+    }
+    .comparison-table thead th.featured-col {
+      color: var(--accent);
+      background: rgba(8, 145, 178, 0.06);
+    }
+    .comparison-table tbody td.featured-col {
+      background: rgba(8, 145, 178, 0.02);
+    }
+    .comparison-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .comparison-table tbody tr:hover td {
+      background: rgba(8, 145, 178, 0.02);
+    }
+    .comparison-table tbody tr:hover td.featured-col {
+      background: rgba(8, 145, 178, 0.05);
+    }
+    .comparison-table .check-icon {
+      color: var(--accent);
+    }
+    .comparison-table .dash-icon {
+      color: var(--text-tertiary);
+    }
+
+    /* ─── FAQ ─── */
+    .faq-section {
+      padding: var(--section-gap) 0;
+      background: var(--bg-surface);
+    }
+    .faq-section h2 {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .faq-grid {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .faq-item:hover {
+      border-color: var(--border-med);
+      box-shadow: var(--shadow-md);
+    }
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      background: none;
+      border: none;
+      font-family: var(--font);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      text-align: left;
+      gap: 16px;
+    }
+    .faq-question:hover {
+      color: var(--accent);
+    }
+    .faq-question svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: var(--text-tertiary);
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    .faq-item.open .faq-question svg {
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+    }
+    .faq-item.open .faq-answer {
+      max-height: 300px;
+    }
+    .faq-answer-inner {
+      padding: 0 24px 20px;
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ─── Final CTA ─── */
+    .pricing-cta {
+      padding: var(--section-gap) 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .pricing-cta::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(8,145,178,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .pricing-cta h2 {
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .pricing-cta p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto 36px;
+      position: relative;
+    }
+    .pricing-cta .btn-group {
+      justify-content: center;
+      position: relative;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      .pricing-cards {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+      }
+      .pricing-card.featured {
+        order: -1;
+      }
+      .enterprise-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 36px 28px;
+      }
+    }
+    @media (max-width: 768px) {
+      .pricing-hero {
+        padding: calc(var(--nav-height) + 48px) 0 40px;
+      }
+      .pricing-hero h1 {
+        font-size: clamp(32px, 7vw, 48px);
+      }
+      .enterprise-banner {
+        padding: 32px 24px;
+      }
+      .enterprise-banner-text h3 {
+        font-size: 20px;
+      }
+    }
+    @media (max-width: 480px) {
+      .pricing-card {
+        padding: 32px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     NAVIGATION (same as index.html)
+     ════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+          <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+      </div>
+      Clinical<span>Flow</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#templates">Templates</a></li>
+      <li><a href="index.html#dental">Dental</a></li>
+      <li><a href="index.html#modes">Online &amp; Offline</a></li>
+      <li><a href="index.html#security">Security</a></li>
+      <li><a href="index.html#download">Download</a></li>
+      <li><a href="pricing.html" class="active">Pricing</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>
+      <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
+    </div>
+    <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PRICING HERO
+     ════════════════════════════════════════════════════════════ -->
+<section class="pricing-hero">
+  <div class="container">
+    <div style="animation: fadeInUp 0.6s ease both;">
+      <span class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+        14-day free trial &middot; No credit card
+      </span>
+    </div>
+
+    <h1 style="animation: fadeInUp 0.6s ease 0.1s both;">
+      Simple, <span class="text-gradient">transparent pricing.</span>
+    </h1>
+
+    <p style="animation: fadeInUp 0.6s ease 0.2s both;">
+      One plan for individual physicians. Team pricing for practices.
+      No hidden fees. No per-note limits. Cancel anytime.
+    </p>
+
+    <!-- Billing toggle -->
+    <div class="billing-toggle" style="animation: fadeInUp 0.6s ease 0.3s both;">
+      <span class="billing-toggle-label active" id="toggleMonthly">Monthly</span>
+      <button class="billing-toggle-switch" id="billingSwitch" aria-label="Toggle annual billing"></button>
+      <span class="billing-toggle-label" id="toggleAnnual">Annual</span>
+      <span class="billing-save-tag">Save up to $50</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PLAN CARDS
+     ════════════════════════════════════════════════════════════ -->
+<section style="padding: 0 0 var(--section-gap);">
+  <div class="container">
+    <div class="pricing-cards">
+
+      <!-- FREE TRIAL -->
+      <div class="pricing-card reveal">
+        <div class="pricing-card-name">Free Trial</div>
+        <div class="pricing-card-desc">Try everything for 14 days</div>
+        <div class="pricing-card-price">
+          <span class="amount">$0</span>
+          <span class="period">/14 days</span>
+        </div>
+        <div class="pricing-card-annual-note">No credit card required</div>
+        <a href="signup.html" class="btn btn--secondary">Start Free Trial</a>
+        <ul class="pricing-card-features">
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Full access to all features
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited sessions
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Online + offline transcription
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            SOAP, HPI, &amp; problem-oriented notes
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            AES-256-GCM encryption
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            PDF export
+          </li>
+        </ul>
+      </div>
+
+      <!-- PRO (featured) -->
+      <div class="pricing-card featured reveal reveal-delay-1">
+        <div class="pricing-card-badge">Most Popular</div>
+        <div class="pricing-card-name">ClinicalFlow Pro</div>
+        <div class="pricing-card-desc">For individual physicians &amp; NPs</div>
+        <div class="pricing-card-price">
+          <span class="amount" data-monthly="$25" data-annual="$21">$25</span>
+          <span class="period" data-monthly="/month" data-annual="/month">/month</span>
+        </div>
+        <div class="pricing-card-annual-note" data-monthly="or $250/year (save $50)" data-annual="$250 billed annually · <strong>Save $50</strong>">or $250/year (save $50)</div>
+        <a href="signup.html" class="btn btn--primary">Get Started</a>
+        <ul class="pricing-card-features">
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Everything in Free Trial
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited sessions &amp; notes
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            All note formats
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Claude, Ollama, or rule-based AI
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Medical term corrections
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Speaker diarization
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            AI verification pass
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Dental &amp; perio charting with voice entry
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            ICD-10, CPT &amp; CDT coding with audit flags
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            EHR, HL7, PMS &amp; insurance narrative
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Email support
+          </li>
+        </ul>
+      </div>
+
+      <!-- TEAM -->
+      <div class="pricing-card reveal reveal-delay-2">
+        <div class="pricing-card-name">ClinicalFlow Team</div>
+        <div class="pricing-card-desc">For practices with 3+ providers</div>
+        <div class="pricing-card-price">
+          <span class="amount" data-monthly="$19" data-annual="$16">$19</span>
+          <span class="period" data-monthly="/seat/mo" data-annual="/seat/mo">/seat/mo</span>
+        </div>
+        <div class="pricing-card-annual-note" data-monthly="or $190/seat/year (save $38/seat)" data-annual="$190/seat billed annually · <strong>Save $38/seat</strong>">or $190/seat/year (save $38/seat)</div>
+        <a href="mailto:team@clinicalflow.ai?subject=ClinicalFlow%20Team%20Plan" class="btn btn--dark">Contact Us</a>
+        <ul class="pricing-card-features">
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Everything in Pro
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            3&ndash;50 provider seats
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Admin dashboard
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Shared template library
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Usage analytics
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Centralized billing
+          </li>
+          <li>
+            <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Priority support
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Enterprise banner -->
+    <div class="enterprise-banner reveal">
+      <div class="enterprise-banner-text">
+        <h3>Enterprise</h3>
+        <p>Need a BAA, custom EHR integrations, dedicated onboarding, or 50+ seats? We'll build a plan around your organization.</p>
+      </div>
+      <a href="mailto:enterprise@clinicalflow.ai?subject=ClinicalFlow%20Enterprise%20Inquiry" class="btn btn--primary btn--lg" style="flex-shrink:0;">Contact Sales</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FEATURE COMPARISON TABLE
+     ════════════════════════════════════════════════════════════ -->
+<section class="comparison-section">
+  <div class="container">
+    <h2 class="reveal">Compare plans</h2>
+    <p class="reveal">Every plan includes offline mode, encryption, and unlimited transcription.</p>
+
+    <div class="comparison-table-wrap reveal">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Free Trial</th>
+            <th class="featured-col">Pro</th>
+            <th>Team</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Duration / Access</td>
+            <td>14 days</td>
+            <td class="featured-col">Unlimited</td>
+            <td>Unlimited</td>
+          </tr>
+          <tr>
+            <td>Online transcription (Deepgram)</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Offline transcription (Whisper)</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>SOAP / HPI / Problem-Oriented notes</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>AI engine choice (Claude / Ollama / Rules)</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>AES-256-GCM encryption at rest</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>PDF export &amp; clipboard copy</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Medical term corrections</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Speaker diarization</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>AI verification pass</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Interactive dental charting (32 + 20 teeth)</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Periodontal charting &amp; voice entry</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>ICD-10, CPT, CDT billing codes</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Audit flags &amp; clinical warnings</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Insurance narrative generation</td>
+            <td><span class="check-icon">✓</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>EHR integration &amp; HL7 export</td>
+            <td><span class="dash-icon">—</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>PMS Bridge (OpenDental, Dentrix, Eaglesoft)</td>
+            <td><span class="dash-icon">—</span></td>
+            <td class="featured-col"><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Multi-user accounts</td>
+            <td><span class="dash-icon">—</span></td>
+            <td class="featured-col"><span class="dash-icon">—</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Admin dashboard</td>
+            <td><span class="dash-icon">—</span></td>
+            <td class="featured-col"><span class="dash-icon">—</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Shared template library</td>
+            <td><span class="dash-icon">—</span></td>
+            <td class="featured-col"><span class="dash-icon">—</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Usage analytics</td>
+            <td><span class="dash-icon">—</span></td>
+            <td class="featured-col"><span class="dash-icon">—</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Priority support</td>
+            <td><span class="dash-icon">—</span></td>
+            <td class="featured-col">Email</td>
+            <td>Priority</td>
+          </tr>
+          <tr>
+            <td>BAA available</td>
+            <td><span class="dash-icon">—</span></td>
+            <td class="featured-col"><span class="dash-icon">—</span></td>
+            <td>Enterprise only</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FAQ
+     ════════════════════════════════════════════════════════════ -->
+<section class="faq-section">
+  <div class="container">
+    <h2 class="reveal">Frequently asked questions</h2>
+
+    <div class="faq-grid">
+
+      <div class="faq-item reveal">
+        <button class="faq-question" aria-expanded="false">
+          What happens after my 14-day trial?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Your data stays on your device &mdash; we never touch it. After the trial, you'll need an active subscription to continue generating new transcriptions and notes. All your existing sessions and archives remain accessible.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question" aria-expanded="false">
+          Can I cancel anytime?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Yes. Monthly plans cancel immediately with no further charges. Annual plans continue through the end of your billing period. You can manage your subscription directly from the app's settings.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question" aria-expanded="false">
+          Is my patient data shared with ClinicalFlow?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            No. In offline mode, audio and notes never leave your device. In online mode, audio goes directly to your chosen provider (Deepgram or Claude) under your own API keys. ClinicalFlow never stores, accesses, or transmits patient data to our servers. All data is encrypted at rest with AES-256-GCM on your local machine.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question" aria-expanded="false">
+          Do you offer a BAA for HIPAA compliance?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Business Associate Agreements are available on Enterprise plans. Since ClinicalFlow processes data locally on your device and never stores PHI on our servers, the typical BAA requirements are simplified. Contact us at <a href="mailto:enterprise@clinicalflow.ai">enterprise@clinicalflow.ai</a> to discuss your compliance needs.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question" aria-expanded="false">
+          What payment methods do you accept?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            All major credit and debit cards (Visa, Mastercard, American Express, Discover) via Stripe. We also accept ACH bank transfers for annual Enterprise plans.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question" aria-expanded="false">
+          Do I need my own API keys?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            For online features, yes &mdash; you'll use your own Deepgram API key for transcription and your own Claude API key for AI note generation. This means you control your costs and data relationship directly. For fully offline use, no external API keys are needed &mdash; Whisper runs locally on your machine, and Ollama handles local AI note generation.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question" aria-expanded="false">
+          What if I work offline most of the time?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            ClinicalFlow is built for offline-first workflows. After initial activation, the app verifies your subscription once every 7 days and allows a 30-day offline grace period. You can work completely offline between verifications &mdash; perfect for rural clinics and settings without reliable internet.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FINAL CTA
+     ════════════════════════════════════════════════════════════ -->
+<section class="pricing-cta">
+  <div class="container">
+    <h2 class="reveal">Ready to reclaim your <span class="text-gradient">evenings?</span></h2>
+    <p class="reveal">Start your free trial today. No credit card required.</p>
+    <div class="btn-group reveal">
+      <a href="signup.html" class="btn btn--primary btn--lg">
+        Start Free Trial
+      </a>
+      <a href="index.html#how-it-works" class="btn btn--secondary btn--lg">See How It Works</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FOOTER (same as index.html)
+     ════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+          </div>
+          Clinical<span>Flow</span>
+        </a>
+        <p>AI-powered clinical documentation for healthcare providers. Transcribe encounters, generate structured notes, and reclaim time for patient care.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#templates">Templates</a>
+        <a href="index.html#dental">Dental &amp; Perio</a>
+        <a href="index.html#coding">Coding</a>
+        <a href="index.html#integrations">Integrations</a>
+        <a href="index.html#modes">Online &amp; Offline</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="index.html#download">Download</a>
+      </div>
+      <div class="footer-col">
+        <h5>Documentation</h5>
+        <a href="docs.html">Getting Started</a>
+        <a href="docs.html#transcription">Transcription Setup</a>
+        <a href="docs.html#note-generation">Note Generation</a>
+        <a href="docs.html#dental-chart">Dental Charting</a>
+        <a href="docs.html#perio-charting">Perio Charting</a>
+        <a href="docs.html#integrations">Integrations</a>
+        <a href="docs.html#export">Export &amp; Archiving</a>
+        <a href="docs.html#troubleshooting">Troubleshooting</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="about.html">About</a>
+        <a href="index.html#security">Security</a>
+        <a href="docs.html#hipaa">HIPAA Overview</a>
+        <a href="docs.html#encryption">Encryption Details</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 ClinicalFlow. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// PRICING PAGE SCRIPTS
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Nav scroll effect ───
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 20);
+}, { passive: true });
+
+// ─── Mobile nav toggle ───
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+navToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('nav-links--open');
+});
+
+// ─── Scroll reveal ───
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ─── Billing toggle (monthly ↔ annual) ───
+const billingSwitch = document.getElementById('billingSwitch');
+const toggleMonthly = document.getElementById('toggleMonthly');
+const toggleAnnual = document.getElementById('toggleAnnual');
+let isAnnual = false;
+
+billingSwitch.addEventListener('click', () => {
+  isAnnual = !isAnnual;
+  billingSwitch.classList.toggle('annual', isAnnual);
+  toggleMonthly.classList.toggle('active', !isAnnual);
+  toggleAnnual.classList.toggle('active', isAnnual);
+
+  // Update prices
+  document.querySelectorAll('.pricing-card-price .amount[data-monthly]').forEach(el => {
+    el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+  });
+  document.querySelectorAll('.pricing-card-price .period[data-monthly]').forEach(el => {
+    el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+  });
+  document.querySelectorAll('.pricing-card-annual-note[data-monthly]').forEach(el => {
+    el.innerHTML = isAnnual ? el.dataset.annual : el.dataset.monthly;
+  });
+});
+
+// ─── FAQ accordion ───
+document.querySelectorAll('.faq-question').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.parentElement;
+    const wasOpen = item.classList.contains('open');
+
+    // Close all
+    document.querySelectorAll('.faq-item.open').forEach(openItem => {
+      openItem.classList.remove('open');
+      openItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+    });
+
+    // Open clicked (if it wasn't already open)
+    if (!wasOpen) {
+      item.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+  });
+});
+
+// ─── Keyboard focus detection ───
+document.body.addEventListener('mousedown', () => document.body.classList.add('using-mouse'));
+document.body.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') document.body.classList.remove('using-mouse');
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ClinicalFlow",
+  "version": "1.0.0",
+  "identifier": "com.clinicalflow.ai",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "ClinicalFlow — Clinical Documentation",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true,
+        "backgroundColor": "#0B0F14"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' http://localhost:11434 https://api.anthropic.com wss://api.deepgram.com https://*.supabase.co; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Medical",
+    "shortDescription": "AI-powered clinical documentation assistant",
+    "longDescription": "ClinicalFlow transcribes clinical encounters in real-time and generates structured SOAP, HPI, and problem-oriented notes using AI. Supports online (Deepgram + Claude) and offline (Whisper + Ollama) modes.",
+    "copyright": "© 2026 ClinicalFlow",
+    "externalBin": [
+      "binaries/whisper-cli",
+      "binaries/whisper-server",
+      "binaries/html2pdf"
+    ],
+    "resources": [
+      "resources/models/*",
+      "resources/corrections*.json"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "11.0",
+      "signingIdentity": null,
+      "hardenedRuntime": true,
+      "entitlements": "Entitlements.plist"
+    }
+  },
+  "plugins": {}
+}

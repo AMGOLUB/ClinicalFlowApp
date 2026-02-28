@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — ClinicalFlow</title>
+  <meta name="description" content="ClinicalFlow Privacy Policy. Learn how we protect your data with local-first architecture, end-to-end encryption, and zero-knowledge design.">
+  <meta property="og:title" content="Privacy Policy — ClinicalFlow">
+  <meta property="og:description" content="Your privacy is foundational to ClinicalFlow. Read our comprehensive privacy policy covering data handling, HIPAA compliance, and your rights.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230891B2'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'>C</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       LEGAL PAGE — Extends the main website design system
+       ═══════════════════════════════════════════════════════════ */
+
+    /* ─── Hero ─── */
+    .legal-hero {
+      padding: calc(var(--nav-height) + 80px) 0 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .legal-hero::before {
+      content: '';
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 900px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(8,145,178,0.10) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .legal-hero h1 {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .legal-hero p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin: 0 auto;
+      position: relative;
+      line-height: 1.65;
+    }
+    .legal-hero .effective-date {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 16px;
+      position: relative;
+    }
+
+    /* ─── Content container ─── */
+    .legal-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px 120px;
+    }
+
+    /* ─── Table of Contents ─── */
+    .legal-toc {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 40px;
+      margin-bottom: 48px;
+      box-shadow: var(--shadow-card);
+    }
+    .legal-toc h3 {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      margin-bottom: 16px;
+    }
+    .legal-toc ol {
+      list-style: none;
+      counter-reset: toc;
+      padding: 0;
+      margin: 0;
+      columns: 2;
+      column-gap: 32px;
+    }
+    .legal-toc li {
+      counter-increment: toc;
+      padding: 6px 0;
+      break-inside: avoid;
+    }
+    .legal-toc li a {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+    }
+    .legal-toc li a::before {
+      content: counter(toc) ".";
+      font-weight: 600;
+      color: var(--accent);
+      min-width: 20px;
+    }
+    .legal-toc li a:hover {
+      color: var(--accent);
+    }
+
+    /* ─── Section cards ─── */
+    .legal-section {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px 48px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-card);
+    }
+    .legal-section h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .legal-section h2 .section-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(8,145,178,0.08);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .legal-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 24px 0 12px;
+      color: var(--text-primary);
+    }
+    .legal-section p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+    .legal-section p:last-child {
+      margin-bottom: 0;
+    }
+    .legal-section ul,
+    .legal-section ol {
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+    .legal-section li {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: 8px;
+    }
+    .legal-section li:last-child {
+      margin-bottom: 0;
+    }
+    .legal-section a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .legal-section a:hover {
+      text-decoration: underline;
+    }
+    .legal-section strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .legal-section code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: rgba(8,145,178,0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    /* ─── Highlight box for important callouts ─── */
+    .legal-highlight {
+      background: rgba(8,145,178,0.04);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+    .legal-highlight p {
+      margin-bottom: 0;
+      font-size: 14px;
+    }
+
+    /* ─── Data table ─── */
+    .legal-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    .legal-table th,
+    .legal-table td {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .legal-table th {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: rgba(8,145,178,0.03);
+    }
+    .legal-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ─── Last updated / contact ─── */
+    .legal-footer-note {
+      text-align: center;
+      padding: 40px 0 0;
+      font-size: 13px;
+      color: var(--text-tertiary);
+      line-height: 1.6;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .legal-section {
+        padding: 28px 24px;
+      }
+      .legal-toc ol {
+        columns: 1;
+      }
+      .legal-toc {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     NAVIGATION
+     ════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+          <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+      </div>
+      Clinical<span>Flow</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#templates">Templates</a></li>
+      <li><a href="index.html#dental">Dental</a></li>
+      <li><a href="index.html#modes">Online &amp; Offline</a></li>
+      <li><a href="index.html#security">Security</a></li>
+      <li><a href="index.html#download">Download</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>
+      <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
+    </div>
+    <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     HERO
+     ════════════════════════════════════════════════════════════ -->
+<section class="legal-hero">
+  <div class="container">
+    <span class="badge reveal" style="margin-bottom:24px; display:inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Privacy
+    </span>
+    <h1 class="reveal">Privacy Policy</h1>
+    <p class="reveal">ClinicalFlow is built on a simple principle: your data belongs to you. Our local-first architecture means clinical data never leaves your device unless you explicitly choose otherwise. This policy explains exactly what we collect, why, and how we protect it.</p>
+    <span class="effective-date reveal">Effective Date: February 27, 2026</span>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CONTENT
+     ════════════════════════════════════════════════════════════ -->
+<div class="legal-content">
+
+  <!-- ─── Table of Contents ─── -->
+  <div class="legal-toc reveal">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#overview">Overview &amp; Key Principles</a></li>
+      <li><a href="#info-collect">Information We Collect</a></li>
+      <li><a href="#info-use">How We Use Your Information</a></li>
+      <li><a href="#data-storage">Data Storage &amp; Security</a></li>
+      <li><a href="#clinical-data">Clinical Data &amp; PHI</a></li>
+      <li><a href="#third-party">Third-Party Services</a></li>
+      <li><a href="#hipaa">HIPAA Compliance</a></li>
+      <li><a href="#your-rights">Your Rights</a></li>
+      <li><a href="#cookies">Cookies &amp; Analytics</a></li>
+      <li><a href="#data-retention">Data Retention</a></li>
+      <li><a href="#international">International Data Transfers</a></li>
+      <li><a href="#children">Children&rsquo;s Privacy</a></li>
+      <li><a href="#california">California Privacy Rights (CCPA)</a></li>
+      <li><a href="#changes">Changes to This Policy</a></li>
+      <li><a href="#contact">Contact Us</a></li>
+    </ol>
+  </div>
+
+
+  <!-- ─── 1. Overview ─── -->
+  <div class="legal-section reveal" id="overview">
+    <h2><span class="section-number">1</span> Overview &amp; Key Principles</h2>
+    <p>ClinicalFlow (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) provides AI-powered clinical documentation software (&ldquo;the Service&rdquo;) as a native desktop application for healthcare providers. This Privacy Policy describes how we collect, use, disclose, and safeguard your information when you use our application and related services.</p>
+
+    <div class="legal-highlight">
+      <p><strong>Our core privacy principles:</strong></p>
+    </div>
+    <ul>
+      <li><strong>Local-first by design</strong> &mdash; Clinical transcripts, patient notes, dental charts, and all documentation are processed and stored exclusively on your local device. We never have access to this data.</li>
+      <li><strong>Zero-knowledge architecture</strong> &mdash; Your application settings and API keys are encrypted on your device using a PIN-derived AES-256-GCM key with PBKDF2 (100,000 iterations). We cannot decrypt this data.</li>
+      <li><strong>Minimal data collection</strong> &mdash; We only collect what is strictly necessary to provide account management, licensing, and billing services.</li>
+      <li><strong>No data selling</strong> &mdash; We will never sell, rent, or trade your personal information or clinical data to third parties. Period.</li>
+      <li><strong>Transparency</strong> &mdash; We clearly disclose every third-party service we use and exactly what data they receive.</li>
+    </ul>
+  </div>
+
+
+  <!-- ─── 2. Information We Collect ─── -->
+  <div class="legal-section reveal" id="info-collect">
+    <h2><span class="section-number">2</span> Information We Collect</h2>
+
+    <h3>2.1 Account Information</h3>
+    <p>When you create a ClinicalFlow account, we collect:</p>
+    <ul>
+      <li><strong>Email address</strong> &mdash; Used for account authentication, password resets, and essential service communications</li>
+      <li><strong>Full name</strong> &mdash; Optional, used for personalizing your experience</li>
+      <li><strong>Password</strong> &mdash; Stored as a salted bcrypt hash by our authentication provider (Supabase); we never store or have access to your plaintext password</li>
+      <li><strong>Authentication tokens</strong> &mdash; Session tokens stored locally on your device in an encrypted session file</li>
+    </ul>
+
+    <h3>2.2 Billing Information</h3>
+    <p>When you subscribe to a paid plan, our payment processor (Stripe) collects:</p>
+    <ul>
+      <li>Payment method details (credit/debit card number, expiration, CVC)</li>
+      <li>Billing name and address</li>
+      <li>Transaction history</li>
+    </ul>
+    <div class="legal-highlight">
+      <p><strong>Important:</strong> ClinicalFlow never stores, processes, or has access to your full credit card number. All payment data is handled exclusively by Stripe, a PCI DSS Level 1 certified payment processor.</p>
+    </div>
+
+    <h3>2.3 Subscription &amp; Licensing Data</h3>
+    <p>We store the following in your account profile to manage your subscription:</p>
+    <ul>
+      <li>Subscription tier (Free, Pro, or Team)</li>
+      <li>Subscription status (trialing, active, canceled, expired)</li>
+      <li>Selected plan preference</li>
+      <li>Trial expiration date</li>
+      <li>License key (UUID)</li>
+      <li>Stripe customer and subscription identifiers</li>
+    </ul>
+
+    <h3>2.4 Technical &amp; Usage Data</h3>
+    <p>We may collect limited technical information to diagnose issues and improve the Service:</p>
+    <ul>
+      <li>Application version number</li>
+      <li>Operating system and version</li>
+      <li>Crash reports (if you opt in) &mdash; these never contain clinical data</li>
+      <li>Feature usage patterns (aggregate, anonymized)</li>
+    </ul>
+
+    <h3>2.5 Information We Do NOT Collect</h3>
+    <p>To be explicit, ClinicalFlow <strong>never</strong> collects, transmits, or stores:</p>
+    <ul>
+      <li>Audio recordings from clinical encounters</li>
+      <li>Clinical transcripts or medical notes</li>
+      <li>Patient names, identifiers, or any Protected Health Information (PHI)</li>
+      <li>Dental charts, perio charts, or treatment plans</li>
+      <li>Your API keys (Deepgram, Anthropic, or any other provider)</li>
+      <li>Contents of exported documents (PDF, TXT)</li>
+      <li>Contact lists or address books</li>
+    </ul>
+  </div>
+
+
+  <!-- ─── 3. How We Use Your Information ─── -->
+  <div class="legal-section reveal" id="info-use">
+    <h2><span class="section-number">3</span> How We Use Your Information</h2>
+    <p>We use the information we collect for the following purposes:</p>
+
+    <table class="legal-table">
+      <thead>
+        <tr>
+          <th>Purpose</th>
+          <th>Data Used</th>
+          <th>Legal Basis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Account management</strong></td>
+          <td>Email, name, password hash</td>
+          <td>Contract performance</td>
+        </tr>
+        <tr>
+          <td><strong>Authentication &amp; security</strong></td>
+          <td>Email, session tokens, license key</td>
+          <td>Contract performance</td>
+        </tr>
+        <tr>
+          <td><strong>Billing &amp; subscriptions</strong></td>
+          <td>Stripe IDs, plan selection, trial dates</td>
+          <td>Contract performance</td>
+        </tr>
+        <tr>
+          <td><strong>Service communications</strong></td>
+          <td>Email address</td>
+          <td>Legitimate interest</td>
+        </tr>
+        <tr>
+          <td><strong>Product improvement</strong></td>
+          <td>Anonymized usage analytics, crash reports</td>
+          <td>Legitimate interest</td>
+        </tr>
+        <tr>
+          <td><strong>Legal compliance</strong></td>
+          <td>Account data, transaction records</td>
+          <td>Legal obligation</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>We will <strong>never</strong> use your information for:</p>
+    <ul>
+      <li>Targeted advertising or ad profiling</li>
+      <li>Selling to data brokers or third parties</li>
+      <li>Training AI models on your clinical data</li>
+      <li>Any purpose not disclosed in this policy</li>
+    </ul>
+  </div>
+
+
+  <!-- ─── 4. Data Storage & Security ─── -->
+  <div class="legal-section reveal" id="data-storage">
+    <h2><span class="section-number">4</span> Data Storage &amp; Security</h2>
+
+    <h3>4.1 Local Device Storage</h3>
+    <p>ClinicalFlow employs a two-tier encryption system for data stored on your device:</p>
+    <ul>
+      <li><strong>Session data</strong> (auth tokens, license key) &mdash; Encrypted with an application-embedded key, providing at-rest protection against casual disk reads</li>
+      <li><strong>Configuration data</strong> (API keys, all settings) &mdash; Encrypted with your personal PIN using AES-256-GCM with PBKDF2 key derivation (100,000 iterations). This data is inaccessible without your PIN</li>
+      <li><strong>Clinical data</strong> (transcripts, notes, charts) &mdash; Stored exclusively on your local file system. We recommend enabling macOS FileVault (or equivalent full-disk encryption) for maximum protection</li>
+    </ul>
+
+    <h3>4.2 Server-Side Security</h3>
+    <p>For the limited account data we do store (email, subscription status, license keys), we employ:</p>
+    <ul>
+      <li>Hosted on Supabase with PostgreSQL database, protected by Row Level Security (RLS) policies</li>
+      <li>All data transmitted via TLS 1.2+ encryption</li>
+      <li>Column-level access restrictions &mdash; server-side triggers prevent client applications from modifying sensitive fields (subscription tier, billing data, license keys)</li>
+      <li>Service-role separation between client-facing APIs and administrative functions</li>
+      <li>Edge Functions running in Deno isolates with scoped permissions</li>
+    </ul>
+
+    <h3>4.3 Security Practices</h3>
+    <ul>
+      <li>Passwords hashed with bcrypt (Supabase Auth)</li>
+      <li>Session tokens with automatic expiration and refresh</li>
+      <li>Email verification required for account activation</li>
+      <li>Stripe webhook signature verification for all billing events</li>
+      <li>No plaintext storage of secrets in application code or databases</li>
+    </ul>
+  </div>
+
+
+  <!-- ─── 5. Clinical Data & PHI ─── -->
+  <div class="legal-section reveal" id="clinical-data">
+    <h2><span class="section-number">5</span> Clinical Data &amp; Protected Health Information</h2>
+
+    <div class="legal-highlight">
+      <p><strong>ClinicalFlow does not store, process, or transmit Protected Health Information (PHI) on our servers.</strong> All clinical documentation &mdash; including audio recordings, transcripts, SOAP notes, dental charts, perio charts, and patient information &mdash; remains exclusively on your local device.</p>
+    </div>
+
+    <h3>5.1 Local Processing</h3>
+    <p>ClinicalFlow supports fully offline clinical documentation:</p>
+    <ul>
+      <li><strong>Whisper-based transcription</strong> runs entirely on your device using a local model &mdash; no audio data leaves your computer</li>
+      <li><strong>Local AI note generation</strong> (via Ollama) processes transcripts on your device using locally-hosted language models</li>
+      <li><strong>Rule-based fallback</strong> generates structured notes using deterministic algorithms with no network requests</li>
+    </ul>
+
+    <h3>5.2 Optional Cloud AI Features</h3>
+    <p>ClinicalFlow offers optional cloud-based AI features that you may choose to enable. When enabled:</p>
+    <ul>
+      <li><strong>Deepgram</strong> (cloud transcription) &mdash; Audio is streamed to Deepgram&rsquo;s servers for real-time transcription. This requires your own Deepgram API key.</li>
+      <li><strong>Claude by Anthropic</strong> (cloud note generation) &mdash; Transcript text is sent to Anthropic&rsquo;s API for SOAP note generation. This requires your own Anthropic API key.</li>
+    </ul>
+    <p>These features are <strong>entirely optional</strong>, <strong>disabled by default</strong>, and clearly labeled in the application. When you use cloud AI features, data is sent directly from your device to the respective provider using your own API keys &mdash; ClinicalFlow&rsquo;s servers are never intermediaries in this data flow.</p>
+    <p>You are responsible for reviewing the privacy policies and data handling practices of any third-party AI providers you choose to use. We recommend verifying that your use complies with your organization&rsquo;s HIPAA policies and any applicable Business Associate Agreements (BAAs).</p>
+
+    <h3>5.3 Data Segregation</h3>
+    <p>Our application enforces strict data segregation between clinical and account data. The encryption boundary is designed so that even if our servers were compromised, no clinical data would be exposed because it was never transmitted to or stored on our infrastructure.</p>
+  </div>
+
+
+  <!-- ─── 6. Third-Party Services ─── -->
+  <div class="legal-section reveal" id="third-party">
+    <h2><span class="section-number">6</span> Third-Party Services</h2>
+    <p>We use a limited number of third-party services to operate ClinicalFlow. Below is a complete disclosure of each service and what data they receive:</p>
+
+    <table class="legal-table">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Purpose</th>
+          <th>Data Shared</th>
+          <th>Required?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Supabase</strong></td>
+          <td>Authentication, account database</td>
+          <td>Email, hashed password, profile data, subscription status</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td><strong>Stripe</strong></td>
+          <td>Payment processing</td>
+          <td>Billing information, transaction data</td>
+          <td>For paid plans</td>
+        </tr>
+        <tr>
+          <td><strong>Resend</strong></td>
+          <td>Transactional email delivery</td>
+          <td>Email address, email content (verification, receipts)</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td><strong>Deepgram</strong></td>
+          <td>Cloud speech-to-text transcription</td>
+          <td>Audio stream (via your API key)</td>
+          <td>No &mdash; optional</td>
+        </tr>
+        <tr>
+          <td><strong>Anthropic (Claude)</strong></td>
+          <td>Cloud AI note generation</td>
+          <td>Transcript text (via your API key)</td>
+          <td>No &mdash; optional</td>
+        </tr>
+        <tr>
+          <td><strong>Netlify</strong></td>
+          <td>Website hosting</td>
+          <td>Standard web server logs (IP, user agent)</td>
+          <td>Website only</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>We carefully vet all third-party services for their security practices, data handling policies, and regulatory compliance. We do not use any advertising networks, social media trackers, or data brokers.</p>
+  </div>
+
+
+  <!-- ─── 7. HIPAA Compliance ─── -->
+  <div class="legal-section reveal" id="hipaa">
+    <h2><span class="section-number">7</span> HIPAA Compliance</h2>
+    <p>ClinicalFlow is designed with HIPAA compliance in mind. Our architecture fundamentally supports compliance through these measures:</p>
+
+    <h3>7.1 Local-First Architecture</h3>
+    <p>Because PHI never leaves your device in the default configuration, ClinicalFlow operates outside the scope of traditional HIPAA covered entity obligations for cloud-stored data. You maintain full custody of all clinical information.</p>
+
+    <h3>7.2 Technical Safeguards</h3>
+    <ul>
+      <li><strong>Access controls</strong> &mdash; PIN-based encryption for application data, separate session authentication</li>
+      <li><strong>Audit trail</strong> &mdash; Local activity logging for compliance documentation</li>
+      <li><strong>Encryption</strong> &mdash; AES-256-GCM for configuration data, TLS 1.2+ for all network communications</li>
+      <li><strong>Data integrity</strong> &mdash; Cryptographic verification of license data and session integrity</li>
+      <li><strong>Automatic session expiration</strong> &mdash; Auth tokens expire and require re-authentication</li>
+    </ul>
+
+    <h3>7.3 Administrative Safeguards</h3>
+    <ul>
+      <li>Clear documentation of data flows and security architecture</li>
+      <li>Designated security contact for incident response</li>
+      <li>Regular review and updates of security practices</li>
+      <li>Transparent disclosure of all third-party data processors</li>
+    </ul>
+
+    <h3>7.4 Business Associate Agreements</h3>
+    <p>If your organization requires a Business Associate Agreement (BAA), please contact us at the email address provided in the Contact section below. We are committed to supporting healthcare organizations&rsquo; compliance requirements.</p>
+
+    <div class="legal-highlight">
+      <p><strong>Note:</strong> While ClinicalFlow&rsquo;s architecture is designed to support HIPAA compliance, each healthcare organization is responsible for conducting their own risk assessment and ensuring their use of ClinicalFlow (including any optional cloud AI features) meets their specific compliance requirements.</p>
+    </div>
+  </div>
+
+
+  <!-- ─── 8. Your Rights ─── -->
+  <div class="legal-section reveal" id="your-rights">
+    <h2><span class="section-number">8</span> Your Rights</h2>
+    <p>You have the following rights regarding your personal information:</p>
+
+    <h3>8.1 Access</h3>
+    <p>You have the right to request a copy of the personal information we hold about you. We will provide this within 30 days of your verified request.</p>
+
+    <h3>8.2 Correction</h3>
+    <p>You can update your account information (email, name) at any time through the application or by contacting us.</p>
+
+    <h3>8.3 Deletion</h3>
+    <p>You have the right to request deletion of your account and all associated personal data. Upon deletion:</p>
+    <ul>
+      <li>Your account profile and authentication data will be permanently removed from our servers</li>
+      <li>Your Stripe customer record will be deactivated and billing data retained only as required by law</li>
+      <li>Your license key will be revoked</li>
+      <li>Local data on your device (transcripts, notes, settings) will remain under your control and is unaffected</li>
+    </ul>
+
+    <h3>8.4 Data Portability</h3>
+    <p>All clinical data is already stored locally on your device in standard formats. You can export documents as PDF or TXT at any time, with no vendor lock-in.</p>
+
+    <h3>8.5 Opt-Out</h3>
+    <p>You may opt out of:</p>
+    <ul>
+      <li><strong>Marketing emails</strong> &mdash; Unsubscribe link included in every marketing email (note: we cannot opt you out of essential service communications like billing receipts or security alerts)</li>
+      <li><strong>Analytics</strong> &mdash; Disable usage analytics in application settings</li>
+      <li><strong>Cloud AI features</strong> &mdash; Disabled by default; remove your API keys to fully disable</li>
+      <li><strong>Crash reporting</strong> &mdash; Disable in application settings</li>
+    </ul>
+
+    <h3>8.6 Non-Discrimination</h3>
+    <p>We will not discriminate against you for exercising any of your privacy rights. Exercising these rights will not affect the quality or pricing of our Service.</p>
+  </div>
+
+
+  <!-- ─── 9. Cookies & Analytics ─── -->
+  <div class="legal-section reveal" id="cookies">
+    <h2><span class="section-number">9</span> Cookies &amp; Analytics</h2>
+
+    <h3>9.1 Website</h3>
+    <p>Our marketing website (clinicalflow.com) uses:</p>
+    <ul>
+      <li><strong>Essential cookies</strong> &mdash; Required for basic website functionality (session management, authentication state). Cannot be disabled.</li>
+      <li><strong>Analytics</strong> &mdash; We may use privacy-respecting analytics to understand traffic patterns. We do not use Google Analytics, Facebook Pixel, or any advertising trackers.</li>
+    </ul>
+
+    <h3>9.2 Desktop Application</h3>
+    <p>The ClinicalFlow desktop application does not use cookies. It may collect anonymized usage telemetry (feature usage counts, error rates) if you opt in. This telemetry never contains clinical data, patient information, or personally identifiable information.</p>
+
+    <h3>9.3 Third-Party Cookies</h3>
+    <p>We do not allow any third parties to place tracking cookies on our website or application. Our payment processor (Stripe) may set essential cookies during the checkout process.</p>
+  </div>
+
+
+  <!-- ─── 10. Data Retention ─── -->
+  <div class="legal-section reveal" id="data-retention">
+    <h2><span class="section-number">10</span> Data Retention</h2>
+    <p>We retain different categories of data for different periods:</p>
+
+    <table class="legal-table">
+      <thead>
+        <tr>
+          <th>Data Category</th>
+          <th>Retention Period</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Active account data</td>
+          <td>Duration of account</td>
+          <td>Service delivery</td>
+        </tr>
+        <tr>
+          <td>Deleted account data</td>
+          <td>30 days (recovery period), then permanent deletion</td>
+          <td>Accidental deletion protection</td>
+        </tr>
+        <tr>
+          <td>Billing records</td>
+          <td>7 years after last transaction</td>
+          <td>Tax and legal compliance</td>
+        </tr>
+        <tr>
+          <td>Server access logs</td>
+          <td>90 days</td>
+          <td>Security monitoring</td>
+        </tr>
+        <tr>
+          <td>Support correspondence</td>
+          <td>2 years after resolution</td>
+          <td>Service quality</td>
+        </tr>
+        <tr>
+          <td>Local clinical data</td>
+          <td>You control this entirely</td>
+          <td>Not applicable &mdash; stored on your device</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ─── 11. International Data Transfers ─── -->
+  <div class="legal-section reveal" id="international">
+    <h2><span class="section-number">11</span> International Data Transfers</h2>
+    <p>ClinicalFlow&rsquo;s infrastructure is hosted in the United States. If you access the Service from outside the United States, your account information (email, subscription data) will be transferred to and processed in the United States.</p>
+    <p>We rely on the following safeguards for international data transfers:</p>
+    <ul>
+      <li>Standard Contractual Clauses (SCCs) with our data processors</li>
+      <li>Data Processing Agreements (DPAs) with Supabase and Stripe</li>
+      <li>Technical measures including encryption in transit and at rest</li>
+    </ul>
+    <p>For users in the European Economic Area (EEA), United Kingdom, or Switzerland: you have additional rights under the General Data Protection Regulation (GDPR). Please see Section 8 (Your Rights) and contact us if you have specific GDPR-related requests.</p>
+  </div>
+
+
+  <!-- ─── 12. Children's Privacy ─── -->
+  <div class="legal-section reveal" id="children">
+    <h2><span class="section-number">12</span> Children&rsquo;s Privacy</h2>
+    <p>ClinicalFlow is designed for licensed healthcare professionals and is not directed at individuals under the age of 18. We do not knowingly collect personal information from children under 13 (or under 16 in the EEA).</p>
+    <p>If we learn that we have inadvertently collected personal information from a child under these age thresholds, we will promptly delete that information. If you believe we may have collected information from a child, please contact us immediately.</p>
+  </div>
+
+
+  <!-- ─── 13. California Privacy Rights (CCPA) ─── -->
+  <div class="legal-section reveal" id="california">
+    <h2><span class="section-number">13</span> California Privacy Rights (CCPA)</h2>
+    <p>If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA) and the California Privacy Rights Act (CPRA):</p>
+    <ul>
+      <li><strong>Right to know</strong> &mdash; You can request disclosure of the categories and specific pieces of personal information we have collected about you</li>
+      <li><strong>Right to delete</strong> &mdash; You can request deletion of your personal information, subject to certain legal exceptions</li>
+      <li><strong>Right to opt out of sale</strong> &mdash; We do not sell your personal information. We have never sold personal information and have no plans to do so</li>
+      <li><strong>Right to non-discrimination</strong> &mdash; We will not discriminate against you for exercising your CCPA rights</li>
+      <li><strong>Right to correct</strong> &mdash; You can request correction of inaccurate personal information</li>
+      <li><strong>Right to limit use of sensitive personal information</strong> &mdash; We only use sensitive personal information as necessary to provide the Service</li>
+    </ul>
+    <p>To exercise your CCPA rights, contact us using the information in Section 15 below. We will verify your identity before processing your request.</p>
+    <p><strong>Do Not Sell or Share My Personal Information:</strong> ClinicalFlow does not sell or share personal information as defined by the CCPA/CPRA. We do not use your personal information for cross-context behavioral advertising.</p>
+  </div>
+
+
+  <!-- ─── 14. Changes to This Policy ─── -->
+  <div class="legal-section reveal" id="changes">
+    <h2><span class="section-number">14</span> Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. When we make changes:</p>
+    <ul>
+      <li><strong>Material changes</strong> &mdash; We will notify you by email and/or display a prominent notice in the application at least 30 days before the changes take effect</li>
+      <li><strong>Minor changes</strong> &mdash; We will update the &ldquo;Effective Date&rdquo; at the top of this page</li>
+      <li><strong>Version history</strong> &mdash; We will maintain a change log of significant policy updates</li>
+    </ul>
+    <p>Your continued use of the Service after the effective date of a revised policy constitutes acceptance of the updated terms. If you disagree with any changes, you may close your account at any time.</p>
+  </div>
+
+
+  <!-- ─── 15. Contact Us ─── -->
+  <div class="legal-section reveal" id="contact">
+    <h2><span class="section-number">15</span> Contact Us</h2>
+    <p>If you have questions, concerns, or requests related to this Privacy Policy or our data practices, please contact us:</p>
+    <ul>
+      <li><strong>Email:</strong> privacy@clinicalflow.com</li>
+      <li><strong>Subject line:</strong> &ldquo;Privacy Inquiry&rdquo; for general questions, &ldquo;Data Request&rdquo; for rights requests, or &ldquo;BAA Request&rdquo; for Business Associate Agreement inquiries</li>
+    </ul>
+    <p>We aim to respond to all privacy-related inquiries within 5 business days and to fulfill data access or deletion requests within 30 calendar days.</p>
+    <p>If you are not satisfied with our response, you have the right to lodge a complaint with your local data protection authority.</p>
+  </div>
+
+
+  <div class="legal-footer-note reveal">
+    <p>This Privacy Policy was last updated on February 27, 2026.</p>
+    <p>ClinicalFlow &mdash; Built by healthcare professionals, for healthcare professionals.</p>
+  </div>
+
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+          </div>
+          Clinical<span>Flow</span>
+        </a>
+        <p>AI-powered clinical documentation for healthcare providers. Transcribe encounters, generate structured notes, and reclaim time for patient care.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#templates">Templates</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="index.html#download">Download</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="docs.html">Documentation</a>
+        <a href="docs.html#transcription">Transcription</a>
+        <a href="docs.html#troubleshooting">Troubleshooting</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="about.html">About</a>
+        <a href="index.html#security">Security</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 ClinicalFlow. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+// ── Scroll reveal ──────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Nav scroll effect ──────────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('nav');
+  if (window.scrollY > 40) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+}, { passive: true });
+
+// ── Mobile nav toggle ──────────────────────
+document.getElementById('navToggle')?.addEventListener('click', () => {
+  document.getElementById('navLinks')?.classList.toggle('nav-links--open');
+});
+
+// ── Smooth scroll for TOC links ────────────
+document.querySelectorAll('.legal-toc a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.pushState(null, '', link.getAttribute('href'));
+    }
+  });
+});
+</script>
+</body>
+</html>

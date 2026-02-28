@@ -1,0 +1,22 @@
+[
+  {"pattern": "\\bipertensione\\b", "flags": "gi", "replacement": "ipertensione"},
+  {"pattern": "\\bdiabetis\\b", "flags": "gi", "replacement": "diabete"},
+  {"pattern": "\\bpolmonite\\b", "flags": "gi", "replacement": "polmonite"},
+  {"pattern": "\\bbronchite\\b", "flags": "gi", "replacement": "bronchite"},
+  {"pattern": "\\bgastrite\\b", "flags": "gi", "replacement": "gastrite"},
+  {"pattern": "\\bcolesterolo\\b", "flags": "gi", "replacement": "colesterolo"},
+  {"pattern": "\\binsuficienza\\b", "flags": "gi", "replacement": "insufficienza"},
+  {"pattern": "\\binfarto miocardico\\b", "flags": "gi", "replacement": "infarto miocardico"},
+  {"pattern": "\\bpressione arteriale\\b", "flags": "gi", "replacement": "pressione arteriosa"},
+  {"pattern": "\\bipotiroidismo\\b", "flags": "gi", "replacement": "ipotiroidismo"},
+  {"pattern": "\\bmetformina\\b", "flags": "gi", "replacement": "metformina"},
+  {"pattern": "\\bomeprazol\\b", "flags": "gi", "replacement": "omeprazolo"},
+  {"pattern": "\\bibuprofene\\b", "flags": "gi", "replacement": "ibuprofene"},
+  {"pattern": "\\bparacetamol\\b", "flags": "gi", "replacement": "paracetamolo"},
+  {"pattern": "\\bamoxicilina\\b", "flags": "gi", "replacement": "amoxicillina"},
+  {"pattern": "\\bazitromicina\\b", "flags": "gi", "replacement": "azitromicina"},
+  {"pattern": "\\bparodontite\\b", "flags": "gi", "replacement": "parodontite"},
+  {"pattern": "\\bgengivite\\b", "flags": "gi", "replacement": "gengivite"},
+  {"pattern": "\\bendodonzia\\b", "flags": "gi", "replacement": "endodonzia"},
+  {"pattern": "\\bmalocclusione\\b", "flags": "gi", "replacement": "malocclusione"}
+]

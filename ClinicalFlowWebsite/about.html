@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — ClinicalFlow</title>
+  <meta name="description" content="ClinicalFlow is AI-powered clinical documentation built by healthcare professionals. Learn about our mission, team, and why thousands of providers trust us.">
+  <meta property="og:title" content="About — ClinicalFlow">
+  <meta property="og:description" content="Built by healthcare professionals, for healthcare professionals. Meet the team behind ClinicalFlow and learn why we're on a mission to give providers their time back.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230891B2'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'>C</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       ABOUT PAGE — Extends the main website design system
+       ═══════════════════════════════════════════════════════════ */
+
+    /* ─── Hero ─── */
+    .about-hero {
+      padding: calc(var(--nav-height) + 80px) 0 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-hero::before {
+      content: '';
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 900px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(8,145,178,0.10) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .about-hero h1 {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .about-hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+      line-height: 1.65;
+    }
+
+    /* ─── Section headers ─── */
+    .about-section {
+      padding: 0 0 var(--section-gap);
+    }
+    .about-section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .about-section-header h2 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .about-section-header p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ─── Story section ─── */
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .story-content h3 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .story-content p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+    .story-visual {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-card);
+      text-align: center;
+    }
+    .story-stat {
+      margin-bottom: 24px;
+    }
+    .story-stat:last-child { margin-bottom: 0; }
+    .story-stat-value {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .story-stat-label {
+      font-size: 14px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+
+    /* ─── Values section ─── */
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .value-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    .value-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+    }
+    .value-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--glow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .value-icon svg {
+      width: 22px;
+      height: 22px;
+      color: var(--accent);
+    }
+    .value-card h4 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .value-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ─── Team section ─── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .team-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    .team-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+    }
+    .team-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--gradient-btn);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.02em;
+    }
+    .team-card h4 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .team-role {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .team-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ─── Why ClinicalFlow section ─── */
+    .why-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .why-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    .why-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+    }
+    .why-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--glow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .why-icon svg {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+    }
+    .why-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .why-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ─── CTA section ─── */
+    .about-cta {
+      text-align: center;
+      padding: 80px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-cta::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(8,145,178,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .about-cta h2 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .about-cta p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto 32px;
+      position: relative;
+      line-height: 1.6;
+    }
+    .about-cta .btn-group {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* ─── Scroll reveal ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .story-grid { grid-template-columns: 1fr; gap: 32px; }
+      .story-visual { order: -1; }
+      .values-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .team-grid { grid-template-columns: 1fr; max-width: 360px; }
+      .why-grid { grid-template-columns: 1fr; }
+      .about-cta .btn-group { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     NAVIGATION
+     ════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+          <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+      </div>
+      Clinical<span>Flow</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#templates">Templates</a></li>
+      <li><a href="index.html#dental">Dental</a></li>
+      <li><a href="index.html#modes">Online &amp; Offline</a></li>
+      <li><a href="index.html#security">Security</a></li>
+      <li><a href="index.html#download">Download</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>
+      <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
+    </div>
+    <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     HERO
+     ════════════════════════════════════════════════════════════ -->
+<section class="about-hero">
+  <div class="container">
+    <span class="badge reveal" style="margin-bottom:24px; display:inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Our Story
+    </span>
+    <h1 class="reveal">Built by healthcare professionals,<br>for healthcare professionals</h1>
+    <p class="reveal">We started ClinicalFlow because we believe healthcare providers should spend their time caring for patients &mdash; not typing notes. Our mission is to eliminate documentation burden with AI that actually works.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     OUR STORY
+     ════════════════════════════════════════════════════════════ -->
+<section class="about-section">
+  <div class="container">
+    <div class="story-grid">
+      <div class="story-content reveal">
+        <h3>The documentation problem</h3>
+        <p>Healthcare providers spend an average of 16 minutes per patient on clinical documentation. For a provider seeing 25 patients a day, that's nearly 7 hours &mdash; often completed after hours, cutting into personal time and accelerating burnout.</p>
+        <p>We've lived this problem firsthand. ClinicalFlow was born from the frustration of watching brilliant providers reduced to data-entry clerks. We asked a simple question: <em>what if documentation just happened?</em></p>
+        <p>The answer is an AI assistant that listens to the encounter, understands the clinical context, and generates accurate, structured notes in real time. No cloud dependency required. No PHI leaving your device. Just faster, better documentation.</p>
+      </div>
+      <div class="story-visual reveal reveal-delay-1">
+        <div class="story-stat">
+          <div class="story-stat-value">16 min</div>
+          <div class="story-stat-label">Average documentation time per patient</div>
+        </div>
+        <div class="story-stat">
+          <div class="story-stat-value">~2 hrs</div>
+          <div class="story-stat-label">After-hours "pajama time" charting per day</div>
+        </div>
+        <div class="story-stat">
+          <div class="story-stat-value">49%</div>
+          <div class="story-stat-label">Of physician burnout attributed to documentation</div>
+        </div>
+        <div class="story-stat">
+          <div class="story-stat-value">&lt; 1 min</div>
+          <div class="story-stat-label">ClinicalFlow note generation time</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     OUR VALUES
+     ════════════════════════════════════════════════════════════ -->
+<section class="about-section">
+  <div class="container">
+    <div class="about-section-header reveal">
+      <h2>What we believe</h2>
+      <p>The principles that guide every decision we make.</p>
+    </div>
+
+    <div class="values-grid">
+      <div class="value-card reveal">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h4>Privacy first</h4>
+        <p>Patient data never leaves your device unless you explicitly choose cloud processing. AES-256 encryption, local-first architecture, and zero-knowledge design &mdash; because privacy isn't a feature, it's a foundation.</p>
+      </div>
+
+      <div class="value-card reveal reveal-delay-1">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h4>Clinical accuracy</h4>
+        <p>We don't cut corners on note quality. Our AI uses specialty-specific templates, medical terminology correction, and ICD-10/CPT/CDT coding to produce notes that are accurate, complete, and audit-ready.</p>
+      </div>
+
+      <div class="value-card reveal reveal-delay-2">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h4>Time is sacred</h4>
+        <p>Every feature we build is measured by one metric: does it give providers time back? If it doesn't reduce documentation burden, it doesn't ship. Your time belongs to patients, not paperwork.</p>
+      </div>
+
+      <div class="value-card reveal">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h4>Built with providers</h4>
+        <p>Our product roadmap is driven by real providers in real practices. We don't build in a vacuum &mdash; every template, workflow, and integration comes from direct provider feedback.</p>
+      </div>
+
+      <div class="value-card reveal reveal-delay-1">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h4>Works everywhere</h4>
+        <p>Internet down? No problem. ClinicalFlow runs fully offline with a local Whisper model and rule-based AI. Cloud features enhance the experience &mdash; they don't gate it.</p>
+      </div>
+
+      <div class="value-card reveal reveal-delay-2">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        </div>
+        <h4>Transparent pricing</h4>
+        <p>No hidden fees, no per-note charges, no enterprise-only features held hostage. One Pro plan for individuals, one Team plan for practices. Simple, honest, and affordable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TEAM
+     ════════════════════════════════════════════════════════════ -->
+<section class="about-section">
+  <div class="container">
+    <div class="about-section-header reveal">
+      <h2>Meet the team</h2>
+      <p>A small, focused team obsessed with making clinical documentation disappear.</p>
+    </div>
+
+    <div class="team-grid">
+      <div class="team-card reveal">
+        <div class="team-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h4>Founder &amp; CEO</h4>
+        <div class="team-role">Product &amp; Engineering</div>
+        <p>Built ClinicalFlow from the ground up &mdash; from Whisper integration to Stripe billing. Passionate about using technology to solve real healthcare problems.</p>
+      </div>
+
+      <div class="team-card reveal reveal-delay-1">
+        <div class="team-avatar" style="background: linear-gradient(135deg, #6366F1, #818CF8);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <h4>Clinical Advisor</h4>
+        <div class="team-role">Coming Soon</div>
+        <p>We're actively recruiting clinical advisors to shape specialty templates, validate AI outputs, and ensure ClinicalFlow meets real-world provider needs.</p>
+      </div>
+
+      <div class="team-card reveal reveal-delay-2">
+        <div class="team-avatar" style="background: linear-gradient(135deg, #10B981, #34D399);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px;"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <h4>Engineering</h4>
+        <div class="team-role">Coming Soon</div>
+        <p>We're growing our engineering team. If you're excited about Rust, AI, and healthcare &mdash; reach out. We'd love to hear from you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     WHY CLINICALFLOW
+     ════════════════════════════════════════════════════════════ -->
+<section class="about-section">
+  <div class="container">
+    <div class="about-section-header reveal">
+      <h2>Why ClinicalFlow</h2>
+      <p>What makes us different from every other AI scribe.</p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <div class="why-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div>
+          <h4>Truly offline capable</h4>
+          <p>Most "AI scribes" are just microphone wrappers for cloud APIs. ClinicalFlow bundles a real speech model and runs entirely on your machine &mdash; no internet required.</p>
+        </div>
+      </div>
+
+      <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        </div>
+        <div>
+          <h4>20 specialty templates</h4>
+          <p>From SOAP and HPI to dental charting and perio probing &mdash; pre-built templates tuned for each specialty so your notes match your workflow, not the other way around.</p>
+        </div>
+      </div>
+
+      <div class="why-card reveal">
+        <div class="why-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <div>
+          <h4>3-tier AI fallback</h4>
+          <p>Cloud AI (Claude) for best quality, local Ollama for privacy, rule-based extraction as a guaranteed fallback. You always get a note, regardless of connectivity.</p>
+        </div>
+      </div>
+
+      <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div>
+          <h4>Native desktop app</h4>
+          <p>Not a browser tab. ClinicalFlow is a real desktop application built with Tauri &mdash; fast startup, low memory, native OS integration, and no Electron bloat.</p>
+        </div>
+      </div>
+
+      <div class="why-card reveal">
+        <div class="why-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        </div>
+        <div>
+          <h4>EHR &amp; PMS integrations</h4>
+          <p>Export notes directly to your EHR via HL7 FHIR, or push to your practice management system. No copy-paste, no double entry.</p>
+        </div>
+      </div>
+
+      <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div>
+          <h4>37 languages</h4>
+          <p>Whisper supports 37 languages out of the box. Serve multilingual patient populations without switching tools or paying per-language fees.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CTA
+     ════════════════════════════════════════════════════════════ -->
+<section class="about-cta">
+  <div class="container">
+    <h2 class="reveal">Ready to reclaim your time?</h2>
+    <p class="reveal">Start your 14-day free trial. No credit card required.</p>
+    <div class="btn-group reveal">
+      <a href="signup.html" class="btn btn--primary btn--lg">Start Free Trial</a>
+      <a href="pricing.html" class="btn btn--ghost btn--lg">View Pricing</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+          </div>
+          Clinical<span>Flow</span>
+        </a>
+        <p>AI-powered clinical documentation for healthcare providers. Transcribe encounters, generate structured notes, and reclaim time for patient care.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#templates">Templates</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="index.html#download">Download</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="docs.html">Documentation</a>
+        <a href="docs.html#transcription">Transcription</a>
+        <a href="docs.html#troubleshooting">Troubleshooting</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="about.html">About</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+        <a href="index.html#security">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 ClinicalFlow. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+// ── Scroll reveal ──────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Nav scroll effect ──────────────────────
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('nav');
+  if (window.scrollY > 40) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+  lastScroll = window.scrollY;
+}, { passive: true });
+
+// ── Mobile nav toggle ──────────────────────
+document.getElementById('navToggle')?.addEventListener('click', () => {
+  document.getElementById('navLinks')?.classList.toggle('nav-links--open');
+});
+</script>
+</body>
+</html>

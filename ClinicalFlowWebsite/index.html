@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinicalFlow — AI-Powered Clinical Documentation</title>
+  <meta name="description" content="ClinicalFlow transcribes clinical encounters in real-time and generates structured notes using AI. 20 specialty templates, interactive dental charting, medical coding, and 37-language support. Works online and fully offline.">
+  <meta name="keywords" content="clinical documentation, medical transcription, SOAP notes, AI scribe, Whisper, offline transcription, HIPAA, dental chart, ICD-10, CPT, CDT, medical coding">
+  <meta property="og:title" content="ClinicalFlow — AI-Powered Clinical Documentation">
+  <meta property="og:description" content="Transcribe encounters and generate structured clinical notes in real time. 20 specialty templates, dental charting, medical coding. Online or fully offline.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     NAVIGATION
+     ════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+          <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+      </div>
+      Clinical<span>Flow</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#templates">Templates</a></li>
+      <li><a href="#dental">Dental</a></li>
+      <li><a href="#modes">Online &amp; Offline</a></li>
+      <li><a href="#security">Security</a></li>
+      <li><a href="#download">Download</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>
+      <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
+    </div>
+    <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     HERO
+     ════════════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-badge">
+      <span class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+        Now available for macOS &mdash; Windows coming soon
+      </span>
+    </div>
+
+    <h1>Clinical notes,<br><span class="text-gradient">not paperwork.</span></h1>
+
+    <p class="hero-subtitle">
+      ClinicalFlow listens to your patient encounters and generates
+      structured clinical notes in real time &mdash; with 20 specialty templates, interactive dental charting,
+      and automatic medical coding. Works online or completely offline in 37 languages.
+      <strong>Start your 14-day free trial.</strong>
+    </p>
+
+    <div class="btn-group">
+      <a href="signup.html" class="btn btn--primary btn--lg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Start Free Trial
+      </a>
+      <a href="pricing.html" class="btn btn--secondary btn--lg">View Pricing</a>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-screenshot">
+        <img src="screenshot-hero.png" alt="ClinicalFlow application — live transcript with speaker labels on the left, AI-generated SOAP note on the right" width="2000" height="1125" loading="eager">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TRUST BAR
+     ════════════════════════════════════════════════════════════ -->
+<div class="trust-bar">
+  <div class="container">
+    <div class="trust-bar-label">Powered by leading AI infrastructure</div>
+    <div class="trust-logos">
+      <svg viewBox="0 0 120 28" fill="currentColor"><text x="0" y="22" font-family="DM Sans, sans-serif" font-size="18" font-weight="700">Deepgram</text></svg>
+      <svg viewBox="0 0 100 28" fill="currentColor"><text x="0" y="22" font-family="DM Sans, sans-serif" font-size="18" font-weight="700">Claude</text></svg>
+      <svg viewBox="0 0 100 28" fill="currentColor"><text x="0" y="22" font-family="DM Sans, sans-serif" font-size="18" font-weight="700">Whisper</text></svg>
+      <svg viewBox="0 0 90 28" fill="currentColor"><text x="0" y="22" font-family="DM Sans, sans-serif" font-size="18" font-weight="700">Ollama</text></svg>
+      <svg viewBox="0 0 70 28" fill="currentColor"><text x="0" y="22" font-family="DM Sans, sans-serif" font-size="18" font-weight="700">Tauri</text></svg>
+      <svg viewBox="0 0 80 28" fill="currentColor"><text x="0" y="22" font-family="DM Sans, sans-serif" font-size="18" font-weight="700">Stripe</text></svg>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PROBLEM STATEMENT
+     ════════════════════════════════════════════════════════════ -->
+<section class="section problem" id="problem">
+  <div class="container">
+    <span class="badge reveal">The Problem</span>
+    <h2 class="reveal section-title">Doctors spend more time<br>typing than treating.</h2>
+    <p class="text-secondary reveal section-subtitle">
+      Clinical documentation consumes hours every day &mdash; time that should be spent with patients.
+      The result is burnout, reduced care quality, and notes finished long after the encounter ends.
+    </p>
+    <div class="problem-stats">
+      <div class="problem-stat reveal reveal-delay-1">
+        <div class="problem-stat-number text-gradient">1.84 hrs</div>
+        <div class="problem-stat-label">Per day spent on EHR documentation outside of work hours alone, per a study of 301,603 U.S. physicians <em>(JAMA Internal Medicine, 2019)</em></div>
+      </div>
+      <div class="problem-stat reveal reveal-delay-2">
+        <div class="problem-stat-number text-gradient">62%</div>
+        <div class="problem-stat-label">Of physicians identify excessive documentation requirements as their leading cause of burnout <em>(athenahealth Physician Sentiment Survey)</em></div>
+      </div>
+      <div class="problem-stat reveal reveal-delay-3">
+        <div class="problem-stat-number text-gradient">16 min</div>
+        <div class="problem-stat-label">Average EHR time per patient encounter, across 100 million encounters and 155,000 physicians <em>(Annals of Internal Medicine, 2020)</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     HOW IT WORKS
+     ════════════════════════════════════════════════════════════ -->
+<section class="section section--surface" id="how-it-works">
+  <div class="container">
+    <div class="steps-header">
+      <span class="badge reveal">How It Works</span>
+      <h2 class="reveal section-title">Three steps. Zero typing.</h2>
+      <p class="reveal">From encounter to signed note in minutes, not hours.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-number">1</div>
+        <h4>Record</h4>
+        <p>Start recording your patient encounter. ClinicalFlow captures audio and transcribes speech in real time with automatic speaker identification &mdash; distinguishing physician from patient in 37 languages.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-number">2</div>
+        <h4>Generate</h4>
+        <p>With one click, AI analyzes the full transcript and produces a structured clinical note in your preferred template &mdash; from SOAP to cardiology to dental exams. A verification pass catches errors, contradictions, and omissions.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-number">3</div>
+        <h4>Review &amp; Export</h4>
+        <p>Edit any section directly in the app. Billing codes are generated automatically. When you&rsquo;re satisfied, export as PDF, copy to clipboard for your EHR, or save as a text file. The note is ready in minutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FEATURES
+     ════════════════════════════════════════════════════════════ -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="features-header">
+      <span class="badge reveal">Features</span>
+      <h2 class="reveal section-title">Everything you need.<br>Nothing you don&rsquo;t.</h2>
+      <p class="reveal">Built for real clinical workflows by people who understand medicine.</p>
+    </div>
+
+    <!-- Feature 1: Real-Time Transcription -->
+    <div class="feature-row reveal">
+      <div class="feature-content">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+        </div>
+        <h3>Real-Time Transcription</h3>
+        <p>ClinicalFlow transcribes speech as it happens. Words appear on screen within milliseconds, letting you monitor the encounter in real time. No waiting, no post-visit processing.</p>
+        <ul class="feature-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Medical-grade accuracy with Deepgram Nova-3 Medical (online) or Whisper Small (offline) &mdash; with medical vocabulary conditioning for 55+ drug names, anatomy, and vitals
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Automatic speaker diarization &mdash; physician, patient, and other speakers identified and color-coded separately
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            204 post-processing correction patterns across 6 languages &mdash; automatically fixing drug names, conditions, and vital sign formats
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            37 languages supported &mdash; including English, Spanish, French, German, Portuguese, Chinese, Japanese, Korean, Hindi, Arabic, and 27 more
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Hallucination filtering automatically detects and removes Whisper false positives &mdash; silence artifacts, background sounds, and phantom text
+          </li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <img src="screenshot-transcript.png" alt="Live transcript panel with color-coded speaker labels and timestamps" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Feature 2: AI Note Generation -->
+    <div class="feature-row reverse reveal">
+      <div class="feature-content">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/>
+          </svg>
+        </div>
+        <h3>AI-Powered Note Generation</h3>
+        <p>One click transforms your transcript into a complete, structured clinical note. ClinicalFlow uses a sophisticated prompt system with strict evidence-extraction rules &mdash; every line in the note traces back to something explicitly said in the encounter.</p>
+        <ul class="feature-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Three AI engines: Claude Haiku 4.5 (cloud, best quality), Ollama (local, free), or rule-based (deterministic fallback, no AI required)
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Two-pass verification system: generates the note, then audits it against the transcript for hallucinations, contradictions, and omissions
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Safety rules prevent fabrication &mdash; never invents findings, diagnoses, or exam results not in the transcript
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Multilingual note generation &mdash; clinical content written in the encounter language while section headers stay in English for EHR compatibility
+          </li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <img src="screenshot-note.png" alt="AI-generated SOAP note with Subjective, Objective, Assessment, and Plan sections" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Feature 3: Speaker Management -->
+    <div class="feature-row reveal">
+      <div class="feature-content">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <h3>Multi-Speaker Management</h3>
+        <p>Add and manage speakers with assigned roles. Each speaker gets a unique color in the transcript, making it easy to scan who said what. ClinicalFlow uses speaker identity to correctly route information &mdash; patient-reported symptoms go to Subjective, physician observations go to Objective.</p>
+        <ul class="feature-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Three speaker roles: Physician, Patient, and Other &mdash; each with a distinct color and abbreviation (Dr, Pt, Ot)
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Color-coded transcript entries for instant visual identification
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Auto-detect speaker changes based on 1.5-second silence detection and Deepgram diarization data (online mode)
+          </li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <img src="screenshot-sidebar.png" alt="Sidebar showing speakers with roles, note format selector, and settings toggles" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Feature 4: Export & Archiving -->
+    <div class="feature-row reverse reveal">
+      <div class="feature-content">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/>
+          </svg>
+        </div>
+        <h3>Edit, Export, Done</h3>
+        <p>Every section of the generated note is directly editable. Click on any text to modify it. Your edits are preserved through exports &mdash; what you see is what you get.</p>
+        <ul class="feature-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            PDF export with header, disclaimer, section formatting, and timestamp footer &mdash; including dental chart SVG if applicable
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            One-click copy to clipboard &mdash; paste directly into Epic, Cerner, Athena, or any EHR
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Session archiving &mdash; save completed encounters with full transcript, note, and audio recording (WebM/Opus or MP4)
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Archive browser &mdash; browse, load, and delete past sessions sorted newest-first with size and audio indicators
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Configurable export actions &mdash; enable or disable Copy for EHR, Export HL7, Insurance Narrative, and Sync to PMS buttons from Settings
+          </li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <img src="screenshot-panels.png" alt="Full app view showing transcript and clinical note panels side by side with Export PDF button" loading="lazy">
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     SPECIALTY TEMPLATES (NEW)
+     ════════════════════════════════════════════════════════════ -->
+<section class="section section--surface" id="templates">
+  <div class="container">
+    <div class="features-header">
+      <span class="badge reveal">Templates</span>
+      <h2 class="reveal section-title">20 specialty templates.<br>Your workflow, your format.</h2>
+      <p class="reveal">Choose the note structure that matches how you practice. Switch anytime, or create your own custom templates.</p>
+    </div>
+    <div class="formats-grid">
+      <div class="format-card reveal reveal-delay-1">
+        <h4>General</h4>
+        <div class="format-full-name">Core Clinical Formats</div>
+        <p>The most widely used formats in outpatient medicine. Four clean sections that separate patient-reported information from clinical findings, assessment, and treatment plan.</p>
+        <div class="format-sections">
+          <span class="format-tag">SOAP</span>
+          <span class="format-tag">HPI-Focused</span>
+          <span class="format-tag">Problem-Oriented</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-2">
+        <h4>Behavioral Health</h4>
+        <div class="format-full-name">Psychiatry &amp; Behavioral Medicine</div>
+        <p>Structured formats designed for mental health encounters. DAP for psychiatry sessions and BIRP for behavioral health documentation.</p>
+        <div class="format-sections">
+          <span class="format-tag">DAP</span>
+          <span class="format-tag">BIRP</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-3">
+        <h4>Specialty</h4>
+        <div class="format-full-name">8 Specialty-Specific Templates</div>
+        <p>Purpose-built templates with sections tailored to each specialty&rsquo;s documentation needs and exam elements.</p>
+        <div class="format-sections">
+          <span class="format-tag">Cardiology</span>
+          <span class="format-tag">Orthopedics</span>
+          <span class="format-tag">Pediatrics</span>
+          <span class="format-tag">OB/GYN</span>
+          <span class="format-tag">Emergency</span>
+          <span class="format-tag">Dermatology</span>
+          <span class="format-tag">Neurology</span>
+          <span class="format-tag">Ophthalmology</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second row of template cards -->
+    <div class="formats-grid" style="margin-top:24px">
+      <div class="format-card reveal reveal-delay-1">
+        <h4>Dental</h4>
+        <div class="format-full-name">5 Dental Templates</div>
+        <p>Complete dental documentation with integrated charting. From general exams to endodontic evaluations and oral surgery consults.</p>
+        <div class="format-sections">
+          <span class="format-tag">General Exam</span>
+          <span class="format-tag">Periodontal</span>
+          <span class="format-tag">Endodontic</span>
+          <span class="format-tag">Oral Surgery</span>
+          <span class="format-tag">Prosthodontic</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-2">
+        <h4>Preventive</h4>
+        <div class="format-full-name">Wellness &amp; Procedures</div>
+        <p>Templates for annual wellness visits, preventive care, and standalone procedure documentation.</p>
+        <div class="format-sections">
+          <span class="format-tag">Wellness/Preventive</span>
+          <span class="format-tag">Procedure Note</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-3">
+        <h4>Custom</h4>
+        <div class="format-full-name">Build Your Own</div>
+        <p>Create and save your own note templates with custom section names and structure. Perfect for unique workflows or niche specialties not covered by the built-in library.</p>
+        <div class="format-sections">
+          <span class="format-tag">+ Create Template</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     INTERACTIVE DENTAL CHART (NEW)
+     ════════════════════════════════════════════════════════════ -->
+<section class="section" id="dental">
+  <div class="container">
+    <div class="features-header">
+      <span class="badge reveal">Dental</span>
+      <h2 class="reveal section-title">Full dental charting,<br><span class="text-gradient">built right in.</span></h2>
+      <p class="reveal">An interactive SVG dental chart that integrates directly with AI note generation and billing codes.</p>
+    </div>
+
+    <!-- Dental capability cards -->
+    <div class="security-grid" style="margin-top:60px">
+      <div class="dental-card reveal reveal-delay-1">
+        <div class="feature-icon">
+          <!-- Tooth icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5.5c-1.5-2-4-2.5-5.5-1S5 7.5 7 10c1.5 2 3 4 5 7 2-3 3.5-5 5-7 2-2.5 1-4-0.5-5.5S13.5 3.5 12 5.5z"/>
+          </svg>
+        </div>
+        <h4>32 + 20 Tooth Charts</h4>
+        <p>Full adult (32-tooth) and primary (20-tooth) charts with one-click toggle between permanent and deciduous dentition.</p>
+      </div>
+      <div class="dental-card reveal reveal-delay-2">
+        <div class="feature-icon">
+          <!-- Palette icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/>
+            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+          </svg>
+        </div>
+        <h4>8 Clinical States</h4>
+        <p>Healthy, Decay/Caries, Missing, Restored, Implant, Root Canal, Fracture, and Impacted &mdash; each with a distinct color for instant visual identification.</p>
+      </div>
+      <div class="dental-card reveal reveal-delay-3">
+        <div class="feature-icon">
+          <!-- Grid icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+          </svg>
+        </div>
+        <h4>5-Surface Marking</h4>
+        <p>M, O, D, B, L for posterior and M, I, D, F, L for anterior teeth. Anatomical validation prevents impossible surface combinations.</p>
+      </div>
+      <div class="dental-card reveal">
+        <div class="feature-icon">
+          <!-- Sparkle icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/>
+          </svg>
+        </div>
+        <h4>AI-Integrated</h4>
+        <p>Dental findings serialize directly into the AI prompt for note generation and parse back from AI responses. Acronym protection for FPD, RPD, SDF. Chart SVG and findings table export to PDF.</p>
+      </div>
+    </div>
+
+    <!-- Periodontal charting -->
+    <div class="features-header" style="margin-top:80px">
+      <span class="badge reveal">Perio</span>
+      <h2 class="reveal section-title">Full periodontal charting,<br><span class="text-gradient">voice-driven.</span></h2>
+      <p class="reveal">Toggle perio mode to overlay probing depths, bleeding, recession, mobility, and furcation data directly on the chart &mdash; enter measurements by voice or click.</p>
+    </div>
+
+    <div class="security-grid" style="margin-top:60px">
+      <div class="dental-card reveal reveal-delay-1">
+        <div class="feature-icon">
+          <!-- Ruler icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/>
+            <path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/>
+          </svg>
+        </div>
+        <h4>6-Point Probing Depths</h4>
+        <p>Record MB, B, DB, ML, L, and DL depths per tooth. Color-coded pills &mdash; green (1&ndash;3 mm), yellow (4&ndash;5 mm), red (6+ mm) &mdash; overlay directly on the chart for instant visual assessment.</p>
+      </div>
+      <div class="dental-card reveal reveal-delay-2">
+        <div class="feature-icon">
+          <!-- Mic icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+        </div>
+        <h4>Voice-Driven Entry</h4>
+        <p>Say &ldquo;three two four&rdquo; and probing depths auto-fill for the selected tooth. The perio voice parser recognizes spoken numbers and maps them to the correct surfaces &mdash; hands-free charting during exams.</p>
+      </div>
+      <div class="dental-card reveal reveal-delay-3">
+        <div class="feature-icon">
+          <!-- Activity icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <h4>BOP, Recession &amp; More</h4>
+        <p>Track bleeding on probing per site, recession measurements, mobility grades (0&ndash;3), and furcation involvement (Class I&ndash;III). All indicators render as visual overlays on each tooth.</p>
+      </div>
+      <div class="dental-card reveal">
+        <div class="feature-icon">
+          <!-- File-check icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+            <polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/>
+          </svg>
+        </div>
+        <h4>Documentation Scoring</h4>
+        <p>After note generation, a template-specific checklist scores your documentation completeness &mdash; verifying chief complaint, probing depths, BOP, bone loss, AAP staging, consent, and more.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     MEDICAL & DENTAL CODING (NEW)
+     ════════════════════════════════════════════════════════════ -->
+<section class="section section--surface" id="coding">
+  <div class="container">
+    <div class="features-header">
+      <span class="badge reveal">Billing</span>
+      <h2 class="reveal section-title">Automatic medical &amp;<br><span class="text-gradient">dental coding.</span></h2>
+      <p class="reveal">ClinicalFlow suggests billing codes from the generated note &mdash; saving time on coding and helping capture visit complexity.</p>
+    </div>
+    <div class="formats-grid" style="margin-top:60px">
+      <div class="format-card reveal reveal-delay-1">
+        <h4>ICD-10</h4>
+        <div class="format-full-name">Diagnosis Codes</div>
+        <p>Up to 8 diagnosis codes per encounter, each with a confidence level. Extracted directly from the assessment section of the generated clinical note.</p>
+        <div class="format-sections">
+          <span class="format-tag">Max 8 codes</span>
+          <span class="format-tag">Confidence levels</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-2">
+        <h4>CPT + E&amp;M</h4>
+        <div class="format-full-name">Procedure &amp; Evaluation Codes</div>
+        <p>Up to 4 procedure codes with automatic E&amp;M level assessment based on documented complexity, time, and medical decision-making.</p>
+        <div class="format-sections">
+          <span class="format-tag">Max 4 codes</span>
+          <span class="format-tag">E&amp;M level</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-3">
+        <h4>CDT + Dental ICD-10</h4>
+        <div class="format-full-name">Dental Billing Codes</div>
+        <p>D-codes with 4 guardrails: depth/severity escalation, structural vs. positional trauma detection, etiology of absence tracking, and dental-specific ICD-10 pairing.</p>
+        <div class="format-sections">
+          <span class="format-tag">D-codes</span>
+          <span class="format-tag">4 guardrails</span>
+          <span class="format-tag">Dental ICD-10</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit & Safety row -->
+    <div class="formats-grid" style="margin-top:24px">
+      <div class="format-card reveal reveal-delay-1">
+        <h4>Audit Flags</h4>
+        <div class="format-full-name">Billing Risk Detection</div>
+        <p>Every code suggestion includes AI-generated audit flags that identify potential billing risks &mdash; upcoding warnings, missing documentation, and modifier requirements. Displayed in a collapsible panel for quick review.</p>
+        <div class="format-sections">
+          <span class="format-tag">Risk alerts</span>
+          <span class="format-tag">Collapsible</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-2">
+        <h4>Clinical Warnings</h4>
+        <div class="format-full-name">Documentation Safety Checks</div>
+        <p>Automated warnings flag clinical documentation gaps &mdash; missing informed consent, undocumented allergies, incomplete exam findings. Helps catch issues before the note is finalized.</p>
+        <div class="format-sections">
+          <span class="format-tag">Safety checks</span>
+          <span class="format-tag">Collapsible</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-3">
+        <h4>Auto-Suggest</h4>
+        <div class="format-full-name">Toggleable Code Suggestions</div>
+        <p>Enable or disable automatic code suggestions per session. When enabled, ICD-10, CPT, and CDT codes appear immediately after note generation. Toggle from the AI &amp; Transcription settings.</p>
+        <div class="format-sections">
+          <span class="format-tag">On/Off toggle</span>
+          <span class="format-tag">Per session</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     INTEGRATIONS & CONNECTORS
+     ════════════════════════════════════════════════════════════ -->
+<section class="section" id="integrations">
+  <div class="container">
+    <div class="features-header">
+      <span class="badge reveal">Integrations</span>
+      <h2 class="reveal section-title">Connect to your<br><span class="text-gradient">existing systems.</span></h2>
+      <p class="reveal">Export notes to your EHR, sync with your practice management system, and generate insurance narratives &mdash; all from within ClinicalFlow.</p>
+    </div>
+    <div class="formats-grid" style="margin-top:60px">
+      <div class="format-card reveal reveal-delay-1">
+        <h4>EHR Integration</h4>
+        <div class="format-full-name">HL7 FHIR Export</div>
+        <p>Copy notes formatted for your EHR or export as HL7 FHIR documents. Configure facility name, facility ID, and default patient MRN for compliant clinical document exchange.</p>
+        <div class="format-sections">
+          <span class="format-tag">Copy for EHR</span>
+          <span class="format-tag">HL7 FHIR</span>
+          <span class="format-tag">Facility Config</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-2">
+        <h4>PMS Bridge</h4>
+        <div class="format-full-name">Practice Management Systems</div>
+        <p>Sync patient data and clinical notes directly with OpenDental (REST API), Dentrix (SOAP/COM), and Eaglesoft (ODBC). Configure connection credentials and test connectivity from Settings.</p>
+        <div class="format-sections">
+          <span class="format-tag">OpenDental</span>
+          <span class="format-tag">Dentrix</span>
+          <span class="format-tag">Eaglesoft</span>
+        </div>
+      </div>
+      <div class="format-card reveal reveal-delay-3">
+        <h4>Insurance Narrative</h4>
+        <div class="format-full-name">AI Medical Necessity Letters</div>
+        <p>One-click AI generation of 3&ndash;7 sentence medical necessity narratives. References specific clinical data &mdash; probing depths, BOP percentage, radiographic bone loss, tooth diagnoses &mdash; with CDT and ICD-10 citations.</p>
+        <div class="format-sections">
+          <span class="format-tag">AI-Generated</span>
+          <span class="format-tag">CDT/ICD-10</span>
+          <span class="format-tag">Copy to Clipboard</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     MODES — Online vs Offline
+     ════════════════════════════════════════════════════════════ -->
+<section class="section" id="modes">
+  <div class="container">
+    <div class="modes-header">
+      <span class="badge reveal">Dual Mode</span>
+      <h2 class="reveal section-title">Online precision.<br>Offline freedom.</h2>
+      <p class="reveal">Use cloud AI for the best accuracy, or go fully offline. Switch with one toggle.</p>
+    </div>
+    <div class="modes-grid">
+
+      <!-- Online -->
+      <div class="mode-card reveal reveal-delay-1">
+        <div class="mode-badge">&#9729; Recommended</div>
+        <h3>Online Mode</h3>
+        <p>Maximum accuracy using cloud AI models purpose-built for clinical documentation.</p>
+        <ul class="mode-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Deepgram Nova-3 Medical</strong> &mdash; purpose-built for clinical speech with drug name and condition recognition, plus keyterm boosting with up to 100 medical terms per session</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Claude Haiku 4.5</strong> &mdash; fast, efficient AI for clinically accurate note generation with two-pass verification for hallucination, contradiction, and omission detection</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Real-time speaker diarization</strong> &mdash; automatic identification and labeling of who is speaking</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Streaming transcription</strong> &mdash; words appear on screen within 200&ndash;300ms of being spoken</span>
+          </li>
+        </ul>
+        <div class="mode-price"><strong>~$0.10&ndash;0.15</strong> per encounter &mdash; including transcription and AI note generation</div>
+      </div>
+
+      <!-- Offline -->
+      <div class="mode-card reveal reveal-delay-2">
+        <div class="mode-badge">&#128187; Full Privacy</div>
+        <h3>Offline Mode</h3>
+        <p>Everything runs on your machine. No internet. No data leaves your computer. Ever.</p>
+        <ul class="mode-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Whisper Small</strong> &mdash; OpenAI&rsquo;s speech recognition running locally via whisper-server, processing 3-second audio chunks with 0.5-second overlap. No audio ever transmitted</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Ollama</strong> &mdash; open-source local AI. Default model LLaMA 3.1 8B, but you can run Mistral, Gemma, Qwen, or any Ollama-compatible model on your own hardware, free forever</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Zero network requests</strong> &mdash; in full offline mode, ClinicalFlow makes no outbound connections whatsoever</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Ideal for rural clinics</strong> &mdash; works without Wi-Fi, cellular, or any internet infrastructure</span>
+          </li>
+        </ul>
+        <div class="mode-price"><strong>Free</strong> &mdash; runs on your hardware, no subscriptions or API costs</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     VERIFICATION SYSTEM
+     ════════════════════════════════════════════════════════════ -->
+<section class="section section--surface" id="verification">
+  <div class="container">
+    <div class="feature-row reveal">
+      <div class="feature-content">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/>
+          </svg>
+        </div>
+        <h3>Two-Pass Verification</h3>
+        <p>Unlike simple AI scribes that generate and ship, ClinicalFlow runs a second pass. After generating the note, a separate AI verification step (temperature 0.1 for maximum determinism) audits every claim against the original transcript &mdash; catching errors before they reach the chart.</p>
+        <ul class="feature-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Hallucination detection</strong> &mdash; removes any finding, diagnosis, or exam result not supported by the transcript
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Contradiction detection</strong> &mdash; catches when the same finding appears as both positive and negative
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Omission detection</strong> &mdash; identifies prescriptions, orders, and recommendations mentioned but missing from the note
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Categorization audit</strong> &mdash; verifies medications are correctly classified as new, continued, or discontinued
+          </li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <img src="screenshot-settings.png" alt="Settings panel showing verification pass toggle, AI engine selector, and transcription configuration" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PRODUCTIVITY & SHORTCUTS
+     ════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="feature-row reverse reveal">
+      <div class="feature-content">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="8" x="2" y="14" rx="2"/>
+            <path d="M6 18h.01"/><path d="M10 18h.01"/><path d="M14 18h.01"/><path d="M18 18h.01"/>
+            <path d="m6 10 3-6"/><path d="m15 10 3-6"/>
+          </svg>
+        </div>
+        <h3>Built for Speed</h3>
+        <p>ClinicalFlow is designed around 10 keyboard shortcuts and minimal clicks. Start recording, generate a note, and export &mdash; all without touching the mouse.</p>
+        <div class="shortcuts-grid">
+          <div class="shortcut-item"><kbd>Space</kbd> Start / stop recording</div>
+          <div class="shortcut-item"><kbd>P</kbd> Pause / resume</div>
+          <div class="shortcut-item"><kbd>G</kbd> Generate note</div>
+          <div class="shortcut-item"><kbd>E</kbd> Export PDF</div>
+          <div class="shortcut-item"><kbd>N</kbd> New session</div>
+          <div class="shortcut-item"><kbd>T</kbd> Download transcript</div>
+          <div class="shortcut-item"><kbd>Cmd+R</kbd> Toggle recording</div>
+          <div class="shortcut-item"><kbd>Cmd+F</kbd> Search transcript</div>
+          <div class="shortcut-item"><kbd>Cmd+,</kbd> Open settings</div>
+          <div class="shortcut-item"><kbd>Escape</kbd> Close all modals</div>
+        </div>
+        <ul class="feature-list" style="margin-top:16px">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Resizable panels &middot; Collapsible sidebar &middot; Dark and light themes &middot; 1,300+ medical terms highlighted in transcript
+          </li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <img src="screenshot-shortcuts.png" alt="Keyboard shortcuts panel showing all 10 shortcuts" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     MEDICAL TERM CORRECTION
+     ════════════════════════════════════════════════════════════ -->
+<section class="section section--surface" id="corrections">
+  <div class="container">
+    <div class="feature-row reveal">
+      <div class="feature-content">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>
+          </svg>
+        </div>
+        <h3>Medical Term Post-Processing</h3>
+        <p>Speech-to-text engines often garble medical terminology. ClinicalFlow applies 204 correction patterns across 6 languages after transcription, automatically correcting drug names, conditions, units, and vital sign formats.</p>
+        <ul class="feature-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Drug corrections</strong> &mdash; &ldquo;metforming&rdquo; &rarr; metformin, &ldquo;lipator&rdquo; &rarr; Lipitor, &ldquo;hydroclorothiazide&rdquo; &rarr; hydrochlorothiazide
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Condition corrections</strong> &mdash; &ldquo;hypertention&rdquo; &rarr; hypertension, &ldquo;dye-a-beet-eez&rdquo; &rarr; diabetes
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>6-language coverage</strong> &mdash; 82 English, 30 Spanish, 29 French, 21 German, 21 Portuguese, and 21 Italian correction patterns
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Extensible dictionary</strong> &mdash; corrections.json can be customized for your specialty&rsquo;s specific terminology
+          </li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <img src="screenshot-corrections.png" alt="Transcript with highlighted medical terms — diabetes and metformin highlighted in the transcript text" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     MULTILINGUAL (NEW)
+     ════════════════════════════════════════════════════════════ -->
+<section class="section" id="languages">
+  <div class="container">
+    <div class="features-header">
+      <span class="badge reveal">Global</span>
+      <h2 class="reveal section-title">37 languages.<br><span class="text-gradient">One workflow.</span></h2>
+      <p class="reveal">Full pipeline support &mdash; transcription, correction patterns, note generation, and UI locale &mdash; in every language.</p>
+    </div>
+
+    <div class="steps-grid" style="margin-top:60px">
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-number">37</div>
+        <h4>Languages Supported</h4>
+        <p>Complete transcription and note generation pipeline including English, Spanish, French, German, Portuguese, Japanese, Korean, Chinese, Hindi, Arabic, and 27 more.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-number">6</div>
+        <h4>Correction Dictionaries</h4>
+        <p>Dedicated medical term correction patterns in English (82), Spanish (30), French (29), German (21), Portuguese (21), and Italian (21).</p>
+      </div>
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-number">204</div>
+        <h4>Correction Patterns</h4>
+        <p>Post-processing rules that automatically fix misrecognized drug names, conditions, vitals, and medical terminology across all 6 dictionary languages.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     SECURITY & HIPAA
+     ════════════════════════════════════════════════════════════ -->
+<section class="section section--dark" id="security">
+  <div class="container">
+    <div class="features-header">
+      <span class="badge badge--dark reveal">Security</span>
+      <h2 class="reveal section-title" style="color:var(--text-on-dark)">Patient data deserves<br>real protection.</h2>
+      <p class="reveal" style="color:var(--text-on-dark-secondary)">ClinicalFlow implements HIPAA technical safeguards at every layer.</p>
+    </div>
+    <div class="security-grid">
+      <div class="security-card reveal reveal-delay-1">
+        <div class="security-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h4>AES-256 Encryption at Rest</h4>
+        <p>All session data, transcripts, clinical notes, and API keys are encrypted on disk using AES-256-GCM with PBKDF2-HMAC-SHA256 key derivation (100,000 iterations). Even if your device is stolen, patient data is unreadable without your PIN.</p>
+      </div>
+      <div class="security-card reveal reveal-delay-2">
+        <div class="security-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h4>PIN-Protected Access</h4>
+        <p>A 4&ndash;8 digit numeric PIN is required every time ClinicalFlow launches. Verified using Argon2id hashing with random salt and never stored in plaintext. Auto-lock engages after 5 minutes of inactivity (configurable) to protect unattended devices.</p>
+      </div>
+      <div class="security-card reveal reveal-delay-3">
+        <div class="security-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <h4>Sanitized Audit Logs</h4>
+        <p>Structured logging captures every operation with timestamps &mdash; but never logs transcript text, patient names, or clinical content. Logs are rotated daily and automatically cleaned after 30 days.</p>
+      </div>
+      <div class="security-card reveal">
+        <div class="security-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <h4>Transparent Network Behavior</h4>
+        <p>In online mode, data is sent only to Deepgram (audio) and Anthropic (transcript) over encrypted TLS connections. Strict Content Security Policy headers limit connections to only these approved endpoints. In offline mode, zero network requests leave the device.</p>
+      </div>
+      <div class="security-card reveal">
+        <div class="security-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <h4>Atomic File Operations</h4>
+        <p>All writes use a temporary file + rename pattern to prevent corruption from unexpected shutdowns. If a file is detected as corrupted, it&rsquo;s automatically backed up to a .corrupted.TIMESTAMP file before recovery. macOS hardened runtime with audio input and network client entitlements.</p>
+      </div>
+      <div class="security-card reveal">
+        <div class="security-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/>
+          </svg>
+        </div>
+        <h4>Localhost-Only Whisper</h4>
+        <p>The local Whisper transcription server binds exclusively to 127.0.0.1 &mdash; no network exposure, no external access. Audio data never leaves your machine&rsquo;s loopback interface.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     SYSTEM REQUIREMENTS
+     ════════════════════════════════════════════════════════════ -->
+<section class="section" id="requirements">
+  <div class="container">
+    <div class="features-header">
+      <span class="badge reveal">Requirements</span>
+      <h2 class="reveal section-title">Runs on hardware you already have.</h2>
+      <p class="reveal">ClinicalFlow is lightweight. Offline mode needs more resources for local AI models.</p>
+    </div>
+    <div class="modes-grid">
+      <div class="mode-card reveal reveal-delay-1">
+        <div class="mode-badge">Online Mode</div>
+        <h3>Minimum Requirements</h3>
+        <p>When using cloud transcription and cloud AI, the app itself is very lightweight.</p>
+        <ul class="mode-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>macOS 11.0 or later (Apple Silicon or Intel)</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>4 GB RAM</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>~1 GB disk space (app + bundled Whisper model)</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Internet connection &amp; a microphone</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Deepgram API key (free tier: $200 credit) and Anthropic API key</span>
+          </li>
+        </ul>
+      </div>
+      <div class="mode-card reveal reveal-delay-2">
+        <div class="mode-badge">Offline Mode</div>
+        <h3>Recommended Specs</h3>
+        <p>Local Whisper and Ollama models require more compute. A recent Mac with 16 GB+ RAM is ideal.</p>
+        <ul class="mode-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Apple Silicon Mac (M1 or later) recommended for best performance</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>8 GB RAM recommended (Whisper + Ollama running simultaneously)</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>~8 GB disk space for Whisper model (465 MB) and Ollama models (~4&ndash;8 GB)</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>No internet required &mdash; Ollama installed separately (free, one-time setup)</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     DOWNLOAD
+     ════════════════════════════════════════════════════════════ -->
+<section class="section" id="download">
+  <div class="container download">
+    <div class="download-header">
+      <span class="badge reveal">Download</span>
+      <h2 class="reveal section-title">Ready to try ClinicalFlow?</h2>
+      <p class="reveal">14-day free trial &mdash; no credit card required. Sign up, choose your plan, and generate your first note in under two minutes.</p>
+    </div>
+    <div class="download-cards">
+      <div class="download-card reveal reveal-delay-1">
+        <div class="download-card-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        </div>
+        <h4>macOS</h4>
+        <p>Apple Silicon &amp; Intel<br>macOS 11.0 or later</p>
+        <a href="signup.html" class="btn btn--primary btn--sm">Start Free Trial</a>
+      </div>
+      <div class="download-card download-card--disabled reveal reveal-delay-2">
+        <div class="download-card-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12V6.75l8-1.25V12H3zm0 .5h8v6.5L3 17.5V12.5zM11.5 5.35l9-1.35v8H11.5V5.35zM11.5 12.5H20.5v7.85l-9-1.35V12.5z"/></svg>
+        </div>
+        <h4>Windows</h4>
+        <p>Coming soon<br>Join the waitlist</p>
+        <a href="#" class="btn btn--secondary btn--sm">Notify Me</a>
+      </div>
+      <div class="download-card download-card--disabled reveal reveal-delay-3">
+        <div class="download-card-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        </div>
+        <h4>Linux</h4>
+        <p>Coming soon<br>Join the waitlist</p>
+        <a href="#" class="btn btn--secondary btn--sm">Notify Me</a>
+      </div>
+    </div>
+    <p class="download-info reveal">
+      Version 1.0.0 &middot;
+      <a href="#">Release notes</a> &middot;
+      <a href="#">SHA-256 checksums</a> &middot;
+      Bundled Whisper model: 465 MB
+    </p>
+    <p class="download-pricing-note reveal">
+      After your 14-day trial, ClinicalFlow Pro starts at <strong>$25/month</strong>.
+      <a href="pricing.html">See all plans &rarr;</a>
+    </p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FINAL CTA
+     ════════════════════════════════════════════════════════════ -->
+<section class="section cta">
+  <div class="container">
+    <h2 class="reveal">Spend time with patients,<br><span class="text-gradient">not paperwork.</span></h2>
+    <p class="reveal">Start your free 14-day trial and generate your first note in under two minutes.</p>
+    <div class="btn-group reveal">
+      <a href="signup.html" class="btn btn--primary btn--lg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Start Free Trial
+      </a>
+      <a href="pricing.html" class="btn btn--secondary btn--lg">View Pricing</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo">
+          <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+          </div>
+          Clinical<span>Flow</span>
+        </a>
+        <p>AI-powered clinical documentation for healthcare providers. Transcribe encounters, generate structured notes, and reclaim time for patient care. Available for macOS &mdash; Windows and Linux coming soon.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="#features">Features</a>
+        <a href="#templates">Templates</a>
+        <a href="#dental">Dental &amp; Perio</a>
+        <a href="#coding">Coding</a>
+        <a href="#integrations">Integrations</a>
+        <a href="#modes">Online &amp; Offline</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="#download">Download</a>
+      </div>
+      <div class="footer-col">
+        <h5>Documentation</h5>
+        <a href="docs.html">Getting Started</a>
+        <a href="docs.html#transcription">Transcription Setup</a>
+        <a href="docs.html#note-generation">Note Generation</a>
+        <a href="docs.html#dental-chart">Dental Charting</a>
+        <a href="docs.html#perio-charting">Perio Charting</a>
+        <a href="docs.html#integrations">Integrations</a>
+        <a href="docs.html#export">Export &amp; Archiving</a>
+        <a href="docs.html#troubleshooting">Troubleshooting</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="about.html">About</a>
+        <a href="#security">Security</a>
+        <a href="docs.html#hipaa">HIPAA Overview</a>
+        <a href="docs.html#encryption">Encryption Details</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 ClinicalFlow. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "identifier": "default",
+  "description": "ClinicalFlow default capabilities",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "shell:allow-execute",
+    "shell:allow-spawn",
+    "fs:default",
+    "dialog:default",
+    "dialog:allow-save",
+    "http:default",
+    "notification:default"
+  ]
+}

@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+src-tauri/target/
+
+# Environment / secrets
+src/env.js
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# Whisper model (465MB+ — too large for git)
+src-tauri/resources/models/
+
+# Sidecar binaries (platform-specific)
+src-tauri/binaries/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log

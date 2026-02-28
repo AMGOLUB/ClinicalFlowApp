@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation — ClinicalFlow</title>
+  <meta name="description" content="Comprehensive documentation for ClinicalFlow. Installation, transcription setup, note generation, dental charting, medical coding, security, and troubleshooting.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body class="docs-body">
+
+
+<!-- ════════════════════════════════════════
+     TOP NAV
+     ════════════════════════════════════════ -->
+<nav class="nav scrolled" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+      </div>
+      Clinical<span>Flow</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="docs.html" class="active">Docs</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
+    </div>
+    <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════
+     DOCS LAYOUT: Sidebar + Content
+     ════════════════════════════════════════ -->
+<div class="docs-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="docs-sidebar" id="docsSidebar">
+    <div class="docs-sidebar-inner">
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Getting Started</div>
+        <a href="#installation" class="docs-sidebar-link">Installation</a>
+        <a href="#first-launch" class="docs-sidebar-link">First Launch &amp; PIN</a>
+        <a href="#welcome-wizard" class="docs-sidebar-link">Welcome Wizard</a>
+        <a href="#demo-mode" class="docs-sidebar-link">Demo Mode</a>
+        <a href="#system-requirements" class="docs-sidebar-link">System Requirements</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Recording &amp; Transcription</div>
+        <a href="#recording-basics" class="docs-sidebar-link">Recording Basics</a>
+        <a href="#online-transcription" class="docs-sidebar-link">Online Transcription</a>
+        <a href="#offline-transcription" class="docs-sidebar-link">Offline Transcription</a>
+        <a href="#microphone" class="docs-sidebar-link">Microphone Setup</a>
+        <a href="#languages" class="docs-sidebar-link">Languages (37)</a>
+        <a href="#medical-corrections" class="docs-sidebar-link">Medical Term Corrections</a>
+        <a href="#hallucination-filtering" class="docs-sidebar-link">Hallucination Filtering</a>
+        <a href="#vocabulary-conditioning" class="docs-sidebar-link">Vocabulary Conditioning</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Speakers</div>
+        <a href="#speaker-management" class="docs-sidebar-link">Speaker Management</a>
+        <a href="#speaker-roles" class="docs-sidebar-link">Roles &amp; Colors</a>
+        <a href="#speaker-detection" class="docs-sidebar-link">Auto-Detection</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Note Generation</div>
+        <a href="#cloud-ai" class="docs-sidebar-link">Cloud AI (Claude)</a>
+        <a href="#ollama" class="docs-sidebar-link">Ollama (Local AI)</a>
+        <a href="#rule-based" class="docs-sidebar-link">Rule-Based Fallback</a>
+        <a href="#verification" class="docs-sidebar-link">Two-Pass Verification</a>
+        <a href="#clinical-prompt" class="docs-sidebar-link">Clinical Prompt System</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Note Templates (20)</div>
+        <a href="#templates-overview" class="docs-sidebar-link">Overview</a>
+        <a href="#templates-general" class="docs-sidebar-link">General (3)</a>
+        <a href="#templates-behavioral" class="docs-sidebar-link">Behavioral Health (2)</a>
+        <a href="#templates-specialty" class="docs-sidebar-link">Specialty (10)</a>
+        <a href="#templates-dental" class="docs-sidebar-link">Dental (5)</a>
+        <a href="#templates-custom" class="docs-sidebar-link">Custom Templates</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Dental Charting</div>
+        <a href="#dental-overview" class="docs-sidebar-link">Overview</a>
+        <a href="#dental-states" class="docs-sidebar-link">Tooth States (8)</a>
+        <a href="#dental-surfaces" class="docs-sidebar-link">Surface Marking</a>
+        <a href="#dental-ai" class="docs-sidebar-link">AI Integration</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Periodontal Charting</div>
+        <a href="#perio-overview" class="docs-sidebar-link">Overview</a>
+        <a href="#perio-voice" class="docs-sidebar-link">Voice-Driven Entry</a>
+        <a href="#perio-measurements" class="docs-sidebar-link">Measurements &amp; Data</a>
+        <a href="#perio-scoring" class="docs-sidebar-link">Completeness Scoring</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Medical &amp; Dental Coding</div>
+        <a href="#coding-overview" class="docs-sidebar-link">Overview</a>
+        <a href="#coding-medical" class="docs-sidebar-link">ICD-10 + CPT</a>
+        <a href="#coding-dental" class="docs-sidebar-link">CDT + Dental ICD-10</a>
+        <a href="#coding-audit" class="docs-sidebar-link">Audit Flags</a>
+        <a href="#coding-warnings" class="docs-sidebar-link">Clinical Warnings</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Editing &amp; Export</div>
+        <a href="#editing" class="docs-sidebar-link">Inline Editing</a>
+        <a href="#pdf-export" class="docs-sidebar-link">PDF Export</a>
+        <a href="#text-export" class="docs-sidebar-link">Text Export</a>
+        <a href="#clipboard" class="docs-sidebar-link">Copy to Clipboard</a>
+        <a href="#export-actions" class="docs-sidebar-link">Export Actions</a>
+        <a href="#archiving" class="docs-sidebar-link">Session Archiving</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Integrations</div>
+        <a href="#ehr-integration" class="docs-sidebar-link">EHR Integration</a>
+        <a href="#pms-bridge" class="docs-sidebar-link">PMS Bridge</a>
+        <a href="#insurance-narrative" class="docs-sidebar-link">Insurance Narrative</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Settings Reference</div>
+        <a href="#settings-tabs" class="docs-sidebar-link">General &amp; Advanced Tabs</a>
+        <a href="#settings-appearance" class="docs-sidebar-link">Appearance</a>
+        <a href="#settings-transcription" class="docs-sidebar-link">Transcription</a>
+        <a href="#settings-ai" class="docs-sidebar-link">AI Engine</a>
+        <a href="#settings-recording" class="docs-sidebar-link">Recording</a>
+        <a href="#settings-ehr" class="docs-sidebar-link">EHR Integration</a>
+        <a href="#settings-pms" class="docs-sidebar-link">PMS Bridge</a>
+        <a href="#settings-language" class="docs-sidebar-link">Language</a>
+        <a href="#settings-security" class="docs-sidebar-link">Security</a>
+        <a href="#shortcuts" class="docs-sidebar-link">Keyboard Shortcuts</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Security &amp; Privacy</div>
+        <a href="#encryption" class="docs-sidebar-link">Encryption</a>
+        <a href="#pin-lock" class="docs-sidebar-link">PIN &amp; Lock Screen</a>
+        <a href="#network" class="docs-sidebar-link">Network Requests</a>
+        <a href="#hipaa" class="docs-sidebar-link">HIPAA Considerations</a>
+        <a href="#data-handling" class="docs-sidebar-link">Data Handling</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Subscription</div>
+        <a href="#subscription" class="docs-sidebar-link">Plans &amp; Billing</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Troubleshooting</div>
+        <a href="#ts-microphone" class="docs-sidebar-link">Microphone Issues</a>
+        <a href="#ts-transcription" class="docs-sidebar-link">Transcription Issues</a>
+        <a href="#ts-ollama" class="docs-sidebar-link">Ollama Issues</a>
+        <a href="#ts-notes" class="docs-sidebar-link">Note Generation Issues</a>
+        <a href="#ts-export" class="docs-sidebar-link">Export Issues</a>
+        <a href="#ts-crashes" class="docs-sidebar-link">Crashes &amp; Recovery</a>
+        <a href="#ts-logs" class="docs-sidebar-link">Log Files</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Architecture</div>
+        <a href="#architecture" class="docs-sidebar-link">System Architecture</a>
+        <a href="#data-formats" class="docs-sidebar-link">Data Formats</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Comparison</div>
+        <a href="#comparison" class="docs-sidebar-link">vs. Other Tools</a>
+      </div>
+      <div class="docs-sidebar-group">
+        <div class="docs-sidebar-title">Changelog</div>
+        <a href="#changelog" class="docs-sidebar-link">Version History</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MOBILE SIDEBAR TOGGLE -->
+  <button class="docs-sidebar-toggle" id="docsSidebarToggle" aria-label="Toggle docs navigation">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+
+
+  <!-- ════════════════════════════════════
+       MAIN CONTENT
+       ════════════════════════════════════ -->
+  <main class="docs-content">
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         GETTING STARTED
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Getting Started</span>
+    </div>
+
+    <article id="installation" class="docs-article">
+      <h2>Installation</h2>
+      <h3>macOS (Current Release)</h3>
+      <p>Download the <code>.dmg</code> file from the <a href="index.html#download">download page</a>. Open the disk image and drag ClinicalFlow into your Applications folder. On first launch, macOS may ask you to confirm you want to open an app from an identified developer &mdash; click <strong>Open</strong>.</p>
+      <p>Supported on macOS 11.0 (Big Sur) or later. Optimized for Apple Silicon (M1, M2, M3, M4).</p>
+
+      <div class="docs-callout docs-callout--info">
+        <strong>File sizes:</strong> The installer is approximately 50 MB. On first launch, ClinicalFlow will prompt you to download a Whisper speech recognition model (465 MB for Small) if you choose offline mode.
+      </div>
+
+      <h3>Windows &amp; Linux</h3>
+      <p>Windows and Linux builds are in development. Currently, ClinicalFlow is macOS-only. Sign up for notifications on the <a href="index.html#download">download page</a> to be notified when these platforms become available.</p>
+    </article>
+
+    <article id="first-launch" class="docs-article">
+      <h2>First Launch &amp; PIN Setup</h2>
+      <p>When you open ClinicalFlow for the first time, you&rsquo;ll be asked to create a numeric PIN (4&ndash;8 digits). This PIN encrypts all clinical data stored on your device using AES-256 encryption.</p>
+      <p>You&rsquo;ll enter this PIN every time you open the app. ClinicalFlow never stores your PIN in plaintext &mdash; only an Argon2id cryptographic hash is saved for verification.</p>
+
+      <div class="docs-callout docs-callout--warning">
+        <strong>Important:</strong> If you forget your PIN, your data cannot be recovered. The encryption is designed so that only you can access patient information. Write your PIN down and store it securely. The only recovery option is a full PIN reset, which permanently deletes all data.
+      </div>
+
+      <p>After creating your PIN, the Welcome Wizard guides you through initial setup.</p>
+    </article>
+
+    <article id="welcome-wizard" class="docs-article">
+      <h2>Welcome Wizard</h2>
+      <p>The Welcome Wizard runs once after PIN creation and walks you through a 5-screen setup flow:</p>
+
+      <table class="docs-table">
+        <thead><tr><th>Screen</th><th>Title</th><th>What You Do</th></tr></thead>
+        <tbody>
+          <tr><td>Welcome</td><td>&ldquo;Welcome to ClinicalFlow&rdquo;</td><td>Introduction screen. Click <strong>Get Started</strong> to begin.</td></tr>
+          <tr><td>Step 1 of 4</td><td>&ldquo;Choose Your Language&rdquo;</td><td>Select from 37 supported languages. This sets your transcription, note generation, and UI language.</td></tr>
+          <tr><td>Step 2 of 4</td><td>&ldquo;Choose Your Mode&rdquo;</td><td>Select <strong>Online</strong> (Deepgram + Claude, recommended) or <strong>Offline</strong> (Whisper + Ollama, privacy-first). You can switch anytime in Settings.</td></tr>
+          <tr><td>Step 3 of 4</td><td>&ldquo;Online Setup&rdquo; or &ldquo;Offline Setup&rdquo;</td><td><strong>Online:</strong> Enter and test your Deepgram and Claude API keys. <strong>Offline:</strong> Verify Whisper model is ready and test Ollama connection.</td></tr>
+          <tr><td>Step 4 of 4</td><td>&ldquo;You&rsquo;re All Set!&rdquo;</td><td>Quick-start tips showing essential keyboard shortcuts. Click <strong>Start Using ClinicalFlow</strong>.</td></tr>
+        </tbody>
+      </table>
+
+      <p>After completing the wizard, it never appears again. The <code>welcomeCompleted</code> flag is saved in your configuration. To re-run the setup, delete your <code>auth.json</code> file (see <a href="#ts-logs">Log Files</a> for file locations).</p>
+    </article>
+
+    <article id="demo-mode" class="docs-article">
+      <h2>Demo Mode</h2>
+      <p>ClinicalFlow includes two built-in demo encounters to help you explore the app without a real patient visit.</p>
+
+      <h3>Accessing Demo Mode</h3>
+      <p>Triple-click the <strong>Help</strong> button (3 clicks within 400ms). A picker modal appears with two demo scenarios.</p>
+
+      <h3>Medical Demo</h3>
+      <p>A multi-problem internal medicine encounter with <strong>James Robinson</strong> (patient), <strong>Dr. Patel</strong> (physician), and <strong>Maria</strong> (medical assistant). Covers Type 2 diabetes, hypertension, peripheral neuropathy, and left knee osteoarthritis. The transcript plays back word-by-word with waveform animation (~24 entries).</p>
+
+      <h3>Dental Demo</h3>
+      <p>A comprehensive dental encounter with <strong>Ms. Ramirez</strong> (patient) and <strong>Dr. Chen</strong> (dentist). Covers MOD caries, endodontic failure, impacted wisdom tooth, and a 4-phase treatment plan. The transcript loads instantly (15 entries), the dental chart auto-populates with findings, and the <code>dental_general</code> template is auto-selected.</p>
+
+      <p>Demo mode is a great way to test different note templates, dental charting, medical coding, and the verification system before using ClinicalFlow in a real encounter.</p>
+    </article>
+
+    <article id="system-requirements" class="docs-article">
+      <h2>System Requirements</h2>
+      <h3>Online Mode (Minimum)</h3>
+      <table class="docs-table">
+        <tbody>
+          <tr><td>Operating System</td><td>macOS 11.0+ (Apple Silicon recommended)</td></tr>
+          <tr><td>RAM</td><td>4 GB</td></tr>
+          <tr><td>Disk Space</td><td>~1 GB (app + bundled Whisper model)</td></tr>
+          <tr><td>Internet</td><td>Required (for Deepgram and Claude API calls)</td></tr>
+          <tr><td>Microphone</td><td>Any USB or built-in microphone</td></tr>
+          <tr><td>API Keys</td><td>Deepgram (free tier: $200 credit) + Anthropic</td></tr>
+        </tbody>
+      </table>
+      <h3>Offline Mode (Recommended)</h3>
+      <table class="docs-table">
+        <tbody>
+          <tr><td>Processor</td><td>Apple Silicon (M1 or later)</td></tr>
+          <tr><td>RAM</td><td>8 GB recommended (Whisper + Ollama)</td></tr>
+          <tr><td>Disk Space</td><td>~8 GB (app + Whisper model + Ollama model)</td></tr>
+          <tr><td>Internet</td><td>Not required (one-time internet needed for initial Ollama model download)</td></tr>
+          <tr><td>Dependencies</td><td>Ollama (free, separate install from <a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a>)</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         RECORDING & TRANSCRIPTION
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Recording &amp; Transcription</span>
+    </div>
+
+    <article id="recording-basics" class="docs-article">
+      <h2>Recording Basics</h2>
+      <p>The record button is the large circular button at the bottom center of the app. Press it or hit <kbd>Space</kbd> to start recording. The button pulses red and a timer counts up in the header.</p>
+
+      <h3>Controls</h3>
+      <table class="docs-table">
+        <thead><tr><th>Action</th><th>Button</th><th>Shortcut</th></tr></thead>
+        <tbody>
+          <tr><td>Start / Stop recording</td><td>Record button (red circle)</td><td><kbd>Space</kbd> or <kbd>Cmd+R</kbd></td></tr>
+          <tr><td>Pause / Resume</td><td>Pause button (appears during recording)</td><td><kbd>P</kbd></td></tr>
+        </tbody>
+      </table>
+
+      <h3>During Recording</h3>
+      <ul>
+        <li>The <strong>timer</strong> in the header counts up (MM:SS format)</li>
+        <li>The <strong>waveform visualizer</strong> animates at 60 FPS to show audio input level</li>
+        <li>Transcript entries appear in real time in the left panel</li>
+        <li>Each entry shows the speaker name, timestamp, and transcribed text</li>
+        <li>The transcript auto-scrolls to the latest entry (can be toggled off in Settings)</li>
+      </ul>
+
+      <h3>Maximum Session Duration</h3>
+      <p>Sessions are limited to <strong>4 hours</strong> of continuous recording. When this limit is reached, recording stops automatically.</p>
+
+      <h3>Crash Recovery</h3>
+      <p>ClinicalFlow writes audio data to disk continuously during recording (flushing every ~10 seconds). If the app crashes mid-recording, your audio is preserved up to the last flush. On restart, ClinicalFlow recovers the session automatically.</p>
+    </article>
+
+    <article id="online-transcription" class="docs-article">
+      <h2>Online Transcription (Deepgram)</h2>
+      <p>Online mode uses <strong>Deepgram Nova-3 Medical</strong>, a cloud-based speech recognition model optimized for clinical encounters. It provides the highest accuracy and real-time speaker diarization.</p>
+
+      <h3>Setup</h3>
+      <ol>
+        <li>Sign up at <a href="https://deepgram.com" target="_blank" rel="noopener">deepgram.com</a> (free tier includes $200 of credit)</li>
+        <li>Create an API key in your Deepgram dashboard</li>
+        <li>Open ClinicalFlow Settings &rarr; Transcription &rarr; paste your API key &rarr; click <strong>Save</strong></li>
+      </ol>
+      <p>The connection indicator in the header will show <span class="docs-status docs-status--green">Online &mdash; connected</span> when the key is valid.</p>
+
+      <h3>How It Works</h3>
+      <p>Audio is captured from your microphone, encoded as 16-bit PCM at 16 kHz mono, and streamed to Deepgram over an encrypted WebSocket connection (WSS). Deepgram returns transcription results with word-level timestamps and speaker labels. A keepalive signal is sent every 8 seconds, and utterance boundaries are detected after 1,500ms of silence.</p>
+
+      <h3>Keyterm Boosting</h3>
+      <p>ClinicalFlow sends up to 100 medical terms to Deepgram as keyterm parameters, drawn from the corrections dictionary and medical dictionary. This improves recognition accuracy for clinical terminology.</p>
+
+      <h3>Speaker Diarization</h3>
+      <p>Deepgram automatically identifies different speakers in the audio stream. ClinicalFlow maps these speaker IDs to the speakers you&rsquo;ve defined in the sidebar.</p>
+    </article>
+
+    <article id="offline-transcription" class="docs-article">
+      <h2>Offline Transcription (Whisper)</h2>
+      <p>Offline mode uses a local <strong>Whisper Small</strong> model (465 MB, multilingual) running via a whisper-server HTTP sidecar. No audio ever leaves your machine.</p>
+
+      <h3>How It Works</h3>
+      <p>Audio is captured in 3-second chunks with 0.5-second overlap. Each chunk is sent as a 16 kHz mono WAV to the local whisper-server via HTTP POST. The server keeps the model loaded in memory between requests for fast inference. Chunks below a 200 RMS silence threshold are skipped to avoid processing silence.</p>
+
+      <h3>Model Details</h3>
+      <table class="docs-table">
+        <tbody>
+          <tr><td>Model file</td><td><code>ggml-small.bin</code> (multilingual) or <code>ggml-small.en.bin</code> (English-only)</td></tr>
+          <tr><td>Size</td><td>465 MB each</td></tr>
+          <tr><td>Startup timeout</td><td>30 seconds for model loading</td></tr>
+          <tr><td>Request timeout</td><td>10 seconds per chunk</td></tr>
+          <tr><td>Temperature</td><td>0.0 (deterministic)</td></tr>
+          <tr><td>Threads</td><td>Auto-detected (minimum 4)</td></tr>
+          <tr><td>Network binding</td><td><code>127.0.0.1</code> only (no external access)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="docs-callout docs-callout--info">
+        <strong>No speaker diarization:</strong> Whisper does not provide speaker diarization. In offline mode, you can manually switch speakers in the sidebar, or use the 1.5-second silence detection heuristic to auto-switch.
+      </div>
+    </article>
+
+    <article id="microphone" class="docs-article">
+      <h2>Microphone Setup</h2>
+      <p>ClinicalFlow uses your system&rsquo;s default audio input device. Audio is captured at 16 kHz, 16-bit signed mono via the native audio stack (cpal on Rust).</p>
+      <p>For best results, use an external USB microphone positioned between you and the patient. Built-in laptop microphones work but capture more ambient noise.</p>
+      <p>On macOS, you&rsquo;ll need to grant microphone permission on first launch: System Settings &rarr; Privacy &amp; Security &rarr; Microphone &rarr; enable ClinicalFlow.</p>
+    </article>
+
+    <article id="languages" class="docs-article">
+      <h2>Languages (37)</h2>
+      <p>ClinicalFlow supports 37 languages across the full pipeline: transcription, medical term corrections, note generation, and date formatting.</p>
+
+      <table class="docs-table">
+        <thead><tr><th>Region</th><th>Languages</th></tr></thead>
+        <tbody>
+          <tr><td>English (4)</td><td>en-US, en-GB, en-AU, en-IN</td></tr>
+          <tr><td>Romance (8)</td><td>Spanish, Latin American Spanish, French, Italian, Portuguese, Brazilian Portuguese, Dutch, Romanian</td></tr>
+          <tr><td>Germanic (4)</td><td>German, Swedish, Danish, Norwegian</td></tr>
+          <tr><td>Asian (10)</td><td>Japanese, Korean, Chinese (Simplified), Chinese (Traditional), Hindi, Tamil, Telugu, Thai, Vietnamese, Indonesian, Malay</td></tr>
+          <tr><td>Slavic (8)</td><td>Russian, Ukrainian, Polish, Czech, Slovak, Bulgarian, Croatian, Slovenian</td></tr>
+          <tr><td>Other (3)</td><td>Arabic, Hebrew, Turkish, Finnish, Hungarian, Greek</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Correction Dictionaries</h3>
+      <p>Medical term corrections are available for 6 languages, totaling 204 patterns:</p>
+      <table class="docs-table">
+        <thead><tr><th>Language</th><th>Patterns</th></tr></thead>
+        <tbody>
+          <tr><td>English</td><td>82</td></tr>
+          <tr><td>Spanish</td><td>30</td></tr>
+          <tr><td>French</td><td>29</td></tr>
+          <tr><td>German</td><td>21</td></tr>
+          <tr><td>Portuguese</td><td>21</td></tr>
+          <tr><td>Italian</td><td>21</td></tr>
+        </tbody>
+      </table>
+      <p>Languages without dedicated correction dictionaries use the base transcription engine output without post-processing.</p>
+    </article>
+
+    <article id="medical-corrections" class="docs-article">
+      <h2>Medical Term Corrections</h2>
+      <p>Speech-to-text engines frequently garble medical terminology. ClinicalFlow applies a post-processing step after transcription that fixes common errors using 204 regex patterns across 6 languages.</p>
+
+      <h3>What Gets Corrected</h3>
+      <table class="docs-table">
+        <thead><tr><th>Category</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td>Drug names</td><td>&ldquo;metforming&rdquo; &rarr; metformin, &ldquo;lipator&rdquo; &rarr; Lipitor, &ldquo;hydroclorothiazide&rdquo; &rarr; hydrochlorothiazide</td></tr>
+          <tr><td>Conditions</td><td>&ldquo;hypertention&rdquo; &rarr; hypertension, &ldquo;dye-a-beet-eez&rdquo; &rarr; diabetes, &ldquo;arithemia&rdquo; &rarr; arrhythmia</td></tr>
+          <tr><td>Abbreviations</td><td>&ldquo;bee pee&rdquo; &rarr; BP, &ldquo;ee kay gee&rdquo; &rarr; EKG</td></tr>
+          <tr><td>Vital signs</td><td>Catches unrealistic values like &ldquo;BP 1420 over 88&rdquo; and flags for review</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Custom Dictionary</h3>
+      <p>Corrections are loaded from language-specific JSON files in the app&rsquo;s data directory (<code>corrections.json</code> for English, <code>corrections-es.json</code> for Spanish, etc.). You can edit these files to add corrections specific to your specialty:</p>
+      <div class="docs-code">
+        <pre><code>[
+  { "pattern": "\\bmetforming\\b", "flags": "gi", "replacement": "metformin" },
+  { "pattern": "\\byour-custom-term\\b", "flags": "gi", "replacement": "CorrectTerm" }
+]</code></pre>
+      </div>
+      <p>ClinicalFlow reloads the corrections file on each app launch. Changes take effect on the next recording.</p>
+    </article>
+
+    <article id="hallucination-filtering" class="docs-article">
+      <h2>Hallucination Filtering</h2>
+      <p>Whisper occasionally produces false positive text output from silence or background noise. ClinicalFlow filters these automatically before they reach the transcript.</p>
+
+      <h3>What Gets Filtered</h3>
+      <ul>
+        <li><strong>Whisper meta-tags:</strong> <code>[blank_audio]</code>, <code>(silence)</code>, <code>(blank audio)</code>, <code>(no audio)</code></li>
+        <li><strong>Background sounds:</strong> <code>(music)</code>, <code>(laughter)</code>, <code>(coughing)</code>, <code>(breathing)</code>, <code>(footsteps)</code>, and similar</li>
+        <li><strong>YouTube/social media artifacts:</strong> &ldquo;subscribe&rdquo;, &ldquo;like and subscribe&rdquo;, &ldquo;thank you for watching&rdquo; (training data leakage from Whisper)</li>
+        <li><strong>Generic filler:</strong> &ldquo;thank you.&rdquo;, &ldquo;goodbye.&rdquo;, &ldquo;the end.&rdquo;, single-word outputs</li>
+        <li><strong>Structural patterns:</strong> Fully parenthesized strings, repeated words/phrases, empty output</li>
+      </ul>
+
+      <div class="docs-callout docs-callout--info">
+        <strong>Not configurable.</strong> The hallucination filter is hardcoded in the Rust backend (<code>audio.rs</code>). It cannot be modified without recompiling the application.
+      </div>
+    </article>
+
+    <article id="vocabulary-conditioning" class="docs-article">
+      <h2>Medical Vocabulary Conditioning</h2>
+      <p>ClinicalFlow conditions the Whisper model with a prompt containing 55+ medical terms to improve recognition of clinical terminology. This prompt is passed to whisper-server via the <code>--prompt</code> flag.</p>
+
+      <h3>Term Categories</h3>
+      <table class="docs-table">
+        <thead><tr><th>Category</th><th>Count</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td>Medications</td><td>62</td><td>metformin, lisinopril, atorvastatin, gabapentin, warfarin</td></tr>
+          <tr><td>Conditions</td><td>80+</td><td>hypertension, atrial fibrillation, COPD, osteoarthritis</td></tr>
+          <tr><td>Anatomy</td><td>21</td><td>cervical, thoracic, lumbar, bilateral, anterior, posterior</td></tr>
+          <tr><td>Vitals</td><td>9</td><td>systolic, diastolic, blood pressure, heart rate, SpO2</td></tr>
+          <tr><td>Labs</td><td>12</td><td>A1c, CBC, BMP, CMP, TSH, lipid panel, creatinine</td></tr>
+          <tr><td>Dental</td><td>35+</td><td>caries, periodontitis, mesial, occlusal, buccal, pulpitis</td></tr>
+        </tbody>
+      </table>
+
+      <div class="docs-callout docs-callout--info">
+        <strong>Not user-configurable.</strong> The medical vocabulary prompt is compiled into the Rust binary. Changing it requires editing <code>audio.rs</code> and recompiling.
+      </div>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         SPEAKERS
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Speakers</span>
+    </div>
+
+    <article id="speaker-management" class="docs-article">
+      <h2>Speaker Management</h2>
+      <p>The sidebar&rsquo;s <strong>Speakers</strong> section lets you define who is in the encounter. Each speaker gets a name, a role, and a unique color that appears in the transcript.</p>
+      <h3>Adding a Speaker</h3>
+      <p>Click the <strong>+</strong> button in the Speakers section. Enter a name (e.g., &ldquo;Dr. Martinez&rdquo;) and select a role. ClinicalFlow automatically assigns a color.</p>
+      <h3>Switching the Active Speaker</h3>
+      <p>Click a speaker&rsquo;s name in the sidebar to make them the active speaker. All subsequent transcript entries will be attributed to this speaker until you switch again or auto-detection switches for you.</p>
+      <h3>Removing a Speaker</h3>
+      <p>Click the &times; button next to a speaker&rsquo;s name. Existing transcript entries from that speaker are preserved.</p>
+    </article>
+
+    <article id="speaker-roles" class="docs-article">
+      <h2>Roles &amp; Colors</h2>
+      <p>Each speaker can be assigned one of three roles. The role determines how the speaker&rsquo;s words are categorized in the generated clinical note:</p>
+      <table class="docs-table">
+        <thead><tr><th>Role</th><th>Abbreviation</th><th>Note Categorization</th></tr></thead>
+        <tbody>
+          <tr><td>Physician</td><td>Dr</td><td>Statements go to Objective, Assessment, and Plan sections</td></tr>
+          <tr><td>Patient</td><td>Pt</td><td>Statements go to Subjective (chief complaint, symptoms, history)</td></tr>
+          <tr><td>Other</td><td>Ot</td><td>Context-dependent; can represent a nurse, family member, translator, or other participant</td></tr>
+        </tbody>
+      </table>
+      <p>Each speaker has a unique color in the transcript, displayed as a left border on each entry for easy visual scanning.</p>
+    </article>
+
+    <article id="speaker-detection" class="docs-article">
+      <h2>Auto-Detection</h2>
+      <p>When <strong>Auto-detect speakers</strong> is enabled (Settings &rarr; Recording), ClinicalFlow uses two methods to automatically switch speakers:</p>
+      <ul>
+        <li><strong>Diarization data</strong> (online mode) &mdash; Deepgram provides speaker IDs with each transcript segment, and ClinicalFlow maps these to your defined speakers.</li>
+        <li><strong>Silence detection</strong> (both modes) &mdash; After 1.5 seconds of silence, ClinicalFlow may switch the active speaker. This works best in clear turn-taking conversations.</li>
+      </ul>
+      <p>Auto-detection is not perfect. You can always manually click a speaker in the sidebar to correct it.</p>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         NOTE GENERATION
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Note Generation</span>
+    </div>
+
+    <article id="cloud-ai" class="docs-article">
+      <h2>Cloud AI (Claude Haiku 4.5)</h2>
+      <p>Cloud AI uses Anthropic&rsquo;s <strong>Claude Haiku 4.5</strong> (<code>claude-haiku-4-5-20251001</code>) to generate clinical notes. It provides the highest quality output with the most natural clinical language.</p>
+
+      <h3>Setup</h3>
+      <ol>
+        <li>Sign up at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></li>
+        <li>Create an API key (starts with <code>sk-ant-</code>)</li>
+        <li>Open ClinicalFlow Settings &rarr; AI Note Generation &rarr; select <strong>Cloud AI</strong></li>
+        <li>Paste your API key and click <strong>Save</strong></li>
+        <li>Click <strong>Test</strong> to verify the connection</li>
+      </ol>
+
+      <h3>Technical Details</h3>
+      <table class="docs-table">
+        <tbody>
+          <tr><td>Model</td><td><code>claude-haiku-4-5-20251001</code></td></tr>
+          <tr><td>Temperature</td><td>0.3 (generation), 0.1 (verification pass)</td></tr>
+          <tr><td>Max tokens</td><td>2,048 per request</td></tr>
+          <tr><td>Timeout</td><td>120 seconds</td></tr>
+          <tr><td>Typical input</td><td>~1,500 tokens (transcript + system prompt)</td></tr>
+          <tr><td>Typical output</td><td>~800 tokens per note</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Cost</h3>
+      <p>A full online encounter (Deepgram transcription + Claude note generation with verification) costs approximately <strong>$0.10&ndash;$0.15 per encounter</strong> for a 15-minute visit. This is separate from your ClinicalFlow subscription &mdash; you pay Deepgram and Anthropic directly through your own API keys.</p>
+
+      <h3>How It Works</h3>
+      <p>When you click <strong>Generate Note</strong> (or press <kbd>G</kbd>), ClinicalFlow sends the full transcript to Claude along with a detailed clinical prompt that specifies the note template, evidence-extraction rules, safety constraints, and output structure. Claude&rsquo;s response streams back in real time &mdash; you see the note being written section by section.</p>
+    </article>
+
+    <article id="ollama" class="docs-article">
+      <h2>Ollama (Local AI)</h2>
+      <p>Ollama runs AI models entirely on your local machine. No data leaves your computer. It&rsquo;s free, open-source, and supports dozens of models.</p>
+
+      <h3>Installation</h3>
+      <ol>
+        <li>Download Ollama from <a href="https://ollama.com/download" target="_blank" rel="noopener">ollama.com/download</a></li>
+        <li>Install and launch it (it runs in the background)</li>
+        <li>Open Terminal and pull a model: <code>ollama pull llama3.1:8b</code></li>
+        <li>In ClinicalFlow Settings &rarr; AI Note Generation &rarr; select <strong>Ollama</strong></li>
+        <li>Click <strong>Test</strong> to verify the connection, then <strong>Refresh</strong> to load available models.</li>
+      </ol>
+
+      <h3>Recommended Models</h3>
+      <table class="docs-table">
+        <thead><tr><th>Model</th><th>Size</th><th>Quality</th><th>Speed</th></tr></thead>
+        <tbody>
+          <tr><td><code>llama3.1:8b</code></td><td>4.7 GB</td><td>Good</td><td>Fast</td></tr>
+          <tr><td><code>mistral:7b</code></td><td>4.1 GB</td><td>Good</td><td>Fast</td></tr>
+          <tr><td><code>gemma2:9b</code></td><td>5.4 GB</td><td>Very Good</td><td>Medium</td></tr>
+          <tr><td><code>llama3.1:70b</code></td><td>39 GB</td><td>Excellent</td><td>Slow (needs 64GB+ RAM)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Configuration</h3>
+      <p>Default server URL: <code>http://localhost:11434</code>. ClinicalFlow includes 3 automatic retries for transient failures.</p>
+    </article>
+
+    <article id="rule-based" class="docs-article">
+      <h2>Rule-Based Fallback</h2>
+      <p>If both Cloud AI and Ollama are unavailable, ClinicalFlow falls back to a <strong>rule-based note generator</strong>. This deterministic system extracts information using pattern matching: vital sign patterns, medication mentions, symptom descriptions, and exam findings.</p>
+      <p>Rule-based notes are less polished than AI-generated ones but provide a reliable baseline that captures key data points. Select it explicitly in Settings &rarr; AI Note Generation &rarr; <strong>Rule-Based</strong>.</p>
+    </article>
+
+    <article id="verification" class="docs-article">
+      <h2>Two-Pass Verification</h2>
+      <p>ClinicalFlow&rsquo;s verification system runs a second AI pass after generating a note. This auditor checks every claim against the original transcript.</p>
+      <table class="docs-table">
+        <thead><tr><th>Check</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>Hallucination</td><td>Findings not supported by the transcript</td><td>Note says &ldquo;lungs clear&rdquo; but no lung exam was discussed</td></tr>
+          <tr><td>Contradiction</td><td>Same finding appears as both positive and negative</td><td>&ldquo;denies chest pain&rdquo; but Assessment says &ldquo;chest pain&rdquo;</td></tr>
+          <tr><td>Omission</td><td>Something discussed but missing from the note</td><td>Labs ordered but not in the Plan</td></tr>
+          <tr><td>Categorization</td><td>Items in the wrong section</td><td>A new medication listed as &ldquo;continued&rdquo;</td></tr>
+        </tbody>
+      </table>
+      <p>The verification pass runs at temperature 0.1 for maximum precision. Toggle in Settings &rarr; AI Note Generation &rarr; <strong>Verification pass</strong>.</p>
+      <div class="docs-callout docs-callout--warning">
+        <strong>Verification requires AI.</strong> The verification pass uses the same AI engine as note generation (Cloud AI or Ollama). It is not available with the rule-based engine.
+      </div>
+    </article>
+
+    <article id="clinical-prompt" class="docs-article">
+      <h2>Clinical Prompt System</h2>
+      <p>ClinicalFlow uses a carefully engineered prompt to guide AI note generation. The prompt includes:</p>
+      <ul>
+        <li><strong>Template specification</strong> &mdash; Exact section headers and structure for the selected template (from all 20 built-in templates)</li>
+        <li><strong>Evidence-extraction rules</strong> &mdash; Every line must trace back to something explicitly stated in the transcript</li>
+        <li><strong>Omission logic</strong> &mdash; If a system or exam component was not discussed, it is omitted (not listed as &ldquo;not assessed&rdquo;)</li>
+        <li><strong>Pertinent negatives</strong> &mdash; Only negatives the patient explicitly denied are included</li>
+        <li><strong>Medication categorization</strong> &mdash; Separates new prescriptions, continued medications, and dosage changes</li>
+        <li><strong>Multilingual output</strong> &mdash; For non-English languages, an OUTPUT LANGUAGE directive generates clinical content in the target language while keeping section headers in English for the note parser</li>
+        <li><strong>Dental chart integration</strong> &mdash; When a dental template is selected, dental chart findings are serialized into the prompt</li>
+        <li><strong>Medical/dental coding</strong> &mdash; When auto-coding is enabled, a separate coding prompt generates ICD-10, CPT, E&amp;M, or CDT codes from the note content</li>
+      </ul>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         NOTE TEMPLATES (20)
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Note Templates</span>
+    </div>
+
+    <article id="templates-overview" class="docs-article">
+      <h2>Template Overview</h2>
+      <p>ClinicalFlow includes <strong>20 built-in note templates</strong> across 5 categories, plus the ability to create custom templates. Select a template from the dropdown (<code>#formatSelector</code>) in the sidebar, or change your default in Settings.</p>
+    </article>
+
+    <article id="templates-general" class="docs-article">
+      <h2>General Templates (3)</h2>
+      <table class="docs-table">
+        <thead><tr><th>Template</th><th>Key</th><th>Sections</th></tr></thead>
+        <tbody>
+          <tr><td><strong>SOAP Notes</strong></td><td><code>soap</code></td><td>Subjective, Objective, Assessment, Plan</td></tr>
+          <tr><td><strong>HPI-Focused</strong></td><td><code>hpi</code></td><td>Patient Demographics, Chief Complaint, History of Present Illness, Review of Systems, Physical Examination, Assessment &amp; Plan</td></tr>
+          <tr><td><strong>Problem-Oriented</strong></td><td><code>problem</code></td><td>Visit Overview, Problem 1 (SOAP per problem), Medications Summary, Follow-Up</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="templates-behavioral" class="docs-article">
+      <h2>Behavioral Health Templates (2)</h2>
+      <table class="docs-table">
+        <thead><tr><th>Template</th><th>Key</th><th>Sections</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DAP Note</strong> (Psychiatry)</td><td><code>dap</code></td><td>Data, Assessment, Plan</td></tr>
+          <tr><td><strong>BIRP Note</strong> (Behavioral)</td><td><code>birp</code></td><td>Behavior, Intervention, Response, Plan</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="templates-specialty" class="docs-article">
+      <h2>Specialty Templates (10)</h2>
+      <table class="docs-table">
+        <thead><tr><th>Template</th><th>Key</th><th>Sections</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Cardiology</strong></td><td><code>cardiology</code></td><td>Cardiac History, Cardiovascular Examination, Diagnostics, Assessment, Plan</td></tr>
+          <tr><td><strong>Orthopedics</strong></td><td><code>orthopedics</code></td><td>History, Musculoskeletal Examination, Imaging, Assessment, Plan</td></tr>
+          <tr><td><strong>Pediatrics</strong></td><td><code>pediatrics</code></td><td>Growth &amp; Development, History, Physical Examination, Assessment, Plan</td></tr>
+          <tr><td><strong>OB/GYN</strong></td><td><code>obgyn</code></td><td>OB/GYN History, Physical Examination, Labs &amp; Studies, Assessment, Plan</td></tr>
+          <tr><td><strong>Emergency / Urgent Care</strong></td><td><code>emergency</code></td><td>Triage, History of Present Illness, Physical Examination, Medical Decision Making, Disposition</td></tr>
+          <tr><td><strong>Dermatology</strong></td><td><code>dermatology</code></td><td>History, Lesion Description, Assessment, Plan</td></tr>
+          <tr><td><strong>Neurology</strong></td><td><code>neurology</code></td><td>Neurological History, Neurological Examination, Diagnostic Studies, Assessment, Plan</td></tr>
+          <tr><td><strong>Ophthalmology</strong></td><td><code>ophthalmology</code></td><td>Ophthalmic History, Examination, Assessment, Plan</td></tr>
+          <tr><td><strong>Preventive / Wellness</strong></td><td><code>wellness</code></td><td>Preventive Health, Health Screening, Physical Examination, Counseling &amp; Education, Plan</td></tr>
+          <tr><td><strong>Procedure Note</strong></td><td><code>procedure</code></td><td>Pre-Procedure, Procedure, Findings, Post-Procedure</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="templates-dental" class="docs-article">
+      <h2>Dental Templates (5)</h2>
+      <p>Dental templates automatically enable the interactive dental chart in the sidebar.</p>
+      <table class="docs-table">
+        <thead><tr><th>Template</th><th>Key</th><th>Sections</th></tr></thead>
+        <tbody>
+          <tr><td><strong>General Dental Exam</strong></td><td><code>dental_general</code></td><td>Chief Complaint, Dental History, Extraoral Examination, Intraoral Examination, Radiographic Findings, Dental Chart Findings, Assessment, Treatment Plan</td></tr>
+          <tr><td><strong>Periodontal Exam</strong></td><td><code>dental_periodontal</code></td><td>Chief Complaint, Periodontal History, Periodontal Examination, Radiographic Findings, Dental Chart Findings, Assessment, Treatment Plan</td></tr>
+          <tr><td><strong>Endodontic Evaluation</strong></td><td><code>dental_endodontic</code></td><td>Chief Complaint, Endodontic History, Diagnostic Testing, Radiographic Findings, Dental Chart Findings, Assessment, Treatment Plan</td></tr>
+          <tr><td><strong>Oral Surgery Consult</strong></td><td><code>dental_oral_surgery</code></td><td>Chief Complaint, Surgical History, Clinical Examination, Radiographic Findings, Dental Chart Findings, Assessment, Surgical Plan</td></tr>
+          <tr><td><strong>Prosthodontic Evaluation</strong></td><td><code>dental_prosthodontic</code></td><td>Chief Complaint, Prosthodontic History, Clinical Examination, Radiographic Findings, Dental Chart Findings, Assessment, Treatment Plan</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="templates-custom" class="docs-article">
+      <h2>Custom Templates</h2>
+      <p>Click <strong>+ Custom Template</strong> in the template dropdown to create your own. Provide a name, define section names, and optionally write a custom AI prompt. Custom templates are stored in the <code>ms-custom-templates</code> config key as a JSON array.</p>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         DENTAL CHARTING
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Dental Charting</span>
+    </div>
+
+    <article id="dental-overview" class="docs-article">
+      <h2>Interactive Dental Chart</h2>
+      <p>When any dental template is selected, a <strong>Dental Chart</strong> section appears in the sidebar with an <strong>&ldquo;Edit Chart&rdquo;</strong> button. Clicking opens a full-screen SVG dental chart modal.</p>
+      <p>The chart supports both <strong>32-tooth adult (permanent)</strong> and <strong>20-tooth primary (deciduous)</strong> dentition with a toggle switch. Teeth use ADA Universal numbering: adult teeth 1&ndash;32, primary teeth A&ndash;T.</p>
+    </article>
+
+    <article id="dental-states" class="docs-article">
+      <h2>Tooth States (8)</h2>
+      <p>Click any tooth to open a two-tier popup. Select from 8 color-coded clinical states:</p>
+      <table class="docs-table">
+        <thead><tr><th>State</th><th>Color</th><th>Hex</th></tr></thead>
+        <tbody>
+          <tr><td>Healthy</td><td>Green</td><td><code>#34D399</code></td></tr>
+          <tr><td>Decay / Caries</td><td>Red</td><td><code>#F87171</code></td></tr>
+          <tr><td>Missing</td><td>Gray (40% opacity)</td><td><code>#64748B</code></td></tr>
+          <tr><td>Restored</td><td>Blue</td><td><code>#60A5FA</code></td></tr>
+          <tr><td>Implant</td><td>Purple</td><td><code>#A78BFA</code></td></tr>
+          <tr><td>Root Canal</td><td>Amber</td><td><code>#FBBF24</code></td></tr>
+          <tr><td>Fracture</td><td>Orange</td><td><code>#FB923C</code></td></tr>
+          <tr><td>Impacted</td><td>Magenta</td><td><code>#E879F9</code></td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="dental-surfaces" class="docs-article">
+      <h2>Surface Marking</h2>
+      <p>For states that affect specific surfaces (decay, restored, fracture), a second tier of surface buttons appears after selecting the state:</p>
+      <table class="docs-table">
+        <thead><tr><th>Tooth Type</th><th>Surfaces</th></tr></thead>
+        <tbody>
+          <tr><td>Posterior (molars/premolars)</td><td>M (Mesial), O (Occlusal), D (Distal), B (Buccal), L (Lingual)</td></tr>
+          <tr><td>Anterior (canines/incisors)</td><td>M (Mesial), I (Incisal), D (Distal), F (Facial), L (Lingual)</td></tr>
+        </tbody>
+      </table>
+      <p>Anatomical validation prevents impossible surface combinations. Click outside the popup to save your selection.</p>
+    </article>
+
+    <article id="dental-ai" class="docs-article">
+      <h2>AI Integration</h2>
+      <p>Dental chart findings are automatically serialized into the AI prompt during note generation. The format includes dentition type, tooth number, state, and affected surfaces.</p>
+      <h3>Response Parsing</h3>
+      <p>When the AI generates a note mentioning dental findings, ClinicalFlow can parse findings back to the chart. <strong>Acronym protection</strong> prevents false surface detection for 18 common dental abbreviations: FPD, RPD, ZOE, FGC, PFM, MTA, SDF, BOP, CAL, TMD, TMJ, GBI, OHI, DI, CI, CEJ, PDL, and IPR.</p>
+      <h3>Export</h3>
+      <p>The dental chart SVG and findings table are included in PDF and text exports when enabled in Settings (<code>ms-settings-dentalChartInExport</code> and <code>ms-settings-dentalFindingsInExport</code>).</p>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         PERIODONTAL CHARTING
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Periodontal Charting</span>
+    </div>
+
+    <article id="perio-overview" class="docs-article">
+      <h2>Periodontal Charting Overview</h2>
+      <p>ClinicalFlow includes a full periodontal charting mode that overlays on the dental chart. When a dental template is active, a <strong>&ldquo;Perio Mode&rdquo;</strong> toggle appears in the dental chart modal. Enabling perio mode transforms the chart into a 6-point probing depth entry system.</p>
+      <h3>Accessing Perio Mode</h3>
+      <ul>
+        <li>Select any dental template (General Dental, Periodontal Exam, etc.)</li>
+        <li>Open the dental chart modal via <strong>Edit Chart</strong></li>
+        <li>Toggle the <strong>Perio Mode</strong> switch at the top of the chart</li>
+      </ul>
+      <h3>What Perio Mode Adds</h3>
+      <ul>
+        <li><strong>6-point probing depths</strong> per tooth (MB, B, DB, ML, L, DL)</li>
+        <li><strong>Bleeding on probing (BOP)</strong> markers per site</li>
+        <li><strong>Recession</strong> measurements per site</li>
+        <li><strong>Mobility</strong> grades (I, II, III) per tooth</li>
+        <li><strong>Furcation involvement</strong> grades (I, II, III) for multi-rooted teeth</li>
+        <li><strong>Clinical attachment level (CAL)</strong> auto-calculated from probing depth + recession</li>
+      </ul>
+      <p>All perio data is serialized into the AI prompt during note generation and included in PDF/text exports.</p>
+    </article>
+
+    <article id="perio-voice" class="docs-article">
+      <h2>Voice-Driven Entry</h2>
+      <p>Probing depths and perio findings can be entered by voice during a live recording. The perio voice parser recognizes natural dictation patterns and maps them to specific teeth and sites.</p>
+      <h3>Supported Voice Commands</h3>
+      <table class="docs-table">
+        <thead><tr><th>Voice Input</th><th>Parsed As</th></tr></thead>
+        <tbody>
+          <tr><td>&ldquo;Tooth 3, probing 3-2-4-3-2-3&rdquo;</td><td>6-point depths for tooth #3: MB=3, B=2, DB=4, ML=3, L=2, DL=3</td></tr>
+          <tr><td>&ldquo;Tooth 14, bleeding mesial and distal&rdquo;</td><td>BOP marked on MB, ML, DB, DL sites of tooth #14</td></tr>
+          <tr><td>&ldquo;Tooth 19, recession 2 millimeters buccal&rdquo;</td><td>2mm recession on B site of tooth #19</td></tr>
+          <tr><td>&ldquo;Tooth 30, mobility grade 2&rdquo;</td><td>Mobility II for tooth #30</td></tr>
+          <tr><td>&ldquo;Tooth 3, furcation grade 1&rdquo;</td><td>Furcation I for tooth #3</td></tr>
+        </tbody>
+      </table>
+      <p>Voice-entered data populates the perio chart in real time. You can also click individual sites on the chart to enter or correct values manually.</p>
+      <div class="docs-callout docs-callout--info">
+        <strong>Tip:</strong> For fastest entry, dictate all 6 probing depths for a tooth as a sequence of numbers (e.g., &ldquo;3-2-4-3-2-3&rdquo;). The parser maps them left to right: MB, B, DB, ML, L, DL.
+      </div>
+    </article>
+
+    <article id="perio-measurements" class="docs-article">
+      <h2>Measurements &amp; Data Points</h2>
+      <p>Each tooth in perio mode tracks the following data points:</p>
+      <table class="docs-table">
+        <thead><tr><th>Measurement</th><th>Sites</th><th>Range</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Probing Depth (PD)</td><td>6 per tooth</td><td>1&ndash;15 mm</td><td>Distance from gingival margin to base of sulcus/pocket</td></tr>
+          <tr><td>Recession (REC)</td><td>6 per tooth</td><td>0&ndash;15 mm</td><td>Distance from CEJ to gingival margin</td></tr>
+          <tr><td>Bleeding on Probing (BOP)</td><td>6 per tooth</td><td>Yes / No</td><td>Bleeding observed upon gentle probing</td></tr>
+          <tr><td>Clinical Attachment Level (CAL)</td><td>6 per tooth</td><td>Calculated</td><td>PD + REC (auto-calculated, not manually entered)</td></tr>
+          <tr><td>Mobility</td><td>1 per tooth</td><td>Grade I&ndash;III</td><td>Lateral and vertical tooth movement</td></tr>
+          <tr><td>Furcation</td><td>1 per tooth</td><td>Grade I&ndash;III</td><td>Bone loss at furcation of multi-rooted teeth only</td></tr>
+        </tbody>
+      </table>
+      <h3>Color Coding</h3>
+      <p>Probing depths are color-coded for quick visual assessment:</p>
+      <table class="docs-table">
+        <thead><tr><th>Depth</th><th>Color</th><th>Clinical Significance</th></tr></thead>
+        <tbody>
+          <tr><td>1&ndash;3 mm</td><td>Green</td><td>Normal / healthy sulcus</td></tr>
+          <tr><td>4&ndash;5 mm</td><td>Yellow / Amber</td><td>Moderate pocketing &mdash; monitor or treat</td></tr>
+          <tr><td>6+ mm</td><td>Red</td><td>Deep pocket &mdash; active periodontal disease likely</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="perio-scoring" class="docs-article">
+      <h2>Documentation Completeness Scoring</h2>
+      <p>ClinicalFlow automatically calculates a <strong>documentation completeness score</strong> for each perio charting session. This helps ensure thorough documentation before generating notes or exporting.</p>
+      <h3>How Scoring Works</h3>
+      <p>The score is a percentage (0&ndash;100%) based on the ratio of documented data points to expected data points for the teeth present in the chart. Missing teeth are excluded from the calculation.</p>
+      <table class="docs-table">
+        <thead><tr><th>Component</th><th>Weight</th><th>Criteria</th></tr></thead>
+        <tbody>
+          <tr><td>Probing depths</td><td>Primary</td><td>All 6 sites recorded for each present tooth</td></tr>
+          <tr><td>BOP</td><td>Secondary</td><td>BOP status recorded for probed sites</td></tr>
+          <tr><td>Recession</td><td>Secondary</td><td>Recession values recorded where applicable</td></tr>
+          <tr><td>Mobility</td><td>Supplemental</td><td>Mobility recorded for teeth with deep pockets</td></tr>
+          <tr><td>Furcation</td><td>Supplemental</td><td>Furcation recorded for multi-rooted teeth with bone loss</td></tr>
+        </tbody>
+      </table>
+      <h3>Score Display</h3>
+      <p>The completeness score appears as a badge in the perio chart header. Scores below 80% display a warning suggesting the provider complete additional measurements before generating the note.</p>
+      <div class="docs-callout docs-callout--info">
+        <strong>Note:</strong> The completeness score is informational &mdash; it does not prevent note generation. You can generate a note at any completeness level.
+      </div>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         MEDICAL & DENTAL CODING
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Medical &amp; Dental Coding</span>
+    </div>
+
+    <article id="coding-overview" class="docs-article">
+      <h2>Automatic Billing Codes</h2>
+      <p>ClinicalFlow automatically generates billing codes from the generated note content when auto-coding is enabled (<code>ms-settings-autoCoding</code>). Codes appear in a read-only panel (<code>#codingPanel</code>) below the note sections with colored confidence badges.</p>
+      <h3>Confidence Levels</h3>
+      <table class="docs-table">
+        <thead><tr><th>Level</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><strong>High</strong></td><td>Strong, specific documentation supports this code</td></tr>
+          <tr><td><strong>Medium</strong></td><td>Documentation supports but lacks some specificity</td></tr>
+          <tr><td><strong>Low</strong></td><td>Code is inferred from context; documentation is indirect</td></tr>
+        </tbody>
+      </table>
+      <p>Codes are read-only with a copy-to-clipboard option. No direct editing of suggested codes in the UI.</p>
+    </article>
+
+    <article id="coding-medical" class="docs-article">
+      <h2>Medical Coding (ICD-10 + CPT)</h2>
+      <p>For medical (non-dental) templates, ClinicalFlow generates:</p>
+      <ul>
+        <li><strong>Up to 8 ICD-10-CM diagnosis codes</strong> with confidence levels</li>
+        <li><strong>Up to 4 CPT procedure codes</strong> with confidence levels</li>
+        <li><strong>E&amp;M level assessment</strong> (Level 1&ndash;5) based on number of problems addressed, data complexity, and risk of morbidity/mortality</li>
+      </ul>
+      <p>The system uses only real, valid ICD-10-CM and CPT codes.</p>
+    </article>
+
+    <article id="coding-dental" class="docs-article">
+      <h2>Dental Coding (CDT + Dental ICD-10)</h2>
+      <p>For dental templates, ClinicalFlow generates CDT D-codes and dental-specific ICD-10 codes. The dental coding engine enforces <strong>4 strict guardrails</strong>:</p>
+
+      <h3>1. Strict Domain Gate</h3>
+      <p>Only CDT D-codes and dental ICD-10 codes are allowed. CPT codes (00100&ndash;99499), E&amp;M levels, and non-dental codes are strictly forbidden. Every procedure code must begin with &ldquo;D&rdquo;.</p>
+
+      <h3>2. Depth &amp; Severity Escalator</h3>
+      <p>Never defaults to the shallowest/generic code. If &ldquo;approaching pulp&rdquo; or &ldquo;deep caries&rdquo; is documented, codes escalate to K04.0/K04.1 rather than K02.51. If &ldquo;bone loss&rdquo; or &ldquo;deep pockets &gt;5mm&rdquo; is documented, periodontal codes escalate from K05.10 to K05.311+.</p>
+
+      <h3>3. Structural vs. Positional Trauma</h3>
+      <p>Every injury is classified into exactly one track:</p>
+      <ul>
+        <li><strong>Track A (structural failure):</strong> cracked/fractured &rarr; K03.81, S02.5XXA, D2740, D7140</li>
+        <li><strong>Track B (positional displacement):</strong> loosened/luxated &rarr; S03.2XXA, M26.30, D7270, D4921</li>
+      </ul>
+      <p>Codes from both tracks are never assigned to the same tooth.</p>
+
+      <h3>4. Etiology of Absence</h3>
+      <p>For every missing tooth, the reason is determined. Default is <strong>acquired</strong> (K08.111&ndash;K08.409) unless the transcript explicitly states &ldquo;congenitally absent&rdquo;, &ldquo;agenesis&rdquo;, or &ldquo;hypodontia&rdquo; &rarr; then congenital (K00.0).</p>
+    </article>
+
+    <article id="coding-audit" class="docs-article">
+      <h2>Audit Flags</h2>
+      <p>After billing codes are generated, ClinicalFlow runs an <strong>audit pass</strong> that checks for common documentation and coding issues. Audit flags appear as collapsible alerts below the coding panel.</p>
+      <h3>What the Audit Checks</h3>
+      <table class="docs-table">
+        <thead><tr><th>Flag Type</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Unsupported code</strong></td><td>A suggested code lacks sufficient documentation in the note</td><td>ICD-10 code assigned but the condition is only mentioned in the transcript, not the note</td></tr>
+          <tr><td><strong>Specificity gap</strong></td><td>A more specific code could be used based on the documentation</td><td>Unspecified laterality when the note clearly states &ldquo;left knee&rdquo;</td></tr>
+          <tr><td><strong>Missing linkage</strong></td><td>A procedure code is present without a supporting diagnosis code</td><td>CPT procedure assigned without a corresponding ICD-10 diagnosis</td></tr>
+          <tr><td><strong>E&amp;M mismatch</strong></td><td>The E&amp;M level does not align with documentation complexity</td><td>Level 5 suggested but only 2 problems documented</td></tr>
+          <tr><td><strong>Duplicate domain</strong></td><td>Overlapping codes that may trigger payer rejections</td><td>Two ICD-10 codes covering the same condition at different specificity levels</td></tr>
+        </tbody>
+      </table>
+      <h3>Interacting with Flags</h3>
+      <p>Each flag is collapsible &mdash; click to expand for details and the specific code(s) involved. Flags are <strong>informational only</strong> and do not modify the suggested codes. They help providers review and correct coding before submission.</p>
+    </article>
+
+    <article id="coding-warnings" class="docs-article">
+      <h2>Clinical Warnings</h2>
+      <p>Separate from audit flags, ClinicalFlow generates <strong>clinical warnings</strong> when the note content suggests potential safety or quality concerns. Warnings appear as highlighted alerts in the coding panel.</p>
+      <h3>Warning Categories</h3>
+      <table class="docs-table">
+        <thead><tr><th>Warning</th><th>Trigger</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Drug interaction</strong></td><td>Two or more medications mentioned that have known major interactions</td></tr>
+          <tr><td><strong>Allergy conflict</strong></td><td>A prescribed medication matches a documented allergy</td></tr>
+          <tr><td><strong>Missing follow-up</strong></td><td>A significant finding is documented but no follow-up plan is specified</td></tr>
+          <tr><td><strong>Incomplete assessment</strong></td><td>A problem is mentioned in the transcript but absent from the Assessment section</td></tr>
+        </tbody>
+      </table>
+      <div class="docs-callout docs-callout--warning">
+        <strong>Important:</strong> Clinical warnings are AI-generated suggestions, not clinical decisions. Always apply independent clinical judgment. ClinicalFlow is a documentation tool, not a clinical decision support system.
+      </div>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         EDITING & EXPORT
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Editing &amp; Export</span>
+    </div>
+
+    <article id="editing" class="docs-article">
+      <h2>Inline Editing</h2>
+      <p>After note generation, each section is editable directly in the note panel. Click on any section content to make changes. Edits are saved to the active session automatically.</p>
+    </article>
+
+    <article id="pdf-export" class="docs-article">
+      <h2>PDF Export</h2>
+      <p>Press <kbd>E</kbd> or click the <strong>Export PDF</strong> button. ClinicalFlow uses a native Swift html2pdf sidecar (WebKit <code>createPDF</code>) to generate a professional PDF with header, formatted sections, disclaimer footer, and optional dental chart.</p>
+      <p>PDFs are saved to the app&rsquo;s exports directory with the filename <code>ClinicalFlow_Note_YYYY-MM-DD_HH-MM.pdf</code>.</p>
+    </article>
+
+    <article id="text-export" class="docs-article">
+      <h2>Text Export</h2>
+      <p>Press <kbd>T</kbd> to download the transcript as a plain text file. A native save dialog lets you choose the location. The default filename is <code>ClinicalFlow_Transcript_YYYY-MM-DD.txt</code>.</p>
+    </article>
+
+    <article id="clipboard" class="docs-article">
+      <h2>Copy to Clipboard</h2>
+      <p>Click the <strong>Copy</strong> button in the note panel header to copy the entire note as plain text. Paste it directly into your EHR (Epic, Cerner, Athena, or any system that accepts text input).</p>
+    </article>
+
+    <article id="export-actions" class="docs-article">
+      <h2>Export Actions</h2>
+      <p>ClinicalFlow provides configurable export actions that appear in the note panel toolbar after note generation. You can enable or disable individual actions to streamline your workflow.</p>
+      <h3>Available Actions</h3>
+      <table class="docs-table">
+        <thead><tr><th>Action</th><th>Description</th><th>Default</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Export PDF</strong></td><td>Generate a formatted PDF with header, note sections, dental chart, and disclaimer</td><td>Enabled</td></tr>
+          <tr><td><strong>Copy to Clipboard</strong></td><td>Copy the entire note as plain text for pasting into an EHR</td><td>Enabled</td></tr>
+          <tr><td><strong>Download Transcript</strong></td><td>Save the raw transcript as a <code>.txt</code> file</td><td>Enabled</td></tr>
+          <tr><td><strong>Send to EHR</strong></td><td>Push the note to a connected EHR system via HL7 (requires EHR integration setup)</td><td>Hidden until configured</td></tr>
+          <tr><td><strong>Generate Narrative</strong></td><td>Create an insurance-ready narrative from the note and coding data</td><td>Enabled</td></tr>
+        </tbody>
+      </table>
+      <p>Action visibility is managed in Settings. Disabled actions are hidden from the toolbar entirely, keeping the interface clean.</p>
+    </article>
+
+    <article id="archiving" class="docs-article">
+      <h2>Session Archiving</h2>
+      <p>When you click <strong>New Session</strong> (or press <kbd>N</kbd>), ClinicalFlow archives the current encounter. The archive includes the full transcript, generated note, audio recording, dental chart data, coding results, and all session metadata.</p>
+      <p>Archives are named <code>YYYY-MM-DD_HH-MM_PatientName</code>, encrypted with AES-256-GCM, and sorted newest-first in the archive browser. Audio is stored as a separate unencrypted WAV file.</p>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         INTEGRATIONS
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Integrations</span>
+    </div>
+
+    <article id="ehr-integration" class="docs-article">
+      <h2>EHR Integration</h2>
+      <p>ClinicalFlow can export clinical notes to Electronic Health Record systems using the <strong>HL7 v2</strong> messaging standard. This allows direct transmission of generated notes into your EHR without manual copy-paste.</p>
+      <h3>Setup</h3>
+      <p>Configure EHR integration in Settings &rarr; Advanced &rarr; EHR Integration:</p>
+      <table class="docs-table">
+        <thead><tr><th>Field</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Facility Name</strong></td><td>Your practice or facility name (included in HL7 MSH segment)</td></tr>
+          <tr><td><strong>Facility ID</strong></td><td>Your facility&rsquo;s OID or identifier for HL7 routing</td></tr>
+          <tr><td><strong>Default Patient MRN</strong></td><td>Default Medical Record Number for outgoing messages (can be overridden per session)</td></tr>
+        </tbody>
+      </table>
+      <h3>How It Works</h3>
+      <ul>
+        <li>After note generation, click <strong>Send to EHR</strong> in the export toolbar</li>
+        <li>ClinicalFlow packages the note into an HL7 v2 ORU^R01 message</li>
+        <li>The message includes patient identifiers, note sections, coding data, and dental findings</li>
+        <li>The HL7 message is sent to the configured endpoint</li>
+      </ul>
+      <div class="docs-callout docs-callout--info">
+        <strong>Compatibility:</strong> HL7 v2 is supported by most EHR systems including Epic, Cerner, Athena, eClinicalWorks, and NextGen. Contact your EHR vendor for interface setup requirements.
+      </div>
+    </article>
+
+    <article id="pms-bridge" class="docs-article">
+      <h2>PMS Bridge</h2>
+      <p>The <strong>Practice Management System (PMS) Bridge</strong> connects ClinicalFlow to your dental or medical practice management software for bidirectional data exchange.</p>
+      <h3>Supported Systems</h3>
+      <table class="docs-table">
+        <thead><tr><th>System</th><th>Protocol</th><th>Data Exchanged</th></tr></thead>
+        <tbody>
+          <tr><td>Dentrix</td><td>Database bridge</td><td>Patient demographics, treatment plans, billing codes</td></tr>
+          <tr><td>Eaglesoft</td><td>Database bridge</td><td>Patient demographics, treatment plans, billing codes</td></tr>
+          <tr><td>Open Dental</td><td>Database bridge</td><td>Patient demographics, treatment plans, billing codes</td></tr>
+          <tr><td>Custom / Other</td><td>Configurable</td><td>Depends on system capabilities</td></tr>
+        </tbody>
+      </table>
+      <h3>Configuration</h3>
+      <p>Configure PMS Bridge in Settings &rarr; Advanced &rarr; PMS Bridge:</p>
+      <table class="docs-table">
+        <thead><tr><th>Field</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><strong>PMS System</strong></td><td>Select your practice management software from the dropdown</td></tr>
+          <tr><td><strong>Host</strong></td><td>Database server hostname or IP (e.g., <code>localhost</code>)</td></tr>
+          <tr><td><strong>Port</strong></td><td>Database port number</td></tr>
+          <tr><td><strong>Database</strong></td><td>Database name</td></tr>
+          <tr><td><strong>Username / Password</strong></td><td>Database credentials (encrypted at rest)</td></tr>
+        </tbody>
+      </table>
+      <p>Use the <strong>Test Connection</strong> button to verify connectivity before saving. A successful test confirms ClinicalFlow can reach the PMS database.</p>
+      <div class="docs-callout docs-callout--warning">
+        <strong>Network:</strong> The PMS Bridge connects over your local network. Ensure the PMS database is accessible from the machine running ClinicalFlow. No data is sent to external servers.
+      </div>
+    </article>
+
+    <article id="insurance-narrative" class="docs-article">
+      <h2>Insurance Narrative Generation</h2>
+      <p>ClinicalFlow can generate <strong>insurance-ready narratives</strong> from the clinical note and billing codes. These narratives are formatted for insurance claim submissions and pre-authorization requests.</p>
+      <h3>What the Narrative Includes</h3>
+      <ul>
+        <li><strong>Clinical justification</strong> &mdash; summarizes the patient&rsquo;s condition and why the treatment is medically/dentally necessary</li>
+        <li><strong>Supporting documentation</strong> &mdash; references specific findings from the examination</li>
+        <li><strong>Procedure rationale</strong> &mdash; links each procedure code to the clinical indication</li>
+        <li><strong>Diagnosis correlation</strong> &mdash; maps ICD-10 or dental ICD-10 codes to the documented findings</li>
+      </ul>
+      <h3>Generating a Narrative</h3>
+      <p>After note generation with coding enabled, click <strong>Generate Narrative</strong> in the export toolbar. The AI processes the note content, billing codes, and dental chart data to produce a cohesive narrative. The narrative can be copied to clipboard or exported as part of the PDF.</p>
+      <div class="docs-callout docs-callout--info">
+        <strong>Tip:</strong> Insurance narratives work best when the clinical note is thorough. Enable the verification pass to ensure completeness before generating the narrative.
+      </div>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         SETTINGS REFERENCE
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Settings Reference</span>
+    </div>
+
+    <article id="settings-tabs" class="docs-article">
+      <h2>General &amp; Advanced Tabs</h2>
+      <p>The Settings drawer is organized into two tabs accessible via a segmented control at the top:</p>
+      <table class="docs-table">
+        <thead><tr><th>Tab</th><th>Contains</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>General</strong></td><td>Account, Appearance, AI &amp; Transcription, Recording, Dental</td><td>Day-to-day settings you may adjust frequently</td></tr>
+          <tr><td><strong>Advanced</strong></td><td>EHR Integration, PMS Bridge, Language, Security</td><td>Configure-once integrations and system settings</td></tr>
+        </tbody>
+      </table>
+      <p>Click a tab to switch views. Your selected tab is remembered for the duration of the session.</p>
+    </article>
+
+    <article id="settings-appearance" class="docs-article">
+      <h2>Appearance</h2>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Options</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Theme</td><td>Dark / Light</td><td>Switches the entire app between dark and light color schemes. Dark is the default.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="settings-transcription" class="docs-article">
+      <h2>Transcription Settings</h2>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Options</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Mode</td><td>Online / Offline</td><td>Online uses Deepgram Nova-3 Medical. Offline uses Whisper Small. Switch anytime.</td></tr>
+          <tr><td>Deepgram API Key</td><td>Text input (masked)</td><td>Your Deepgram API key. Encrypted at rest.</td></tr>
+          <tr><td>Recognition Language</td><td>37 languages</td><td>Primary language for speech recognition. Applies to both modes.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="settings-ai" class="docs-article">
+      <h2>AI Engine Settings</h2>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Options</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Engine</td><td>Cloud AI / Ollama / Rule-Based</td><td>Which system generates clinical notes.</td></tr>
+          <tr><td>Anthropic API Key</td><td>Text input (masked)</td><td>Required for Cloud AI. Encrypted at rest.</td></tr>
+          <tr><td>Ollama Server URL</td><td>Text input</td><td>Default: <code>http://localhost:11434</code></td></tr>
+          <tr><td>Ollama Model</td><td>Dropdown + Refresh</td><td>Default: <code>llama3.1:8b</code>. Click Refresh to load available models.</td></tr>
+          <tr><td>Verification Pass</td><td>On / Off</td><td>Runs a second AI pass to audit the note. Doubles generation time.</td></tr>
+          <tr><td>Auto Coding</td><td>On / Off</td><td>Automatically generate billing codes after note generation.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="settings-recording" class="docs-article">
+      <h2>Recording Settings</h2>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Auto-scroll transcript</td><td>On</td><td>Automatically scrolls to the latest transcript entry.</td></tr>
+          <tr><td>Show timestamps</td><td>On</td><td>Displays MM:SS markers on each transcript entry.</td></tr>
+          <tr><td>Auto-detect speakers</td><td>On</td><td>Automatically switches speakers based on diarization or silence.</td></tr>
+          <tr><td>Highlight medical terms</td><td>Off</td><td>Color-codes 1,300+ recognized conditions, medications, procedures, and anatomy terms.</td></tr>
+          <tr><td>Include dental chart in export</td><td>On</td><td>Adds dental chart SVG to PDF exports.</td></tr>
+          <tr><td>Include dental findings in export</td><td>On</td><td>Adds dental findings table to exports.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="settings-ehr" class="docs-article">
+      <h2>EHR Integration Settings</h2>
+      <p>Found in Settings &rarr; <strong>Advanced</strong> tab &rarr; EHR Integration card.</p>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Facility Name</td><td>Text input</td><td>Your practice or facility name for HL7 message headers.</td></tr>
+          <tr><td>Facility ID</td><td>Text input</td><td>OID or identifier used for HL7 routing.</td></tr>
+          <tr><td>Default Patient MRN</td><td>Text input</td><td>Default Medical Record Number. Can be overridden per session.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="settings-pms" class="docs-article">
+      <h2>PMS Bridge Settings</h2>
+      <p>Found in Settings &rarr; <strong>Advanced</strong> tab &rarr; PMS Bridge card.</p>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>PMS System</td><td>Dropdown</td><td>Select: Dentrix, Eaglesoft, Open Dental, or Custom.</td></tr>
+          <tr><td>Host</td><td>Text input</td><td>Database server hostname or IP address.</td></tr>
+          <tr><td>Port</td><td>Number input</td><td>Database port number.</td></tr>
+          <tr><td>Database</td><td>Text input</td><td>Database name on the server.</td></tr>
+          <tr><td>Username</td><td>Text input</td><td>Database login username.</td></tr>
+          <tr><td>Password</td><td>Text input (masked)</td><td>Database login password. Encrypted at rest.</td></tr>
+          <tr><td>Test Connection</td><td>Button</td><td>Verifies connectivity to the PMS database.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="settings-language" class="docs-article">
+      <h2>Language Settings</h2>
+      <p>Found in Settings &rarr; <strong>Advanced</strong> tab &rarr; Language card.</p>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Options</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Recognition Language</td><td>37 languages</td><td>Sets the primary language for speech recognition, medical term corrections, note generation, and UI labels. Applies to both online and offline transcription modes.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="settings-security" class="docs-article">
+      <h2>Security Settings</h2>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Options</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Auto-lock</td><td>2 / 5 / 10 / 15 / 30 min / Never</td><td>Locks after inactivity. Default: 5 minutes. When page is hidden: 60 seconds. Deferred during active recording.</td></tr>
+        </tbody>
+      </table>
+      <div class="docs-callout docs-callout--warning">
+        <strong>PIN Reset:</strong> There is no PIN change feature. To change your PIN, you must use &ldquo;Reset PIN&rdquo; which permanently destroys all data (config, sessions, archives, auth) and starts fresh.
+      </div>
+    </article>
+
+    <article id="shortcuts" class="docs-article">
+      <h2>Keyboard Shortcuts</h2>
+      <table class="docs-table">
+        <thead><tr><th>Shortcut</th><th>Action</th><th>Context</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Space</kbd></td><td>Start / Stop recording</td><td>Not in input/textarea</td></tr>
+          <tr><td><kbd>P</kbd></td><td>Pause / Resume recording</td><td>While recording</td></tr>
+          <tr><td><kbd>G</kbd></td><td>Generate clinical note</td><td>When idle, entries exist</td></tr>
+          <tr><td><kbd>E</kbd></td><td>Export note as PDF</td><td>When note generated</td></tr>
+          <tr><td><kbd>N</kbd></td><td>New session</td><td>Always (confirm if data exists)</td></tr>
+          <tr><td><kbd>T</kbd></td><td>Download transcript</td><td>When entries exist</td></tr>
+          <tr><td><kbd>Cmd/Ctrl+R</kbd></td><td>Toggle recording</td><td>Always</td></tr>
+          <tr><td><kbd>Cmd/Ctrl+F</kbd></td><td>Search transcript</td><td>Always</td></tr>
+          <tr><td><kbd>Cmd/Ctrl+,</kbd></td><td>Open Settings</td><td>Always</td></tr>
+          <tr><td><kbd>Escape</kbd></td><td>Close all modals</td><td>Always</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         SECURITY & PRIVACY
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Security &amp; Privacy</span>
+    </div>
+
+    <article id="encryption" class="docs-article">
+      <h2>Encryption at Rest</h2>
+      <p>ClinicalFlow encrypts all files containing protected health information using <strong>AES-256-GCM</strong> with keys derived from your PIN via <strong>PBKDF2-HMAC-SHA256</strong> (100,000 iterations).</p>
+      <h3>What Is Encrypted</h3>
+      <table class="docs-table">
+        <thead><tr><th>File</th><th>Contains</th><th>Encrypted?</th></tr></thead>
+        <tbody>
+          <tr><td><code>config.json</code></td><td>API keys, settings, preferences</td><td>&#10003; Yes</td></tr>
+          <tr><td><code>sessions/active.json</code></td><td>Current transcript, note, dental chart, coding</td><td>&#10003; Yes</td></tr>
+          <tr><td><code>sessions/archive/*.json</code></td><td>Past encounter data</td><td>&#10003; Yes</td></tr>
+          <tr><td><code>auth.json</code></td><td>PIN hash (Argon2id), welcome flag</td><td>&#10007; No (needed before decryption)</td></tr>
+          <tr><td><code>sessions/archive/*.wav</code></td><td>Audio recordings</td><td>&#10007; No (binary audio)</td></tr>
+          <tr><td><code>exports/*</code></td><td>PDFs and text files</td><td>&#10007; No (user-exported)</td></tr>
+          <tr><td><code>logs/*.log</code></td><td>Operational logs</td><td>&#10007; No (sanitized, no PHI)</td></tr>
+        </tbody>
+      </table>
+      <p>Each encrypted file has a unique random salt (16 bytes) and nonce (12 bytes) prepended to the ciphertext. Total overhead: 28 bytes per file. Writes are atomic (write to .tmp, then rename) to prevent corruption.</p>
+    </article>
+
+    <article id="pin-lock" class="docs-article">
+      <h2>PIN &amp; Lock Screen</h2>
+      <p>The PIN serves two purposes: <strong>authentication</strong> (proving you&rsquo;re authorized) and <strong>key derivation</strong> (your PIN is the cryptographic key that unlocks encrypted files).</p>
+      <ul>
+        <li>PIN is verified using <strong>Argon2id</strong> hashing (memory-hard, resistant to brute force)</li>
+        <li>Only the hash is stored (in <code>auth.json</code>), never the PIN itself</li>
+        <li>PIN length: 4&ndash;8 numeric digits</li>
+        <li>No lockout after failed attempts &mdash; the encryption itself is the protection</li>
+        <li>Auto-lock default: 5 minutes of inactivity (60 seconds when page is hidden)</li>
+        <li>Auto-lock is deferred during active recording to prevent data loss</li>
+      </ul>
+    </article>
+
+    <article id="network" class="docs-article">
+      <h2>Network Requests</h2>
+      <table class="docs-table">
+        <thead><tr><th>Destination</th><th>Data Sent</th><th>When</th><th>Encryption</th></tr></thead>
+        <tbody>
+          <tr><td><code>wss://api.deepgram.com</code></td><td>Audio stream (16-bit PCM, 16 kHz)</td><td>During online recording</td><td>WSS (TLS 1.2+)</td></tr>
+          <tr><td><code>https://api.anthropic.com</code></td><td>Transcript text + clinical prompt</td><td>During Cloud AI note generation</td><td>HTTPS (TLS 1.2+)</td></tr>
+          <tr><td><code>http://localhost:11434</code></td><td>Transcript text + prompt</td><td>During Ollama note generation</td><td>None (localhost only)</td></tr>
+          <tr><td><code>https://*.supabase.co</code></td><td>Auth tokens, license checks</td><td>Subscription verification</td><td>HTTPS (TLS 1.2+)</td></tr>
+        </tbody>
+      </table>
+      <div class="docs-callout docs-callout--info">
+        <strong>Full offline mode:</strong> When both transcription (Whisper) and note generation (Ollama or Rule-Based) are set to local, ClinicalFlow makes <strong>zero outbound network connections</strong> (except periodic subscription verification if applicable).
+      </div>
+    </article>
+
+    <article id="hipaa" class="docs-article">
+      <h2>HIPAA Considerations</h2>
+      <p>ClinicalFlow implements HIPAA <strong>technical safeguards</strong>: encryption at rest (AES-256-GCM), unique user authentication (PIN), automatic logoff (auto-lock), audit logging (sanitized, no PHI), transmission security (TLS for all network requests), Content Security Policy headers, and localhost-only Whisper binding.</p>
+      <p>For full HIPAA compliance, your organization also needs <strong>Business Associate Agreements (BAAs)</strong> with Deepgram and Anthropic if using online features, plus organizational policies covering training, incident response, and access management.</p>
+      <div class="docs-callout docs-callout--warning">
+        <strong>ClinicalFlow is not a covered entity.</strong> It is a tool. HIPAA compliance is a shared responsibility between the software (technical safeguards), the API providers (BAAs), and your organization (policies and procedures).
+      </div>
+    </article>
+
+    <article id="data-handling" class="docs-article">
+      <h2>Data Handling Summary</h2>
+      <table class="docs-table">
+        <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+        <tbody>
+          <tr><td>Where is data stored?</td><td>Locally at <code>~/Library/Application Support/com.clinicalflow.ai/</code></td></tr>
+          <tr><td>Is data encrypted?</td><td>Yes. AES-256-GCM with PIN-derived keys (config, sessions, archives).</td></tr>
+          <tr><td>What data leaves my device?</td><td>Only when using online features: audio to Deepgram, transcript to Anthropic, auth tokens to Supabase.</td></tr>
+          <tr><td>Can ClinicalFlow see my data?</td><td>No. There are no ClinicalFlow analytics or telemetry servers.</td></tr>
+          <tr><td>How do I delete my data?</td><td>New Session clears active data. Delete individual archives. Or uninstall to remove everything.</td></tr>
+          <tr><td>What if I lose my PIN?</td><td>Encrypted data is unrecoverable. Reset PIN destroys all data.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         SUBSCRIPTION
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Subscription</span>
+    </div>
+
+    <article id="subscription" class="docs-article">
+      <h2>Plans &amp; Billing</h2>
+      <p>ClinicalFlow uses Supabase for authentication and Stripe for payment processing.</p>
+      <table class="docs-table">
+        <thead><tr><th>Detail</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Free trial</td><td>14 days with full access</td></tr>
+          <tr><td>Pro Monthly</td><td>$25/month</td></tr>
+          <tr><td>Pro Annual</td><td>$250/year (saves $50)</td></tr>
+          <tr><td>Default seats</td><td>3 per checkout</td></tr>
+          <tr><td>Offline grace period</td><td>30 days &mdash; if network verification fails but was verified within 30 days, cached status is trusted</td></tr>
+          <tr><td>Verification interval</td><td>Every 7 days maximum</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Subscription States</h3>
+      <table class="docs-table">
+        <thead><tr><th>State</th><th>App Access</th></tr></thead>
+        <tbody>
+          <tr><td><code>trial</code></td><td>Full access, shows days remaining</td></tr>
+          <tr><td><code>active</code></td><td>Full access</td></tr>
+          <tr><td><code>past_due</code></td><td>Full access with payment warning</td></tr>
+          <tr><td><code>expired</code></td><td>Locked &mdash; shows upgrade options</td></tr>
+        </tbody>
+      </table>
+      <p>Manage your subscription through the in-app billing portal, which opens Stripe&rsquo;s management interface.</p>
+      <div class="docs-callout docs-callout--info">
+        <strong>Note:</strong> Subscription costs are separate from API costs. You pay Deepgram and Anthropic directly through your own API keys for transcription and AI note generation.
+      </div>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         TROUBLESHOOTING
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Troubleshooting</span>
+    </div>
+
+    <article id="ts-microphone" class="docs-article">
+      <h2>Microphone Issues</h2>
+      <h3>&ldquo;No microphone found&rdquo;</h3>
+      <p>Ensure a microphone is connected. Check System Settings &rarr; Sound to confirm it&rsquo;s recognized. Try unplugging and replugging USB microphones.</p>
+      <h3>&ldquo;Microphone access denied&rdquo;</h3>
+      <p><strong>macOS:</strong> System Settings &rarr; Privacy &amp; Security &rarr; Microphone &rarr; enable ClinicalFlow.</p>
+    </article>
+
+    <article id="ts-transcription" class="docs-article">
+      <h2>Transcription Issues</h2>
+      <h3>Poor transcription accuracy</h3>
+      <ul>
+        <li>Use an external USB microphone instead of built-in laptop mic</li>
+        <li>Reduce ambient noise (fans, HVAC, other conversations)</li>
+        <li>Speak clearly and at a normal pace</li>
+        <li>Check that the correct language is selected in Settings</li>
+      </ul>
+      <h3>Deepgram connection failed</h3>
+      <ul>
+        <li>Verify your API key in Settings</li>
+        <li>Check your internet connection</li>
+        <li>Check <a href="https://status.deepgram.com" target="_blank" rel="noopener">status.deepgram.com</a> for outages</li>
+        <li>Switch to offline mode as a workaround</li>
+      </ul>
+    </article>
+
+    <article id="ts-ollama" class="docs-article">
+      <h2>Ollama Issues</h2>
+      <h3>&ldquo;Ollama not connected&rdquo;</h3>
+      <ul>
+        <li>Make sure Ollama is running: <code>ollama list</code> in Terminal</li>
+        <li>If not installed, download from <a href="https://ollama.com/download" target="_blank" rel="noopener">ollama.com</a></li>
+        <li>Check the server URL in Settings (default: <code>http://localhost:11434</code>)</li>
+      </ul>
+      <h3>Out of memory</h3>
+      <p>Switch to a smaller model (e.g., <code>llama3.1:8b</code> instead of <code>llama3.1:70b</code>) or use Cloud AI.</p>
+    </article>
+
+    <article id="ts-notes" class="docs-article">
+      <h2>Note Generation Issues</h2>
+      <h3>Note seems incomplete or inaccurate</h3>
+      <ul>
+        <li>Ensure the transcript is complete before generating</li>
+        <li>Enable the <strong>verification pass</strong> to catch omissions</li>
+        <li>Check that speakers are correctly labeled</li>
+        <li>Try a different template that better matches the encounter type</li>
+      </ul>
+      <h3>Cancel a stuck generation</h3>
+      <p>The Generate button becomes a Cancel button during generation. Click it to abort. ClinicalFlow uses an AbortController to cleanly cancel API calls. Timeout is 120 seconds.</p>
+    </article>
+
+    <article id="ts-export" class="docs-article">
+      <h2>Export Issues</h2>
+      <h3>PDF export shows blank page</h3>
+      <p>Try exporting again. If the issue persists, use Copy to Clipboard as an alternative.</p>
+      <h3>Save dialog doesn&rsquo;t appear</h3>
+      <p>Check that ClinicalFlow has file access permissions in System Settings &rarr; Privacy &amp; Security &rarr; Files and Folders.</p>
+    </article>
+
+    <article id="ts-crashes" class="docs-article">
+      <h2>Crashes &amp; Recovery</h2>
+      <h3>App crashed during recording</h3>
+      <p>Your audio is safe. ClinicalFlow writes to disk every ~10 seconds. On restart, the session is recovered automatically.</p>
+      <h3>App crashed during note generation</h3>
+      <p>The transcript is preserved. Regenerate the note from the saved transcript after restart.</p>
+      <h3>Low memory warning</h3>
+      <p>ClinicalFlow monitors available system memory. Warnings appear at &lt;2 GB free. Close other applications or switch to a smaller model.</p>
+    </article>
+
+    <article id="ts-logs" class="docs-article">
+      <h2>Log Files</h2>
+      <p>ClinicalFlow writes structured logs for debugging. Logs never contain patient data.</p>
+      <h3>File Locations</h3>
+      <table class="docs-table">
+        <thead><tr><th>Content</th><th>Path</th></tr></thead>
+        <tbody>
+          <tr><td>Logs</td><td><code>~/Library/Application Support/com.clinicalflow.ai/logs/</code></td></tr>
+          <tr><td>All data</td><td><code>~/Library/Application Support/com.clinicalflow.ai/</code></td></tr>
+        </tbody>
+      </table>
+      <p>Log files are named <code>clinicalflow-YYYY-MM-DD.log</code>, rotated daily, and auto-cleaned after 30 days.</p>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         ARCHITECTURE
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Architecture</span>
+    </div>
+
+    <article id="architecture" class="docs-article">
+      <h2>System Architecture</h2>
+      <p>ClinicalFlow is a desktop application built with <a href="https://v2.tauri.app" target="_blank" rel="noopener">Tauri v2</a>. The frontend is vanilla HTML/CSS/JavaScript (17 modules, ~6,065 lines) running in a native webview. The backend is Rust (6 modules, ~2,200 lines), handling audio capture, file encryption, and system integration. No JavaScript frameworks are used.</p>
+
+      <h3>Component Overview</h3>
+      <div class="docs-code">
+        <pre><code>┌─────────────────────────────────────────────────────┐
+│                   Tauri Webview                      │
+│                                                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────┐ │
+│  │ Transcript   │  │ Note Panel   │  │ Sidebar   │ │
+│  │ Panel        │  │ (editable)   │  │           │ │
+│  │              │  │              │  │ Speakers  │ │
+│  │ Real-time    │  │ 20 templates │  │ Templates │ │
+│  │ entries      │  │ Dental chart │  │ Settings  │ │
+│  │ 1,300+ terms │  │ Coding panel │  │ Archive   │ │
+│  └──────────────┘  └──────────────┘  └───────────┘ │
+│                                                     │
+│  17 JS modules — UI, prompts, templates, dental,   │
+│  notes, coding, subscription, audio, settings       │
+└─────────────────────┬───────────────────────────────┘
+                      │  invoke() / listen()
+                      │  (26 Tauri IPC commands)
+┌─────────────────────┴───────────────────────────────┐
+│                  Rust Backend                        │
+│                                                     │
+│  audio.rs     — cpal capture, whisper-server,       │
+│                  hallucination filter, vocab prompt  │
+│  storage.rs   — Encrypted sessions, config,         │
+│                  archives, PDF export, logging       │
+│  crypto.rs    — AES-256-GCM, PBKDF2 key derivation │
+│  auth.rs      — Argon2id PIN, auto-lock, AppState   │
+│  logging.rs   — Tracing, daily rotation             │
+│  lib.rs       — App setup, command registration     │
+└─────────────────────┬───────────────────────────────┘
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+┌──────────────┐ ┌─────────┐ ┌──────────────────┐
+│whisper-server│ │html2pdf │ │  Local Storage    │
+│ (3.44 GB)    │ │ (62 KB) │ │                  │
+│              │ │ Swift   │ │ auth.json        │
+│ ggml-small   │ │ WebKit  │ │ config.json  🔒  │
+│ 465 MB model │ │ PDF gen │ │ active.json  🔒  │
+│ HTTP sidecar │ │         │ │ archive/*.json🔒 │
+│ 127.0.0.1    │ │         │ │ archive/*.wav    │
+└──────────────┘ └─────────┘ │ logs/*.log       │
+                             └──────────────────┘
+
+External Services (online mode only):
+┌───────────────┐ ┌───────────────┐ ┌──────────────┐
+│ Deepgram API  │ │ Anthropic API │ │ Supabase     │
+│ WSS streaming │ │ HTTPS (Claude)│ │ Auth + Stripe│
+└───────────────┘ └───────────────┘ └──────────────┘
+
+┌───────────────┐
+│ Ollama        │
+│ localhost     │
+│ :11434        │
+└───────────────┘
+
+🔒 = AES-256-GCM encrypted with PIN-derived key</code></pre>
+      </div>
+    </article>
+
+    <article id="data-formats" class="docs-article">
+      <h2>Data Formats</h2>
+      <h3>File Storage Structure</h3>
+      <div class="docs-code">
+        <pre><code>~/Library/Application Support/com.clinicalflow.ai/
+├── auth.json                      PIN hash + welcome flag
+├── config.json                    [ENCRYPTED] Settings &amp; API keys
+├── sessions/
+│   ├── active.json               [ENCRYPTED] Current session
+│   └── archive/
+│       ├── 2026-02-23_18-45_PatientName.json  [ENCRYPTED]
+│       └── 2026-02-23_18-45_PatientName.wav   Audio recording
+├── exports/
+│   ├── ClinicalFlow_Note_2026-02-23.pdf
+│   └── ClinicalFlow_Transcript_2026-02-23.txt
+└── logs/
+    └── clinicalflow-2026-02-23.log</code></pre>
+      </div>
+      <p>All session data is stored as JSON files (no database). Sessions include entries, speakers, note sections, dental chart state, and coding results.</p>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         COMPARISON
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Comparison</span>
+    </div>
+
+    <article id="comparison" class="docs-article">
+      <h2>How ClinicalFlow Compares</h2>
+      <p>An honest comparison of where ClinicalFlow fits relative to other AI clinical documentation tools.</p>
+
+      <h3>ClinicalFlow&rsquo;s Strengths</h3>
+      <ul>
+        <li><strong>Offline mode.</strong> Most AI scribes are cloud-only. ClinicalFlow runs with zero internet.</li>
+        <li><strong>20 specialty templates + dental &amp; perio charting.</strong> Covers general, behavioral health, 10 specialties, 5 dental templates, full periodontal charting, and custom templates.</li>
+        <li><strong>Automatic billing codes with audit flags.</strong> ICD-10, CPT, E&amp;M, and CDT coding with audit flags and clinical warnings.</li>
+        <li><strong>EHR &amp; PMS integrations.</strong> HL7 v2 export to EHR systems, PMS Bridge for Dentrix/Eaglesoft/Open Dental, and insurance narrative generation.</li>
+        <li><strong>Transparent pricing.</strong> $25/month with 14-day free trial. Cloud API costs separate and pay-as-you-go.</li>
+        <li><strong>Data stays local.</strong> In offline mode, nothing leaves your machine. No ClinicalFlow servers.</li>
+        <li><strong>Open architecture.</strong> Bring your own API keys, choose your AI models.</li>
+        <li><strong>Encryption at rest.</strong> PIN-based AES-256 encryption is not standard in most scribe tools.</li>
+      </ul>
+
+      <h3>Where Others May Have an Advantage</h3>
+      <ul>
+        <li><strong>Deep EHR integration.</strong> Products like Nuance DAX, Abridge, and Suki offer embedded EHR integration. ClinicalFlow supports HL7 v2 export but does not embed directly inside EHR interfaces.</li>
+        <li><strong>Ambient listening.</strong> Some products run continuously without pressing a button. ClinicalFlow requires explicit start/stop.</li>
+        <li><strong>Multi-user and team features.</strong> Enterprise products offer multi-provider support, shared templates, and admin dashboards. ClinicalFlow is single-user.</li>
+        <li><strong>Mobile apps.</strong> Some competitors have iOS/Android apps. ClinicalFlow is macOS desktop-only.</li>
+        <li><strong>Cross-platform.</strong> ClinicalFlow currently runs only on macOS (Apple Silicon). Windows and Linux are planned.</li>
+      </ul>
+
+      <h3>Summary Table</h3>
+      <table class="docs-table">
+        <thead><tr><th>Feature</th><th>ClinicalFlow</th><th>Typical Cloud Scribe</th></tr></thead>
+        <tbody>
+          <tr><td>Offline mode</td><td>&#10003; Full offline available</td><td>&#10007; Cloud-only</td></tr>
+          <tr><td>Note templates</td><td>20 built-in + custom</td><td>Varies</td></tr>
+          <tr><td>Dental charting</td><td>&#10003; Interactive 32+20 teeth</td><td>&#10007; Rarely available</td></tr>
+          <tr><td>Periodontal charting</td><td>&#10003; 6-point probing, voice entry</td><td>&#10007; Not available</td></tr>
+          <tr><td>Billing codes</td><td>&#10003; ICD-10, CPT, E&amp;M, CDT</td><td>Varies</td></tr>
+          <tr><td>Audit flags</td><td>&#10003; Coding audit + clinical warnings</td><td>Varies</td></tr>
+          <tr><td>Monthly cost</td><td>$25/mo + API usage</td><td>$100&ndash;$400/month</td></tr>
+          <tr><td>Data residency</td><td>Local device</td><td>Vendor&rsquo;s cloud</td></tr>
+          <tr><td>Encryption at rest</td><td>&#10003; AES-256-GCM</td><td>Varies</td></tr>
+          <tr><td>EHR integration</td><td>&#10003; HL7 v2 export, copy/paste, PDF</td><td>Direct Epic/Cerner</td></tr>
+          <tr><td>PMS Bridge</td><td>&#10003; Dentrix, Eaglesoft, Open Dental</td><td>Varies</td></tr>
+          <tr><td>Insurance narrative</td><td>&#10003; AI-generated</td><td>&#10007; Rarely available</td></tr>
+          <tr><td>Mobile app</td><td>&#10007; macOS desktop only</td><td>Often &#10003;</td></tr>
+          <tr><td>Languages</td><td>37</td><td>Varies (often fewer)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="docs-callout docs-callout--info">
+        <strong>ClinicalFlow is best for:</strong> Independent practitioners, small practices, dental offices, rural clinics, international settings without reliable internet, and any provider who wants control over their data and costs.
+      </div>
+    </article>
+
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         CHANGELOG
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="docs-section-header">
+      <span class="badge">Changelog</span>
+    </div>
+
+    <article id="changelog" class="docs-article">
+      <h2>Version History</h2>
+
+      <h3>v1.0.0 &mdash; Initial Release</h3>
+      <p><em>February 2026</em></p>
+      <ul>
+        <li>Dual-mode transcription: Deepgram Nova-3 Medical (online) and Whisper Small (offline, 465 MB)</li>
+        <li>AI note generation: Claude Haiku 4.5 (cloud), Ollama (local), and rule-based fallback</li>
+        <li>20 built-in note templates across 5 categories (General, Behavioral Health, Specialty, Dental, Preventive) plus custom templates</li>
+        <li>Two-pass verification system for hallucination, contradiction, and omission detection</li>
+        <li>Interactive dental chart: 32-tooth adult + 20-tooth primary, 8 states, 5-surface marking</li>
+        <li>Periodontal charting: 6-point probing depths, BOP, recession, mobility, furcation, voice-driven entry</li>
+        <li>Documentation completeness scoring for perio charting sessions</li>
+        <li>Medical coding: ICD-10 (up to 8), CPT (up to 4), E&amp;M level assessment</li>
+        <li>Dental coding: CDT D-codes + dental ICD-10 with 4 guardrails</li>
+        <li>Audit flags and clinical warnings for coding review</li>
+        <li>Multi-speaker management with 3 roles (Physician, Patient, Other) and 1.5s silence detection</li>
+        <li>Medical term post-processor with 204 correction patterns across 6 languages</li>
+        <li>Whisper hallucination filtering and medical vocabulary conditioning (55+ terms)</li>
+        <li>PIN-based authentication with AES-256-GCM encryption at rest (PBKDF2 100k iterations, Argon2id)</li>
+        <li>Auto-lock after configurable inactivity (default: 5 minutes)</li>
+        <li>EHR integration via HL7 v2 export</li>
+        <li>PMS Bridge for Dentrix, Eaglesoft, and Open Dental</li>
+        <li>Insurance narrative generation from notes and billing codes</li>
+        <li>PDF export (Swift WebKit sidecar), text export, clipboard copy, configurable export actions</li>
+        <li>Session archiving with transcript, note, audio, dental chart, and coding data</li>
+        <li>Continuous WAV save (~10s intervals) for crash recovery</li>
+        <li>Structured logging with PHI sanitization (30-day retention)</li>
+        <li>Settings drawer with General/Advanced tabs and squircle card layout</li>
+        <li>Dark and light themes</li>
+        <li>37-language support (full pipeline: transcription + corrections + notes + UI)</li>
+        <li>1,300+ medical term highlighting in transcript</li>
+        <li>Welcome wizard (5-screen setup) and 2 demo scenarios (medical + dental)</li>
+        <li>Subscription/licensing via Supabase + Stripe (14-day trial)</li>
+        <li>10 keyboard shortcuts</li>
+        <li>Built with Tauri v2 for macOS (Apple Silicon)</li>
+      </ul>
+    </article>
+
+
+    <!-- ━━━━━ Footer ━━━━━ -->
+    <div class="docs-footer">
+      <p>&copy; 2026 ClinicalFlow. Built for healthcare professionals who value their time and their patients&rsquo; privacy.</p>
+      <p><a href="index.html">Home</a> &middot; <a href="about.html">About</a> &middot; <a href="index.html#download">Download</a> &middot; <a href="pricing.html">Pricing</a> &middot; <a href="docs.html">Docs</a> &middot; <a href="privacy-policy.html">Privacy Policy</a></p>
+    </div>
+
+  </main>
+</div>
+
+
+<script src="main.js"></script>
+<script>
+// Docs-specific: sidebar active link tracking + mobile sidebar toggle
+(function() {
+  const sidebar = document.getElementById('docsSidebar');
+  const toggle = document.getElementById('docsSidebarToggle');
+  const links = document.querySelectorAll('.docs-sidebar-link');
+  const articles = document.querySelectorAll('.docs-article[id]');
+
+  // Mobile sidebar toggle
+  if (toggle && sidebar) {
+    toggle.addEventListener('click', () => {
+      sidebar.classList.toggle('docs-sidebar--open');
+    });
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        sidebar.classList.remove('docs-sidebar--open');
+      });
+    });
+  }
+
+  // Active link tracking
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          links.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -75% 0px' });
+    articles.forEach(article => observer.observe(article));
+  }
+})();
+</script>
+</body>
+</html>

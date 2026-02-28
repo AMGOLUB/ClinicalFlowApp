@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="cf-popup">
+    <div class="cf-header">
+      <div class="cf-logo">ClinicalFlow</div>
+      <div class="cf-subtitle" id="noteTitle">No note detected</div>
+    </div>
+    <div class="cf-empty" id="emptyState">
+      <p>Copy a note from ClinicalFlow using <strong>Copy for EHR</strong>, then open this popup.</p>
+    </div>
+    <div class="cf-sections" id="sectionList" style="display:none;"></div>
+    <div class="cf-actions" id="actions" style="display:none;">
+      <button class="cf-btn cf-btn-primary" id="pasteAllBtn">Paste All Sections</button>
+      <div class="cf-hint">Click a section above to paste it individually</div>
+    </div>
+    <div class="cf-footer">
+      <span class="cf-status" id="status"></span>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

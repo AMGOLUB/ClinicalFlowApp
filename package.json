@@ -1,0 +1,19 @@
+{
+  "name": "clinicalflow",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "tauri": "tauri",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.0",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2"
+  }
+}

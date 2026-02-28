@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ClinicalFlow — Ambient Clinical Transcription & Documentation Platform for Rural Healthcare">
+  <meta name="author" content="ClinicalFlow">
+  <title>ClinicalFlow — Clinical Transcription Platform</title>
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Favicon (inline SVG data URI) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230ACDCF'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'>C</text></svg>">
+</head>
+
+<body>
+
+  <!-- ============================================================
+       LOCK SCREEN — PIN Entry / Creation (shown before app loads)
+       ============================================================ -->
+  <div class="lock-screen" id="lockScreen" style="display:none;">
+    <div class="lock-card">
+      <!-- App Logo -->
+      <div class="lock-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="lock-title">Clinical<span>Flow</span></div>
+
+      <!-- PIN Entry (returning user) -->
+      <div id="lockPinEntry" style="display:none;">
+        <div class="lock-subtitle">Enter your PIN to unlock</div>
+        <div class="lock-pin-group">
+          <input type="password" class="lock-pin-input" id="lockPinInput" maxlength="8" inputmode="numeric" pattern="[0-9]*" placeholder="PIN" autocomplete="off" autofocus>
+        </div>
+        <button class="btn btn-primary btn-md lock-btn" id="lockUnlockBtn">Unlock</button>
+        <div class="lock-error" id="lockError"></div>
+        <button class="lock-forgot-link" id="lockForgotPin">Forgot PIN?</button>
+      </div>
+
+      <!-- PIN Creation (first launch) -->
+      <div id="lockPinCreate" style="display:none;">
+        <div class="lock-subtitle">Create a PIN to protect your data</div>
+        <div class="lock-pin-group">
+          <input type="password" class="lock-pin-input" id="lockNewPin" maxlength="8" inputmode="numeric" pattern="[0-9]*" placeholder="New PIN (4-8 digits)" autocomplete="off">
+        </div>
+        <div class="lock-pin-group">
+          <input type="password" class="lock-pin-input" id="lockConfirmPin" maxlength="8" inputmode="numeric" pattern="[0-9]*" placeholder="Confirm PIN" autocomplete="off">
+        </div>
+        <button class="btn btn-primary btn-md lock-btn" id="lockCreateBtn">Set PIN &amp; Continue</button>
+        <div class="lock-error" id="lockCreateError"></div>
+        <div class="lock-hint">Your PIN encrypts all clinical data on this device.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       SUBSCRIPTION GATE — Login / Signup / Upgrade overlay
+       Shown when no account or subscription expired.
+       z-index 1999 (below lockScreen at 2000, above everything else)
+       ============================================================ -->
+  <div id="subscriptionGate" style="display:none">
+    <div class="sub-gate-container">
+
+      <!-- LOGIN FORM -->
+      <div class="sub-gate-form" id="subLoginForm">
+        <div class="sub-gate-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="sub-gate-icon">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+          <h2>Welcome back</h2>
+          <p class="sub-gate-subtitle">Log in to continue using ClinicalFlow</p>
+        </div>
+
+        <div class="sub-gate-field">
+          <label for="subLoginEmail">Email</label>
+          <input type="email" id="subLoginEmail" placeholder="you@practice.com" autocomplete="email" spellcheck="false">
+        </div>
+        <div class="sub-gate-field">
+          <label for="subLoginPassword">Password</label>
+          <input type="password" id="subLoginPassword" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <button class="btn btn-primary btn-lg sub-gate-submit" id="subLoginBtn">Log In</button>
+        <div class="sub-gate-error" id="subLoginError" style="display:none"></div>
+        <p class="sub-gate-link-row"><a href="#" id="subForgotPassword">Forgot password?</a></p>
+
+        <div class="sub-gate-divider"><span>New to ClinicalFlow?</span></div>
+        <button class="sub-gate-signup-external" id="subOpenSignupBtn">Create Free Account</button>
+      </div>
+
+      <!-- PENDING EMAIL VERIFICATION -->
+      <div class="sub-gate-form" id="subPendingForm" style="display:none">
+        <div class="sub-gate-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="sub-gate-icon">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M22 4l-10 8L2 4"/>
+          </svg>
+          <h2>Check your email</h2>
+          <p class="sub-gate-subtitle">We sent a verification link to your email address. Click the link to activate your 14-day free trial, then come back and log in.</p>
+        </div>
+        <button class="btn btn-primary btn-lg sub-gate-submit" id="subPendingLoginBtn">I've verified — Log In</button>
+      </div>
+
+      <!-- EXPIRED / UPGRADE FORM -->
+      <div class="sub-gate-form" id="subExpiredForm" style="display:none">
+        <div class="sub-gate-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="sub-gate-icon">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+          <h2 id="subExpiredTitle">Your trial has expired</h2>
+          <p class="sub-gate-subtitle" id="subExpiredMessage">Upgrade to ClinicalFlow Pro to continue documenting with AI.</p>
+        </div>
+
+        <!-- Plan tier toggle -->
+        <div class="sub-plan-toggle" id="subPlanToggle">
+          <button class="sub-plan-toggle-btn active" data-tier="pro">Pro — Solo</button>
+          <button class="sub-plan-toggle-btn" data-tier="team">Team</button>
+        </div>
+
+        <!-- Pro Plans -->
+        <div class="sub-gate-plans" id="subProPlans">
+          <div class="sub-plan-card" data-plan="pro_monthly">
+            <div class="sub-plan-name">Monthly</div>
+            <div class="sub-plan-price">$25<span>/mo</span></div>
+            <div class="sub-plan-detail">Billed monthly</div>
+          </div>
+          <div class="sub-plan-card recommended selected" data-plan="pro_annual">
+            <div class="sub-plan-badge">Save $50</div>
+            <div class="sub-plan-name">Annual</div>
+            <div class="sub-plan-price">$250<span>/yr</span></div>
+            <div class="sub-plan-detail">$20.83/mo · Best value</div>
+          </div>
+        </div>
+
+        <!-- Team Plans -->
+        <div class="sub-gate-plans" id="subTeamPlans" style="display:none">
+          <div class="sub-plan-card" data-plan="team_monthly">
+            <div class="sub-plan-name">Monthly</div>
+            <div class="sub-plan-price">$19<span>/seat/mo</span></div>
+            <div class="sub-plan-detail">Per seat, billed monthly</div>
+          </div>
+          <div class="sub-plan-card" data-plan="team_annual">
+            <div class="sub-plan-badge">Save $38/seat</div>
+            <div class="sub-plan-name">Annual</div>
+            <div class="sub-plan-price">$190<span>/seat/yr</span></div>
+            <div class="sub-plan-detail">$15.83/seat/mo</div>
+          </div>
+        </div>
+
+        <!-- Seat selector (team only) -->
+        <div class="sub-seat-control" id="subSeatControl" style="display:none">
+          <div class="sub-seat-label">Number of seats</div>
+          <div class="sub-seat-stepper">
+            <button class="sub-seat-btn" id="subSeatMinus">&minus;</button>
+            <span class="sub-seat-count" id="subSeatCount">3</span>
+            <button class="sub-seat-btn" id="subSeatPlus">+</button>
+          </div>
+          <div class="sub-seat-total" id="subSeatTotal">$207/mo</div>
+        </div>
+
+        <button class="btn btn-primary btn-lg sub-gate-submit" id="subUpgradeBtn">Upgrade Now</button>
+        <p class="sub-gate-link-row">Already subscribed? <a href="#" id="subManageBillingExpired">Manage billing</a></p>
+        <p class="sub-gate-link-row">Different account? <a href="#" id="subSwitchAccount">Log in with another account</a></p>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       TRIAL WARNING TOAST — shown once per day when <=3 days left
+       ============================================================ -->
+  <div class="trial-warning-toast" id="trialWarningToast" style="display:none">
+    <div class="trial-warning-content">
+      <span class="trial-warning-text" id="trialWarningText"></span>
+      <button class="trial-warning-dismiss" id="trialWarningDismiss">&times;</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       WELCOME WIZARD — First-launch setup (5 screens)
+       ============================================================ -->
+  <div class="welcome-wizard" id="welcomeWizard" style="display:none;">
+    <div class="wiz-card">
+
+      <!-- Screen 1: Welcome -->
+      <div class="wiz-screen" id="wizScreen1">
+        <div class="wiz-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </div>
+        <div class="wiz-title">Welcome to Clinical<span>Flow</span></div>
+        <div class="wiz-desc">Ambient clinical transcription and AI-powered documentation for rural healthcare.</div>
+        <div class="wiz-features">
+          <div class="wiz-feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+            <span>Live transcription with speaker detection</span>
+          </div>
+          <div class="wiz-feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>AI-generated clinical notes (SOAP, HPI, Problem-Oriented)</span>
+          </div>
+          <div class="wiz-feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>PIN-encrypted data — HIPAA-aligned security</span>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-md wiz-btn" id="wizGetStarted">Get Started</button>
+      </div>
+
+      <!-- Screen Lang: Choose Language -->
+      <div class="wiz-screen" id="wizScreenLang" style="display:none;">
+        <div class="wiz-step-label">Step 1 of 4</div>
+        <div class="wiz-heading">Choose Your Language</div>
+        <div class="wiz-desc">Select the language you'll use during clinical encounters. This affects transcription, note generation, and medical term corrections.</div>
+        <div style="display:flex;justify-content:center;margin:var(--space-6) 0;">
+          <select class="select" id="wizLanguageSelect" style="width:240px;font-size:var(--text-base);">
+            <option value="en-US">English (US)</option>
+          </select>
+        </div>
+        <div class="wiz-nav">
+          <button class="btn btn-secondary btn-md" id="wizBackLang">Back</button>
+          <button class="btn btn-primary btn-md" id="wizNextLang">Continue</button>
+        </div>
+      </div>
+
+      <!-- Screen 2: Choose Mode -->
+      <div class="wiz-screen" id="wizScreen2" style="display:none;">
+        <div class="wiz-step-label">Step 2 of 4</div>
+        <div class="wiz-heading">Choose Your Mode</div>
+        <div class="wiz-desc">How would you like ClinicalFlow to process audio and generate notes?</div>
+        <div class="wiz-mode-cards">
+          <div class="wiz-mode-card selected" data-mode="online" id="wizModeOnline">
+            <div class="wiz-mode-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+              </svg>
+            </div>
+            <div class="wiz-mode-title">Online</div>
+            <div class="wiz-mode-desc">Cloud transcription (Deepgram) + Cloud AI (Claude). Best accuracy, speaker diarization, requires internet and API keys.</div>
+            <div class="wiz-mode-tag">Recommended</div>
+          </div>
+          <div class="wiz-mode-card" data-mode="offline" id="wizModeOffline">
+            <div class="wiz-mode-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/>
+              </svg>
+            </div>
+            <div class="wiz-mode-title">Offline</div>
+            <div class="wiz-mode-desc">Local Whisper AI + Ollama. No internet required, no data leaves this computer. Requires local model downloads.</div>
+            <div class="wiz-mode-tag">Privacy-first</div>
+          </div>
+        </div>
+        <div class="wiz-nav">
+          <button class="btn btn-secondary btn-md" id="wizBack2">Back</button>
+          <button class="btn btn-primary btn-md" id="wizNext2">Continue</button>
+        </div>
+      </div>
+
+      <!-- Screen 3a: Online Setup (Deepgram + Claude keys) -->
+      <div class="wiz-screen" id="wizScreen3a" style="display:none;">
+        <div class="wiz-step-label">Step 3 of 4</div>
+        <div class="wiz-heading">Online Setup</div>
+        <div class="wiz-desc">Enter your API keys to enable cloud transcription and AI note generation.</div>
+
+        <div class="wiz-key-group">
+          <label class="wiz-key-label">Deepgram API Key <span class="text-muted">(transcription)</span></label>
+          <div class="wiz-key-row">
+            <input type="password" class="input" id="wizDgKey" placeholder="Enter Deepgram API key..." autocomplete="off">
+            <button class="btn btn-secondary btn-sm" id="wizTestDg">Test</button>
+          </div>
+          <div class="wiz-key-status" id="wizDgStatus"></div>
+          <div class="wiz-key-hint">Free tier available at <a href="https://deepgram.com" target="_blank" rel="noopener">deepgram.com</a></div>
+        </div>
+
+        <div class="wiz-key-group">
+          <label class="wiz-key-label">Anthropic API Key <span class="text-muted">(AI notes)</span></label>
+          <div class="wiz-key-row">
+            <input type="password" class="input" id="wizClaudeKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+            <button class="btn btn-secondary btn-sm" id="wizTestClaude">Test</button>
+          </div>
+          <div class="wiz-key-status" id="wizClaudeStatus"></div>
+          <div class="wiz-key-hint">Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></div>
+        </div>
+
+        <div class="wiz-note">You can change these anytime in Settings. Keys are encrypted with your PIN.</div>
+        <div class="wiz-nav">
+          <button class="btn btn-secondary btn-md" id="wizBack3a">Back</button>
+          <button class="btn btn-primary btn-md" id="wizNext3a">Continue</button>
+        </div>
+      </div>
+
+      <!-- Screen 3b: Offline Setup (Whisper + Ollama) -->
+      <div class="wiz-screen" id="wizScreen3b" style="display:none;">
+        <div class="wiz-step-label">Step 3 of 4</div>
+        <div class="wiz-heading">Offline Setup</div>
+        <div class="wiz-desc">ClinicalFlow uses local AI models. Check that they're available on this machine.</div>
+
+        <div class="wiz-check-group">
+          <div class="wiz-check-item">
+            <div class="wiz-check-icon" id="wizWhisperIcon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+            </div>
+            <div>
+              <div class="wiz-check-title">Whisper (transcription)</div>
+              <div class="wiz-check-desc" id="wizWhisperStatus">Bundled with ClinicalFlow — ready to use</div>
+            </div>
+          </div>
+          <div class="wiz-check-item">
+            <div class="wiz-check-icon" id="wizOllamaIcon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+            </div>
+            <div>
+              <div class="wiz-check-title">Ollama (AI notes)</div>
+              <div class="wiz-check-desc" id="wizOllamaStatus">Checking connection...</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="wizTestOllama" style="margin-left:auto;">Test</button>
+          </div>
+        </div>
+
+        <div class="wiz-note">Ollama is optional — ClinicalFlow can generate notes with built-in rules if Ollama is unavailable.</div>
+        <div class="wiz-nav">
+          <button class="btn btn-secondary btn-md" id="wizBack3b">Back</button>
+          <button class="btn btn-primary btn-md" id="wizNext3b">Continue</button>
+        </div>
+      </div>
+
+      <!-- Screen 4: Ready -->
+      <div class="wiz-screen" id="wizScreen4" style="display:none;">
+        <div class="wiz-step-label">Step 4 of 4</div>
+        <div class="wiz-logo" style="margin-bottom:var(--space-4);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="wiz-heading">You're All Set!</div>
+        <div class="wiz-desc">ClinicalFlow is ready. Here are a few tips to get started:</div>
+        <div class="wiz-tips">
+          <div class="wiz-tip"><kbd>Space</kbd> Start / Stop recording</div>
+          <div class="wiz-tip"><kbd>G</kbd> Generate a clinical note from the transcript</div>
+          <div class="wiz-tip"><kbd>E</kbd> Export your note as PDF</div>
+          <div class="wiz-tip">Open <strong>Settings</strong> anytime to change your API keys, mode, or preferences</div>
+        </div>
+        <button class="btn btn-primary btn-md wiz-btn" id="wizFinish">Start Using ClinicalFlow</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       APP CONTAINER — Main Grid Layout
+       ============================================================ -->
+  <div class="app-container" id="app">
+
+    <!-- ──────────────────────────────────────────────────────────
+         HEADER
+         ────────────────────────────────────────────────────────── -->
+    <header class="header">
+      <!-- Brand -->
+      <div class="header-brand">
+        <div class="header-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </div>
+        <div>
+          <div class="header-title">Clinical<span>Flow</span></div>
+          <div class="header-subtitle">Clinical Documentation</div>
+        </div>
+      </div>
+
+      <!-- Center — Session Info -->
+      <div class="header-center">
+        <div class="session-info">
+          <!-- Recording Status Badge -->
+          <div class="session-badge" id="statusBadge">
+            <span class="dot"></span>
+            <span id="statusText">Ready</span>
+          </div>
+          
+          <!-- Session Timer -->
+          <div class="session-timer" id="sessionTimer">00:00</div>
+          
+          <!-- Word Count -->
+          <div class="session-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <span id="wordCount">0 words</span>
+          </div>
+
+          <!-- Transcription Engine Indicator -->
+          <div class="connection-indicator disconnected" id="connectionIndicator">
+            <svg class="conn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="1" y1="1" x2="23" y2="23" class="conn-slash"/>
+              <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" class="conn-wave conn-wave-3"/>
+              <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" class="conn-wave conn-wave-2"/>
+              <path d="M10.71 5.05A16 16 0 0 1 22.56 9" class="conn-wave conn-wave-1"/>
+              <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" class="conn-wave conn-wave-1"/>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0" class="conn-wave conn-wave-3"/>
+              <line x1="12" y1="20" x2="12.01" y2="20"/>
+            </svg>
+            <span class="conn-dot"></span>
+            <span id="connectionText">Not Connected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right — Actions -->
+      <div class="header-actions">
+        <!-- Settings Toggle -->
+        <button class="icon-btn" id="settingsToggleBtn" data-tooltip="Settings" aria-label="Toggle settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+
+        <!-- New Session -->
+        <button class="icon-btn" id="newSessionBtn" data-tooltip="New Session" aria-label="Start new session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+
+        <!-- Help -->
+        <button class="icon-btn" id="helpBtn" data-tooltip="Help" aria-label="Help and shortcuts">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+
+    <!-- ──────────────────────────────────────────────────────────
+         SIDEBAR — Speakers, Note Format, Settings
+         ────────────────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+      
+      <!-- Speakers Section -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">
+          Speakers
+          <span class="text-muted" id="speakerCount" style="float:right; font-weight:500; letter-spacing:0; text-transform:none;">(0)</span>
+        </div>
+        
+        <div class="speaker-list" id="speakerList">
+          <!-- Speaker cards dynamically added by JS -->
+        </div>
+
+        <button class="add-speaker-btn" id="addSpeakerBtn" aria-label="Add new speaker">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Speaker
+        </button>
+      </div>
+
+      <!-- Note Format Section -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Note Format</div>
+        <select class="format-select" id="formatSelector" aria-label="Note format">
+          <!-- Populated dynamically by initFmtSel() -->
+        </select>
+        <button class="btn btn-xs btn-ghost" id="customTemplateBtn" style="margin-top:8px;">+ Custom Template</button>
+      </div>
+
+      <!-- Dental Chart (auto-shown when dental template selected) -->
+      <div class="sidebar-section" id="dentalChartSection" style="display:none;">
+        <div class="sidebar-section-title">
+          Dental Chart
+          <span class="dental-summary-badge" id="dentalSummaryText"></span>
+        </div>
+        <div id="dentalChartPreview" class="dental-chart-preview"></div>
+        <div class="dental-sidebar-actions">
+          <button class="btn" id="openDentalChartBtn">Edit Chart</button>
+          <button class="btn btn-ghost-dental" id="resetDentalChartBtn">Reset</button>
+        </div>
+      </div>
+
+      <!-- Settings Section (sidebar quick toggles) -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Settings</div>
+        
+        <div class="setting-row">
+          <span class="setting-label">Auto-scroll</span>
+          <div class="toggle active" id="toggleAutoScroll" data-setting="autoScroll" role="switch" aria-checked="true" tabindex="0">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Timestamps</span>
+          <div class="toggle active" id="toggleTimestamps" data-setting="timestamps" role="switch" aria-checked="true" tabindex="0">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Auto-detect speakers</span>
+          <div class="toggle active" id="toggleAutoDetect" data-setting="autoDetect" role="switch" aria-checked="true" tabindex="0">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Highlight terms</span>
+          <div class="toggle" id="toggleHighlight" data-setting="highlightTerms" role="switch" aria-checked="false" tabindex="0">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past Sessions (Tauri only — populated by JS) -->
+      <div class="sidebar-section" id="pastSessionsSection" style="display:none;">
+        <div class="sidebar-section-title">
+          Past Sessions
+          <button class="icon-btn small" id="refreshArchiveBtn" data-tooltip="Refresh" style="float:right;padding:2px 4px;min-width:0;font-size:11px;" aria-label="Refresh archive list">↻</button>
+        </div>
+        <div id="archiveList" class="archive-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Quick Info — Keyboard Shortcuts -->
+      <div class="sidebar-section" style="margin-top: auto;">
+        <div class="sidebar-info-card">
+          <div class="sidebar-info-card-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            Keyboard Shortcuts
+          </div>
+          <div class="shortcut-list">
+            <kbd>Space</kbd> Start / Stop recording<br>
+            <kbd>P</kbd> Pause / Resume<br>
+            <kbd>G</kbd> Generate note<br>
+            <kbd>E</kbd> Export PDF<br>
+            <kbd>N</kbd> New session<br>
+            <kbd>T</kbd> Download transcript<br>
+            <kbd>Ctrl+F</kbd> Search<br>
+            <kbd>Cmd+,</kbd> Settings
+          </div>
+          <div class="sidebar-demo-hint">
+            Triple-click <span>?</span> to load a sample encounter (medical or dental)
+          </div>
+          <div class="sidebar-demo-hint" style="margin-top:6px;opacity:0.5;">ClinicalFlow v1.0.0</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Sidebar collapse toggle — outside sidebar so it's never clipped -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+
+    <!-- ──────────────────────────────────────────────────────────
+         TRANSCRIPT PANEL — Live Conversation Feed
+         ────────────────────────────────────────────────────────── -->
+    <main class="transcript-panel" id="transcriptPanel">
+      
+      <!-- Panel Header -->
+      <div class="panel-header">
+        <div class="panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          Live Transcript
+          <span class="live-dot" id="liveDot"></span>
+        </div>
+        <div class="panel-actions">
+          <!-- Download Transcript -->
+          <button class="icon-btn" id="downloadTranscriptBtn" data-tooltip="Download Transcript" aria-label="Download transcript as text file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+          <!-- Search in transcript -->
+          <button class="icon-btn" id="searchTranscriptBtn" data-tooltip="Search" aria-label="Search transcript">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+          <!-- Clear transcript -->
+          <button class="icon-btn" id="clearTranscriptBtn" data-tooltip="Clear" aria-label="Clear transcript">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="transcript-search-bar" id="searchBar">
+        <input type="text" class="input" id="searchInput" placeholder="Search transcript..." aria-label="Search transcript">
+        <button class="icon-btn" id="closeSearchBtn" aria-label="Close search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Transcript Content Area -->
+      <div class="transcript-content" id="transcriptContent">
+        
+        <!-- Empty State -->
+        <div class="transcript-empty" id="transcriptEmpty">
+          <div class="transcript-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </div>
+          <div class="transcript-empty-title">No transcript yet</div>
+          <div class="transcript-empty-desc">
+            Press the record button below or hit <kbd>Space</kbd> to begin capturing the clinical encounter.
+          </div>
+        </div>
+
+        <!-- Transcript entries container (populated by JS) -->
+        <div id="transcriptEntries" style="display: none;">
+          <!-- Entries are dynamically inserted here -->
+        </div>
+      </div>
+    </main>
+
+
+    <!-- ──────────────────────────────────────────────────────────
+         NOTE PANEL — Generated Clinical Note
+         ────────────────────────────────────────────────────────── -->
+    <section class="note-panel" id="notePanel">
+
+      <!-- Resize handle — drag to adjust transcript/note width ratio -->
+      <div class="resize-handle resize-handle-left" id="resizeHandle" title="Drag to resize panels"></div>
+      
+      <!-- Panel Header -->
+      <div class="panel-header">
+        <div class="panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Clinical Note
+        </div>
+        <div class="panel-actions">
+          <!-- Regenerate Note -->
+          <button class="icon-btn" id="regenerateNoteBtn" data-tooltip="Regenerate" aria-label="Regenerate clinical note" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+          </button>
+          <!-- Copy Note -->
+          <button class="icon-btn" id="copyNoteBtn" data-tooltip="Copy" aria-label="Copy note to clipboard" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+          <!-- Export PDF -->
+          <button class="icon-btn" id="exportPdfBtn" data-tooltip="Export PDF" aria-label="Export as PDF" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+          <!-- Copy for EHR -->
+          <button class="icon-btn" id="copyEhrBtn" data-tooltip="Copy for EHR" aria-label="Copy structured note for EHR paste" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              <path d="M9 14l2 2 4-4"/>
+            </svg>
+          </button>
+          <!-- Export HL7 -->
+          <button class="icon-btn" id="exportHl7Btn" data-tooltip="Export HL7" aria-label="Export as HL7 message" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+              <polyline points="13 2 13 9 20 9"/>
+              <line x1="9" y1="13" x2="15" y2="13"/>
+              <line x1="9" y1="17" x2="15" y2="17"/>
+            </svg>
+          </button>
+          <!-- Insurance Narrative -->
+          <button class="icon-btn" id="genNarrativeBtn" data-tooltip="Insurance Narrative" aria-label="Generate insurance narrative" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </button>
+          <button class="icon-btn" id="syncPmsBtn" data-tooltip="Sync to PMS" aria-label="Sync to Practice Management System" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 16 12 12 8 16"/>
+              <line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Note Content Area -->
+      <div class="note-content" id="noteContent">
+        
+        <!-- Empty State -->
+        <div class="note-empty" id="noteEmpty">
+          <div class="note-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div class="note-empty-title">Note will appear here</div>
+          <div class="note-empty-desc">
+            After recording, click "Generate Note" to create a structured clinical document from the transcript.
+          </div>
+        </div>
+
+        <!-- Note Generating State -->
+        <div class="note-generating" id="noteGenerating" style="display: none;">
+          <div class="generating-spinner"></div>
+          <div class="generating-text">Generating clinical note...</div>
+          <div class="generating-subtext">Analyzing transcript and structuring documentation</div>
+        </div>
+
+        <!-- Generated Note Sections Container -->
+        <div id="noteSections" style="display: none;">
+          <!-- Sections are dynamically inserted here based on selected format -->
+        </div>
+
+        <!-- Documentation Completeness Score -->
+        <div class="doc-score-panel" id="docScorePanel" style="display:none;"></div>
+
+        <!-- Medical Coding Panel (ICD-10 / CPT / E&M) -->
+        <div class="coding-panel" id="codingPanel" style="display:none;"></div>
+
+        <!-- Insurance Narrative Panel -->
+        <div class="narrative-panel" id="narrativePanel" style="display:none;"></div>
+
+        <!-- PMS Sync Confirmation -->
+        <div class="pms-sync-confirm" id="pmsSyncConfirm" style="display:none;"></div>
+      </div>
+    </section>
+
+
+    <!-- ──────────────────────────────────────────────────────────
+         CONTROL BAR — Bottom Recording Controls
+         ────────────────────────────────────────────────────────── -->
+    <footer class="control-bar" id="controlBar">
+      
+      <!-- Left — Waveform & Info -->
+      <div class="control-bar-left">
+        <!-- Audio Waveform Visualizer -->
+        <div class="waveform-container" id="waveform" aria-hidden="true">
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+          <div class="waveform-bar inactive" style="height: 4px;"></div>
+        </div>
+
+        <!-- Active Speaker Indicator -->
+        <div class="session-badge" id="activeSpeakerBadge" style="display: none;">
+          <span class="dot" id="activeSpeakerDot"></span>
+          <span id="activeSpeakerName">—</span>
+        </div>
+      </div>
+
+      <!-- Center — Main Controls -->
+      <div class="control-bar-center">
+        <!-- Pause Button -->
+        <button class="pause-btn" id="pauseBtn" data-tooltip="Pause" aria-label="Pause recording" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="4" width="4" height="16" rx="1"/>
+            <rect x="14" y="4" width="4" height="16" rx="1"/>
+          </svg>
+        </button>
+
+        <!-- Record / Stop Button -->
+        <button class="record-btn" id="recordBtn" aria-label="Start recording">
+          <div class="record-btn-inner"></div>
+        </button>
+
+        <!-- Generate Note Button -->
+        <button class="btn btn-primary btn-md" id="generateNoteBtn" style="display: none;" aria-label="Generate clinical note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          Generate Note
+        </button>
+      </div>
+
+      <!-- Right — Export & Downloads -->
+      <div class="control-bar-right">
+        <div class="download-btn-group">
+          <!-- Download Audio -->
+          <button class="btn btn-secondary btn-sm" id="downloadAudioBtn" aria-label="Download audio recording">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            Save Audio
+          </button>
+          <!-- Export PDF -->
+          <button class="btn btn-secondary btn-sm" id="exportBtn" style="display: none;" aria-label="Export as PDF">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export PDF
+          </button>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+  <!-- END .app-container -->
+
+
+  <!-- ============================================================
+       MODALS
+       ============================================================ -->
+
+  <!-- New Session Confirmation Modal -->
+  <div class="modal-overlay" id="newSessionModal">
+    <div class="modal" role="dialog" aria-labelledby="newSessionTitle" aria-describedby="newSessionDesc">
+      <div class="modal-title" id="newSessionTitle">Start New Session?</div>
+      <div class="modal-desc" id="newSessionDesc">
+        Your current session will be saved to Past Sessions. You can reload it anytime from the sidebar.
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary btn-md" id="cancelNewSession">Cancel</button>
+        <button class="btn btn-primary btn-md" id="confirmNewSession">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Save &amp; Start New
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Speaker Modal -->
+  <div class="modal-overlay" id="addSpeakerModal">
+    <div class="modal" role="dialog" aria-labelledby="addSpeakerTitle">
+      <div class="modal-title" id="addSpeakerTitle">Add Speaker</div>
+      <div class="modal-desc">
+        Add a new speaker to identify in the conversation. The system will attempt to match their voice automatically.
+      </div>
+      
+      <div class="mb-4">
+        <label class="setting-label mb-2" style="display: block;">Speaker Name</label>
+        <input type="text" class="input" id="newSpeakerName" placeholder="e.g., Patient's mother, Nurse, Interpreter...">
+      </div>
+
+      <div class="mb-4">
+        <label class="setting-label mb-2" style="display: block;">Role</label>
+        <div class="flex gap-2" style="flex-wrap: wrap;">
+          <button class="btn btn-secondary btn-sm role-option" data-role="patient">Patient</button>
+          <button class="btn btn-secondary btn-sm role-option" data-role="doctor">Doctor</button>
+          <button class="btn btn-secondary btn-sm role-option selected" data-role="other">Other</button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary btn-md" id="cancelAddSpeaker">Cancel</button>
+        <button class="btn btn-primary btn-md" id="confirmAddSpeaker">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/>
+            <line x1="20" y1="8" x2="20" y2="14"/>
+            <line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+          Add Speaker
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help / Shortcuts Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="modal help-modal-wide" role="dialog" aria-labelledby="helpTitle">
+      <div class="modal-title" id="helpTitle">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -4px; margin-right: 4px;">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        How to Use ClinicalFlow
+      </div>
+      <div class="modal-desc">
+        ClinicalFlow captures clinical conversations in real-time and generates structured medical documentation.
+      </div>
+
+      <div class="help-steps">
+        <div class="help-step">
+          <div class="help-step-num">1</div>
+          <div>
+            <div class="help-step-title">Start Recording</div>
+            <div class="help-step-desc">Click the record button or press Space. The microphone will capture audio and transcribe speech in real-time.</div>
+          </div>
+        </div>
+
+        <div class="help-step">
+          <div class="help-step-num">2</div>
+          <div>
+            <div class="help-step-title">Identify Speakers</div>
+            <div class="help-step-desc">The system auto-detects different speakers. You can rename them or manually assign roles (Doctor, Patient, Other).</div>
+          </div>
+        </div>
+
+        <div class="help-step">
+          <div class="help-step-num">3</div>
+          <div>
+            <div class="help-step-title">Generate Note</div>
+            <div class="help-step-desc">Stop recording and click "Generate Note." Choose from SOAP, HPI-focused, or problem-oriented formats.</div>
+          </div>
+        </div>
+
+        <div class="help-step">
+          <div class="help-step-num">4</div>
+          <div>
+            <div class="help-step-title">Review &amp; Export</div>
+            <div class="help-step-desc">Edit any section of the generated note directly. When satisfied, export as PDF, download the transcript, or save the audio recording.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-shortcuts-section">
+        <div class="help-shortcuts-title">Keyboard Shortcuts</div>
+        <div class="shortcuts-grid">
+          <div class="shortcut-item">
+            <span>Record / Stop</span>
+            <kbd>Space</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Pause</span>
+            <kbd>P</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Generate Note</span>
+            <kbd>G</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Export PDF</span>
+            <kbd>E</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>New Session</span>
+            <kbd>N</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Download Transcript</span>
+            <kbd>T</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Search</span>
+            <kbd>Ctrl+F</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Settings</span>
+            <kbd>Cmd+,</kbd>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary btn-md" id="closeHelpModal">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clear Transcript Confirmation Modal -->
+  <div class="modal-overlay" id="clearTranscriptModal">
+    <div class="modal" role="dialog" aria-labelledby="clearTranscriptTitle">
+      <div class="modal-title" id="clearTranscriptTitle">Clear Transcript?</div>
+      <div class="modal-desc">
+        This will permanently remove all transcript entries from this session. The generated note will not be affected.
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary btn-md" id="cancelClearTranscript">Cancel</button>
+        <button class="btn btn-danger btn-md" id="confirmClearTranscript">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          Clear Transcript
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Generic Confirm Modal (replaces native confirm() which is broken in WKWebView) -->
+  <div class="modal-overlay" id="genericConfirmModal">
+    <div class="modal" role="dialog" aria-labelledby="genericConfirmTitle" aria-describedby="genericConfirmDesc">
+      <div class="modal-title" id="genericConfirmTitle"></div>
+      <div class="modal-desc" id="genericConfirmDesc"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary btn-md" id="genericConfirmCancel">Cancel</button>
+        <button class="btn btn-danger btn-md" id="genericConfirmOk">
+          <svg id="genericConfirmIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span id="genericConfirmOkText">Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Template Editor Modal -->
+  <div class="modal-overlay" id="customTemplateModal">
+    <div class="modal modal-wide" role="dialog" aria-labelledby="customTemplateTitle">
+      <div class="modal-title" id="customTemplateTitle">Create Custom Template</div>
+      <div class="modal-desc">Define your own note format with custom sections.</div>
+      <div style="margin:16px 0;">
+        <label class="settings-row-label" style="display:block;margin-bottom:6px;">Template Name</label>
+        <input type="text" class="template-name-input" id="customTemplateName" placeholder="e.g. Urgent Care Visit" autocomplete="off">
+      </div>
+      <div style="margin:16px 0;">
+        <label class="settings-row-label" style="display:block;margin-bottom:6px;">Sections</label>
+        <div id="templateSectionList">
+          <div class="template-section-row">
+            <input type="text" class="template-section-input" placeholder="Section name" value="History">
+            <button class="btn btn-xs btn-ghost template-section-remove">&times;</button>
+          </div>
+          <div class="template-section-row">
+            <input type="text" class="template-section-input" placeholder="Section name" value="Examination">
+            <button class="btn btn-xs btn-ghost template-section-remove">&times;</button>
+          </div>
+          <div class="template-section-row">
+            <input type="text" class="template-section-input" placeholder="Section name" value="Assessment">
+            <button class="btn btn-xs btn-ghost template-section-remove">&times;</button>
+          </div>
+          <div class="template-section-row">
+            <input type="text" class="template-section-input" placeholder="Section name" value="Plan">
+            <button class="btn btn-xs btn-ghost template-section-remove">&times;</button>
+          </div>
+        </div>
+        <button class="btn btn-xs btn-ghost" id="addTemplateSectionBtn" style="margin-top:8px;">+ Add Section</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary btn-md" id="cancelCustomTemplate">Cancel</button>
+        <button class="btn btn-primary btn-md" id="saveCustomTemplate">Save Template</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dental Chart Modal -->
+  <div class="modal-overlay" id="dentalChartModal">
+    <div class="modal dental-chart-modal" role="dialog" aria-labelledby="dentalChartModalTitle">
+      <div class="dental-modal-header">
+        <div class="modal-title" id="dentalChartModalTitle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px;"><path d="M7 2C4.8 2 3 3.8 3 6c0 1.5.5 2.8 1.2 4 .7 1.2 1.2 2.5 1.3 4l.5 6c.1.6.5 1 1 1s.9-.4 1-1l1-4h2l1 4c.1.6.5 1 1 1s.9-.4 1-1l.5-6c.1-1.5.6-2.8 1.3-4C17.5 8.8 18 7.5 18 6c0-2.2-1.8-4-4-4-1.2 0-2.3.6-3 1.5C10.3 2.6 9.2 2 8 2z"/></svg>
+          Dental Chart
+        </div>
+        <button class="btn btn-xs btn-ghost" id="closeDentalChartModal" aria-label="Close">&times;</button>
+      </div>
+      <div class="dental-modal-subtitle">Click a tooth to set its condition. Surface-specific states (decay, restored, fracture) allow selecting affected surfaces.</div>
+      <div class="dental-view-toggle" id="dentalViewToggle">
+        <button class="dental-view-btn active" data-view="chart">Chart</button>
+        <button class="dental-view-btn" data-view="perio">Perio</button>
+      </div>
+      <div id="dentalChartContainer" class="dental-chart-container"></div>
+      <div id="dentalChartLegend" class="dental-chart-legend"></div>
+      <div class="dental-modal-footer">
+        <div class="dental-modal-findings" id="dentalModalFindings">No findings recorded</div>
+        <div class="dental-modal-actions">
+          <button class="btn btn-secondary btn-sm" id="resetDentalChartModalBtn">Reset Chart</button>
+          <button class="btn btn-primary btn-sm" id="doneDentalChartBtn">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo Picker Modal -->
+  <div class="modal-overlay" id="demoPickerModal">
+    <div class="modal" role="dialog" aria-labelledby="demoPickerTitle" style="max-width:420px;">
+      <div class="modal-title" id="demoPickerTitle">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px;">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Load Sample Encounter
+      </div>
+      <div class="modal-desc">Choose a demo scenario to populate the transcript area.</div>
+      <div class="demo-picker-options">
+        <button class="demo-picker-card" data-demo="medical">
+          <div class="demo-picker-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <div class="demo-picker-info">
+            <div class="demo-picker-name">General Medical Visit</div>
+            <div class="demo-picker-desc">Diabetes follow-up, knee pain evaluation, peripheral neuropathy screening</div>
+          </div>
+        </button>
+        <button class="demo-picker-card" data-demo="dental">
+          <div class="demo-picker-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 2C4.8 2 3 3.8 3 6c0 1.5.5 2.8 1.2 4 1.2 2 1.8 4 2.4 6.5.4 1.8.8 3.5 1.4 3.5s1-1.2 1.4-2.5c.3-1 .6-2 1.1-2.5.4-.5.8-.5 1.1 0 .5.5.8 1.5 1.1 2.5.4 1.3.8 2.5 1.4 2.5s1-1.7 1.4-3.5c.6-2.5 1.2-4.5 2.4-6.5.7-1.2 1.2-2.5 1.2-4 0-2.2-1.8-4-4-4-1.4 0-2.6.7-3.3 1.7h-.4C9.6 2.7 8.4 2 7 2z"/>
+            </svg>
+          </div>
+          <div class="demo-picker-info">
+            <div class="demo-picker-name">Dental Examination</div>
+            <div class="demo-picker-desc">Comprehensive exam with caries, RCT failure, impaction, periodontal findings</div>
+          </div>
+        </button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary btn-sm" id="closeDemoPicker">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TOAST NOTIFICATION CONTAINER
+       ============================================================ -->
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true">
+    <!-- Toasts are dynamically inserted here by JS -->
+  </div>
+
+
+  <!-- ============================================================
+       SETTINGS DRAWER (Slide-out panel)
+       ============================================================ -->
+  <div class="settings-overlay" id="settingsOverlay"></div>
+  <div class="settings-drawer" id="settingsDrawer">
+    <div class="settings-header">
+      <div class="settings-title">Settings</div>
+      <button class="settings-close-btn" id="settingsCloseBtn" aria-label="Close settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="settings-body">
+
+      <!-- Tab Switcher -->
+      <div class="settings-tabs" id="settingsTabs">
+        <button class="settings-tab active" data-tab="general">General</button>
+        <button class="settings-tab" data-tab="advanced">Advanced</button>
+      </div>
+
+      <!-- ═══════════════ GENERAL TAB ═══════════════ -->
+      <div class="settings-tab-content" id="settingsTabGeneral">
+
+        <!-- Account Card -->
+        <div class="settings-card" id="settingsAccountSection">
+          <div class="settings-card-title">Account</div>
+          <div class="settings-row">
+            <div class="settings-row-info"><div class="settings-row-label">Email</div></div>
+            <span class="settings-value" id="settingsEmail">—</span>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><div class="settings-row-label">Plan</div></div>
+            <span class="settings-value" id="settingsPlan">—</span>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><div class="settings-row-label">Status</div></div>
+            <span class="settings-value" id="settingsSubStatus">—</span>
+          </div>
+          <div class="settings-row" id="settingsTrialRow" style="display:none">
+            <div class="settings-row-info"><div class="settings-row-label">Trial ends</div></div>
+            <span class="settings-value" id="settingsTrialEnds">—</span>
+          </div>
+          <div class="settings-row" id="settingsSubEndsRow" style="display:none">
+            <div class="settings-row-info"><div class="settings-row-label">Renews</div></div>
+            <span class="settings-value" id="settingsSubEnds">—</span>
+          </div>
+          <div class="settings-row" id="settingsSeatsRow" style="display:none">
+            <div class="settings-row-info"><div class="settings-row-label">Seats</div></div>
+            <span class="settings-value" id="settingsSeats">—</span>
+          </div>
+          <div class="settings-row" id="settingsDevicesRow" style="display:none">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Devices</div>
+              <div class="settings-row-desc">Active devices on this account</div>
+            </div>
+            <span class="settings-value" id="settingsDevices">—</span>
+          </div>
+          <div class="settings-account-actions">
+            <button class="btn btn-sm btn-ghost" id="settingsManageBilling">Manage Billing</button>
+            <button class="btn btn-sm btn-ghost btn-danger-ghost" id="settingsLogout">Log Out</button>
+          </div>
+        </div>
+
+        <!-- Appearance Card -->
+        <div class="settings-card">
+          <div class="settings-card-title">Appearance</div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Theme</div>
+              <div class="settings-row-desc">Switch between light and dark mode</div>
+            </div>
+            <div class="theme-switcher" id="themeSwitcher">
+              <button class="theme-option active" data-theme="light" aria-label="Light theme">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"/>
+                  <line x1="12" y1="1" x2="12" y2="3"/>
+                  <line x1="12" y1="21" x2="12" y2="23"/>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                  <line x1="1" y1="12" x2="3" y2="12"/>
+                  <line x1="21" y1="12" x2="23" y2="12"/>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+                Light
+              </button>
+              <button class="theme-option" data-theme="dark" aria-label="Dark theme">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+                Dark
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI & Transcription Card (MERGED) -->
+        <div class="settings-card">
+          <div class="settings-card-title">AI & Transcription</div>
+
+          <!-- Transcription Mode -->
+          <div class="settings-row settings-row-stacked">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Transcription</div>
+              <div class="settings-row-desc">Online uses cloud transcription for accuracy with speaker diarization. Offline uses Whisper AI locally — no internet required.</div>
+            </div>
+            <div class="theme-switcher" id="transcriptionModeToggle" style="margin-top:var(--space-2);">
+              <button class="theme-option active" data-mode="online" aria-label="Online transcription">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+                </svg>
+                Online
+              </button>
+              <button class="theme-option" data-mode="offline" aria-label="Offline transcription">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/><line x1="17" y1="17" x2="22" y2="17"/>
+                </svg>
+                Offline
+              </button>
+            </div>
+          </div>
+
+          <!-- Online Transcription API Key -->
+          <div id="onlineTranscriptionSettings" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-subtle);">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Deepgram API Key</div>
+              <div class="settings-row-desc">Cloud transcription with speaker diarization. Get a free key at <a href="https://deepgram.com" target="_blank" rel="noopener" class="settings-link">deepgram.com</a></div>
+            </div>
+            <div class="api-key-input-group">
+              <input type="password" class="input" id="deepgramApiKey" placeholder="Enter API key..." autocomplete="off" aria-label="Deepgram API key">
+              <button class="btn btn-primary btn-sm" id="saveApiKeyBtn">Save</button>
+            </div>
+            <div class="api-key-status disconnected" id="apiKeyStatus">
+              <span class="status-dot"></span>
+              <span id="apiKeyStatusText">No API key configured</span>
+            </div>
+          </div>
+
+          <!-- AI Engine Toggle -->
+          <div class="settings-row settings-row-stacked" style="margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--border-subtle);">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Note Generation Engine</div>
+              <div class="settings-row-desc">Choose how clinical notes are generated from transcripts</div>
+            </div>
+            <div class="theme-switcher" id="aiEngineToggle" style="margin-top:var(--space-2);">
+              <button class="theme-option" data-engine="cloud" aria-label="Cloud AI">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                </svg>
+                Cloud
+              </button>
+              <button class="theme-option active" data-engine="ollama" aria-label="Ollama local AI">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>
+                </svg>
+                Local
+              </button>
+              <button class="theme-option" data-engine="rules" aria-label="Rule-based generation">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+                Rules
+              </button>
+            </div>
+          </div>
+
+          <!-- Cloud AI Settings -->
+          <div id="cloudAISettings" style="display:none;">
+            <div class="settings-row settings-row-stacked">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Anthropic API Key</div>
+                <div class="settings-row-desc">Powers cloud-based note generation. Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></div>
+              </div>
+              <div class="api-key-input-group">
+                <input type="password" class="input" id="claudeKeyInput" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" aria-label="Anthropic API key">
+                <button class="btn btn-primary btn-sm" id="claudeKeySave">Save</button>
+              </div>
+              <div class="api-key-status disconnected" id="claudeStatus">
+                <span class="status-dot"></span>
+                <span id="claudeStatusText">No API key</span>
+              </div>
+            </div>
+
+            <div class="settings-row" style="margin-top: 12px;">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Verification pass</div>
+                <div class="settings-row-desc">Double-checks note against transcript for accuracy</div>
+              </div>
+              <div class="toggle active" id="settingClaudeVerify" data-setting="claudeVerify" role="switch" aria-checked="true" tabindex="0">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+
+            <div class="ollama-help">
+              Uses Claude Haiku 4.5 for fast, accurate clinical notes. Typical cost: ~1 cent per encounter. Your transcript data is sent to Anthropic's API — do not use if your facility prohibits cloud processing of clinical audio.
+            </div>
+          </div>
+
+          <!-- Ollama Settings -->
+          <div id="ollamaSettings">
+            <div class="settings-row settings-row-stacked">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Ollama Server URL</div>
+                <div class="settings-row-desc">Local Ollama server address</div>
+              </div>
+              <div class="api-key-input-group">
+                <input type="text" class="ollama-url-input" id="ollamaUrl" value="http://localhost:11434" autocomplete="off" aria-label="Ollama server URL">
+                <button class="btn btn-primary btn-sm" id="ollamaTestBtn">Test</button>
+              </div>
+              <div class="api-key-status disconnected" id="ollamaStatus">
+                <span class="status-dot"></span>
+                <span id="ollamaStatusText">Not connected</span>
+              </div>
+            </div>
+
+            <div class="settings-row settings-row-stacked">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Model</div>
+                <div class="settings-row-desc">Select which model to use for note generation</div>
+              </div>
+              <div class="api-key-input-group">
+                <select class="ollama-model-select" id="ollamaModelSelect" disabled aria-label="Ollama model">
+                  <option value="">Connect to Ollama first...</option>
+                </select>
+                <button class="ollama-refresh-btn" id="ollamaRefreshBtn" title="Refresh model list" aria-label="Refresh model list">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"/>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <div class="ollama-help">
+              Requires <a href="https://ollama.com/download" target="_blank" rel="noopener">Ollama</a> running locally. Install, then run <code>ollama pull llama3.1:8b</code> in your terminal.
+            </div>
+
+            <div class="settings-row" style="margin-top: 12px;">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Verification pass</div>
+                <div class="settings-row-desc">Double-checks note against transcript for accuracy (slower)</div>
+              </div>
+              <div class="toggle" id="settingOllamaVerify" data-setting="ollamaVerify" role="switch" aria-checked="false" tabindex="0">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto-suggest codes -->
+          <div class="settings-row" style="margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--border-subtle);">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Auto-suggest medical codes</div>
+              <div class="settings-row-desc">Suggest ICD-10, CPT, and E&M codes after note generation</div>
+            </div>
+            <div class="toggle active" id="settingAutoCoding" data-setting="autoCoding" role="switch" aria-checked="true" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recording Card -->
+        <div class="settings-card">
+          <div class="settings-card-title">Recording</div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Auto-scroll transcript</div>
+              <div class="settings-row-desc">Scroll to latest entry automatically</div>
+            </div>
+            <div class="toggle active" id="settingAutoScroll" data-setting="autoScroll" role="switch" aria-checked="true" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Show timestamps</div>
+              <div class="settings-row-desc">Display time markers on transcript entries</div>
+            </div>
+            <div class="toggle active" id="settingTimestamps" data-setting="timestamps" role="switch" aria-checked="true" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Auto-detect speakers</div>
+              <div class="settings-row-desc">Automatically switch speakers on silence</div>
+            </div>
+            <div class="toggle active" id="settingAutoDetect" data-setting="autoDetect" role="switch" aria-checked="true" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Highlight medical terms</div>
+              <div class="settings-row-desc">Color-code conditions and medications</div>
+            </div>
+            <div class="toggle" id="settingHighlight" data-setting="highlightTerms" role="switch" aria-checked="false" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Actions Card -->
+        <div class="settings-card">
+          <div class="settings-card-title">Export Actions</div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Copy for EHR</div>
+              <div class="settings-row-desc">Show structured EHR copy button</div>
+            </div>
+            <div class="toggle" id="settingShowCopyEhr" data-setting="showCopyEhr" role="switch" aria-checked="false" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Export HL7</div>
+              <div class="settings-row-desc">Show HL7 message export button</div>
+            </div>
+            <div class="toggle" id="settingShowExportHl7" data-setting="showExportHl7" role="switch" aria-checked="false" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Insurance Narrative</div>
+              <div class="settings-row-desc">Show insurance narrative generator (dental only)</div>
+            </div>
+            <div class="toggle" id="settingShowNarrative" data-setting="showNarrative" role="switch" aria-checked="false" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Sync to PMS</div>
+              <div class="settings-row-desc">Show Practice Management System sync button</div>
+            </div>
+            <div class="toggle" id="settingShowSyncPms" data-setting="showSyncPms" role="switch" aria-checked="false" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dental Card (conditional) -->
+        <div class="settings-card" id="settingsDentalGroup" style="display:none;">
+          <div class="settings-card-title">Dental</div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Include chart in PDF</div>
+              <div class="settings-row-desc">Add visual dental chart diagram to exported PDFs</div>
+            </div>
+            <div class="toggle active" id="settingDentalChartInExport" data-setting="dentalChartInExport" role="switch" aria-checked="true" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Include findings summary</div>
+              <div class="settings-row-desc">Add text findings list to all exports (PDF, copy, text file)</div>
+            </div>
+            <div class="toggle active" id="settingDentalFindingsInExport" data-setting="dentalFindingsInExport" role="switch" aria-checked="true" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Documentation completeness</div>
+              <div class="settings-row-desc">Show scoring checklist after note generation</div>
+            </div>
+            <div class="toggle" id="settingShowDocScore" data-setting="showDocScore" role="switch" aria-checked="false" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════ ADVANCED TAB ═══════════════ -->
+      <div class="settings-tab-content" id="settingsTabAdvanced" style="display:none;">
+
+        <!-- EHR Integration Card -->
+        <div class="settings-card" id="settingsEhrGroup">
+          <div class="settings-card-title">EHR Integration</div>
+          <div class="settings-row settings-row-stacked">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Facility name</div>
+              <div class="settings-row-desc">Your clinic or hospital name for HL7 exports</div>
+            </div>
+            <input type="text" class="input" id="ehrFacilityName" placeholder="e.g. Memorial Hospital" autocomplete="off">
+          </div>
+          <div class="settings-row settings-row-stacked">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Facility ID</div>
+              <div class="settings-row-desc">OID or facility identifier (optional)</div>
+            </div>
+            <input type="text" class="input" id="ehrFacilityId" placeholder="e.g. 1.2.3.4.5" autocomplete="off">
+          </div>
+          <div class="settings-row settings-row-stacked">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Default patient MRN</div>
+              <div class="settings-row-desc">Pre-fill for exports (can override per-session)</div>
+            </div>
+            <input type="text" class="input" id="ehrDefaultMrn" placeholder="e.g. MRN12345" autocomplete="off">
+          </div>
+        </div>
+
+        <!-- PMS Bridge Card -->
+        <div class="settings-card" id="settingsPmsGroup">
+          <div class="settings-card-title">PMS Bridge</div>
+          <div id="pmsSettingsPanel"></div>
+        </div>
+
+        <!-- Language Card -->
+        <div class="settings-card">
+          <div class="settings-card-title">Language</div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Recognition language</div>
+              <div class="settings-row-desc">Primary language for speech recognition</div>
+            </div>
+            <select class="select" id="languageSelect" style="max-width:140px;flex-shrink:0;" aria-label="Recognition language">
+              <option value="en-US">English (US)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Security Card (Tauri only) -->
+        <div class="settings-card" id="securitySettingsGroup" style="display:none;">
+          <div class="settings-card-title">Security</div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Auto-lock timeout</div>
+              <div class="settings-row-desc">Lock the app after inactivity</div>
+            </div>
+            <select class="select" id="autoLockSelect" style="max-width:120px;flex-shrink:0;" aria-label="Auto-lock timeout">
+              <option value="2">2 minutes</option>
+              <option value="5" selected>5 minutes</option>
+              <option value="10">10 minutes</option>
+              <option value="15">15 minutes</option>
+              <option value="30">30 minutes</option>
+              <option value="0">Never</option>
+            </select>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Change PIN</div>
+              <div class="settings-row-desc">Update your encryption PIN</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="changePinBtn">Change PIN</button>
+          </div>
+
+          <div class="settings-row settings-row-stacked">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Data &amp; Privacy</div>
+              <div class="settings-row-desc">All clinical data is encrypted at rest with AES-256-GCM using your PIN. Session data, configuration, and API keys are stored locally and never transmitted except to your configured API providers.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       PDF EXPORT — Hidden Render Target
+       ============================================================ -->
+  <div class="pdf-preview" id="pdfPreview" aria-hidden="true">
+    <div class="pdf-header">
+      <div class="pdf-title" id="pdfTitle">Clinical Note</div>
+      <div class="pdf-meta" id="pdfMeta"></div>
+    </div>
+    <div id="pdfSections"></div>
+    <div class="pdf-footer">
+      <span>Generated by ClinicalFlow</span>
+      <span id="pdfFooterDate"></span>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       SCRIPTS
+       ============================================================ -->
+  <script src="env.js"></script>
+  <script type="module" src="app.js"></script>
+
+</body>
+</html>

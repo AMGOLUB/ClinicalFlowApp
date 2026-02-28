@@ -1,0 +1,310 @@
+/* ═══════════════════════════════════════════════════════════════
+   CLINICALFLOW WEBSITE — main.js
+   Nav scroll effect, scroll-reveal animations, mobile menu,
+   platform-aware download, smooth interactions
+   ═══════════════════════════════════════════════════════════════ */
+
+(function () {
+  'use strict';
+
+  /* ─── DOM REFS ─── */
+  const nav = document.getElementById('nav');
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+
+
+  /* ═══════════════════════════════════════
+     1. NAV — Glass blur on scroll
+     ═══════════════════════════════════════ */
+  let lastScroll = 0;
+  let navScrolled = false;
+
+  function handleNavScroll() {
+    const y = window.scrollY;
+    if (y > 40 && !navScrolled) {
+      nav.classList.add('scrolled');
+      navScrolled = true;
+    } else if (y <= 40 && navScrolled) {
+      nav.classList.remove('scrolled');
+      navScrolled = false;
+    }
+    lastScroll = y;
+  }
+
+  window.addEventListener('scroll', handleNavScroll, { passive: true });
+  handleNavScroll(); // run on load in case page is already scrolled
+
+
+  /* ═══════════════════════════════════════
+     2. MOBILE MENU
+     ═══════════════════════════════════════ */
+  let menuOpen = false;
+
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      navLinks.classList.toggle('nav-links--open', menuOpen);
+      navToggle.setAttribute('aria-expanded', menuOpen);
+
+      // Animate hamburger → X
+      if (menuOpen) {
+        navToggle.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>`;
+      } else {
+        navToggle.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>`;
+      }
+    });
+
+    // Close menu when a link is clicked
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (menuOpen) {
+          menuOpen = false;
+          navLinks.classList.remove('nav-links--open');
+          navToggle.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>`;
+        }
+      });
+    });
+  }
+
+
+  /* ═══════════════════════════════════════
+     3. SCROLL-REVEAL ANIMATIONS
+     ═══════════════════════════════════════ */
+  const revealElements = document.querySelectorAll('.reveal');
+
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target); // only animate once
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+  } else {
+    // Fallback: show everything immediately
+    revealElements.forEach(el => el.classList.add('visible'));
+  }
+
+
+  /* ═══════════════════════════════════════
+     4. SMOOTH SCROLL for anchor links
+     ═══════════════════════════════════════ */
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const targetId = this.getAttribute('href');
+      if (targetId === '#') return;
+
+      const target = document.querySelector(targetId);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Update URL without jumping
+        history.pushState(null, null, targetId);
+      }
+    });
+  });
+
+
+  /* ═══════════════════════════════════════
+     5. ACTIVE NAV LINK on scroll
+     ═══════════════════════════════════════ */
+  const sections = document.querySelectorAll('section[id]');
+  const navLinkItems = document.querySelectorAll('.nav-links a');
+
+  function updateActiveNav() {
+    const scrollY = window.scrollY + 120;
+
+    sections.forEach(section => {
+      const top = section.offsetTop;
+      const height = section.offsetHeight;
+      const id = section.getAttribute('id');
+
+      if (scrollY >= top && scrollY < top + height) {
+        navLinkItems.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveNav, { passive: true });
+
+
+  /* ═══════════════════════════════════════
+     6. PLATFORM DETECTION for download
+     ═══════════════════════════════════════ */
+  function detectPlatform() {
+    const ua = navigator.userAgent.toLowerCase();
+    const platform = navigator.platform?.toLowerCase() || '';
+
+    if (ua.includes('mac') || platform.includes('mac')) return 'macos';
+    if (ua.includes('win') || platform.includes('win')) return 'windows';
+    if (ua.includes('linux') || platform.includes('linux')) return 'linux';
+    return 'unknown';
+  }
+
+  function highlightPlatformDownload() {
+    const platform = detectPlatform();
+    const cards = document.querySelectorAll('.download-card');
+
+    cards.forEach(card => {
+      const h4 = card.querySelector('h4');
+      if (!h4) return;
+
+      const label = h4.textContent.toLowerCase();
+      if (
+        (platform === 'macos' && label.includes('macos')) ||
+        (platform === 'windows' && label.includes('windows')) ||
+        (platform === 'linux' && label.includes('linux'))
+      ) {
+        card.style.borderColor = 'var(--accent)';
+        card.style.boxShadow = 'var(--shadow-lg), var(--shadow-glow)';
+
+        // Add "Detected" badge
+        const badge = document.createElement('div');
+        badge.className = 'mode-badge';
+        badge.textContent = '✓ Your platform';
+        badge.style.marginBottom = '12px';
+        card.insertBefore(badge, card.firstChild);
+      }
+    });
+  }
+
+  highlightPlatformDownload();
+
+
+  /* ═══════════════════════════════════════
+     7. HERO DOWNLOAD BUTTON — platform-aware
+     ═══════════════════════════════════════ */
+  function updateHeroDownloadButton() {
+    const platform = detectPlatform();
+    const heroBtn = document.querySelector('.hero .btn--primary');
+    if (!heroBtn) return;
+
+    const labels = {
+      macos: 'Download for macOS',
+      windows: 'Download for Windows',
+      linux: 'Download for Linux',
+      unknown: 'Download for Free'
+    };
+
+    // Keep the SVG icon, just update the text
+    const svg = heroBtn.querySelector('svg');
+    if (svg) {
+      heroBtn.textContent = '';
+      heroBtn.appendChild(svg);
+      heroBtn.appendChild(document.createTextNode(' ' + labels[platform]));
+    }
+  }
+
+  updateHeroDownloadButton();
+
+
+  /* ═══════════════════════════════════════
+     8. STAT NUMBER ANIMATION (count up)
+     ═══════════════════════════════════════ */
+  function animateStatNumbers() {
+    const stats = document.querySelectorAll('.problem-stat-number');
+
+    if (!('IntersectionObserver' in window)) return;
+
+    const statObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const text = el.textContent.trim();
+
+          // Only animate pure numbers or percentages
+          const match = text.match(/^(\d+)(\+?)(%?)\s*(.*)/);
+          if (match) {
+            const target = parseInt(match[1], 10);
+            const plus = match[2];
+            const pct = match[3];
+            const suffix = match[4];
+
+            // Don't re-animate
+            if (el.dataset.animated) return;
+            el.dataset.animated = 'true';
+
+            let start = 0;
+            const duration = 1200;
+            const startTime = performance.now();
+
+            function step(now) {
+              const elapsed = now - startTime;
+              const progress = Math.min(elapsed / duration, 1);
+              // Ease out cubic
+              const eased = 1 - Math.pow(1 - progress, 3);
+              const current = Math.round(eased * target);
+
+              // Preserve the gradient class by setting textContent
+              el.textContent = current + plus + pct + (suffix ? ' ' + suffix : '');
+
+              if (progress < 1) {
+                requestAnimationFrame(step);
+              }
+            }
+
+            el.textContent = '0' + plus + pct + (suffix ? ' ' + suffix : '');
+            requestAnimationFrame(step);
+          }
+
+          statObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    stats.forEach(stat => statObserver.observe(stat));
+  }
+
+  animateStatNumbers();
+
+
+  /* ═══════════════════════════════════════
+     9. KEYBOARD NAVIGATION SUPPORT
+     ═══════════════════════════════════════ */
+  // Show focus outlines only on keyboard navigation
+  document.body.addEventListener('mousedown', () => {
+    document.body.classList.add('using-mouse');
+  });
+  document.body.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      document.body.classList.remove('using-mouse');
+    }
+  });
+
+
+  /* ═══════════════════════════════════════
+     10. YEAR AUTO-UPDATE in footer
+     ═══════════════════════════════════════ */
+  const yearSpan = document.querySelector('.footer-bottom span');
+  if (yearSpan) {
+    const year = new Date().getFullYear();
+    yearSpan.textContent = yearSpan.textContent.replace(/\d{4}/, year);
+  }
+
+})();
