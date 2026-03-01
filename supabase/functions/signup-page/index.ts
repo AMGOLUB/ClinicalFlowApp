@@ -748,7 +748,12 @@ body::before {
       document.getElementById('pendingEmail').textContent = email;
       showScreen('pendingScreen');
     } catch (err) {
-      showError(err.message || 'Signup failed. Please try again.');
+      const msg = err.message || 'Signup failed. Please try again.';
+      if (msg.includes('security') || msg.includes('rate') || msg.includes('seconds')) {
+        showError('Too many attempts. Please wait 60 seconds and try again.');
+      } else {
+        showError(msg);
+      }
     } finally {
       signupBtn.disabled = false;
       signupBtn.textContent = 'Create Account';
@@ -787,7 +792,12 @@ body::before {
       if (error) throw error;
       resendLink.textContent = 'Sent! Check your inbox.';
     } catch (err) {
-      resendLink.textContent = 'Failed \u2014 try again';
+      const msg = err?.message || '';
+      if (msg.includes('security') || msg.includes('rate') || msg.includes('seconds')) {
+        resendLink.textContent = 'Please wait 60s before resending';
+      } else {
+        resendLink.textContent = 'Failed \u2014 try again';
+      }
       resendLink.classList.remove('disabled');
     }
 

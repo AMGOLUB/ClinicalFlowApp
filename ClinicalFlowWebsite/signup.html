@@ -1189,7 +1189,12 @@
       document.getElementById('pendingEmail').textContent = email;
       show('pendingScreen');
     } catch (err) {
-      showErr(err.message || 'Signup failed. Please try again.');
+      const msg = err.message || 'Signup failed. Please try again.';
+      if (msg.includes('security') || msg.includes('rate') || msg.includes('seconds')) {
+        showErr('Too many attempts. Please wait 60 seconds and try again.');
+      } else {
+        showErr(msg);
+      }
     } finally {
       signupBtn.disabled = false;
       signupBtn.textContent = 'Create Account';
@@ -1223,8 +1228,13 @@
       });
       if (error) throw error;
       resendBtn.textContent = 'Sent! Check your inbox.';
-    } catch {
-      resendBtn.textContent = 'Failed \u2014 try again';
+    } catch (err) {
+      const msg = err?.message || '';
+      if (msg.includes('security') || msg.includes('rate') || msg.includes('seconds')) {
+        resendBtn.textContent = 'Please wait 60s before resending';
+      } else {
+        resendBtn.textContent = 'Failed \u2014 try again';
+      }
       resendBtn.classList.remove('wait');
     }
     setTimeout(() => {
