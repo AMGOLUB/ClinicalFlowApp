@@ -737,6 +737,12 @@ body::before {
 
       if (error) throw error;
 
+      // Supabase returns fake success with empty identities for duplicate
+      // emails (anti-enumeration). Detect and show a helpful message.
+      if (data?.user?.identities?.length === 0) {
+        throw new Error('An account with this email already exists. Try logging in.');
+      }
+
       _signupEmail = email;
       document.getElementById('pendingEmail').textContent = email;
       showScreen('pendingScreen');
