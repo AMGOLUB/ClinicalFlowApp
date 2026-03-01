@@ -6,10 +6,12 @@
     "core:default",
     "shell:allow-execute",
     "shell:allow-spawn",
+    "shell:allow-open",
     "fs:default",
     "dialog:default",
     "dialog:allow-save",
     "http:default",
-    "notification:default"
+    "notification:default",
+    "deep-link:default"
   ]
 }

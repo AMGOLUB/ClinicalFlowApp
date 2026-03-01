@@ -265,6 +265,38 @@ export async function subLogInPrePin(email, password) {
   }
 }
 
+/**
+ * Complete login from a browser-based OAuth deep-link callback.
+ * Receives only the refresh_token (never the access_token) for security.
+ * Exchanges it for a full session via Supabase REST API.
+ */
+async function subCompleteWebLogin(refreshToken) {
+  const response = await fetch(`${SUB_AUTH_URL()}/token?grant_type=refresh_token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': window.ENV.SUPABASE_ANON_KEY },
+    body: JSON.stringify({ refresh_token: refreshToken })
+  });
+  const data = await response.json();
+
+  if (data.error || !data.access_token) {
+    throw new Error(data.error_description || data.error?.message || data.error || 'Token exchange failed');
+  }
+
+  const email = data.user?.email || '';
+  const licenseKey = await subFetchLicenseKey(data.access_token);
+
+  _prePinSession = {
+    email, access_token: data.access_token, refresh_token: data.refresh_token || refreshToken,
+    license_key: licenseKey || '', license_blob: '', last_verified: '',
+    cached_status: '', cached_tier: '', trial_ends: '', sub_ends: '',
+    seats: 0, days_left: 0
+  };
+  await _savePrePinSession(_prePinSession);
+
+  const subResult = await checkSubscriptionPrePin();
+  return { success: true, subscription: subResult };
+}
+
 // Signup now happens on the web (signup-page Edge Function).
 // The "Create Free Account" button opens the browser.
 
@@ -660,6 +692,15 @@ export function subShowGate(mode, message) {
   }
 
   gate.style.display = 'flex';
+
+  // Cold-start deep link: if the app was launched by a clinicalflow:// URL,
+  // the Rust handler buffered it before JS was ready. Check for it now that
+  // the gate is visible and can process login tokens.
+  if (mode === 'auth' && window.__TAURI__?.core) {
+    window.__TAURI__.core.invoke('get_pending_deep_link').then(url => {
+      if (url) _handleDeepLinkAuth(url);
+    });
+  }
 }
 
 export function subHideGate() {
@@ -793,6 +834,28 @@ export function initSubGate(cfg) {
   document.getElementById('subPendingLoginBtn')?.addEventListener('click', () => {
     subShowGate('auth');
   });
+
+  // "Sign in with Google" → open browser for OAuth login
+  const googleBtn = document.getElementById('subGoogleLoginBtn');
+  if (googleBtn) {
+    googleBtn.addEventListener('click', async function() {
+      this.disabled = true;
+      const loginUrl = 'https://clinicalflow.us/login.html?source=app';
+      if (window.__TAURI__?.shell) {
+        await window.__TAURI__.shell.open(loginUrl);
+      } else {
+        window.open(loginUrl, '_blank');
+      }
+      setTimeout(() => { this.disabled = false; }, 2000);
+    });
+  }
+
+  // Deep-link listener for browser-based login callback (clinicalflow://auth-callback)
+  if (window.__TAURI__?.event) {
+    window.__TAURI__.event.listen('deep-link-received', (e) => {
+      _handleDeepLinkAuth(e.payload);
+    });
+  }
 }
 
 // ─── Seat display helpers ────────────────────────────────────
@@ -858,6 +921,44 @@ async function _handleLogin() {
 
   btn.disabled = false;
   btn.textContent = 'Log In';
+}
+
+/**
+ * Handle a clinicalflow://auth-callback?refresh_token=... deep link.
+ * Only processes when the subscription gate is visible (user is in login flow).
+ */
+async function _handleDeepLinkAuth(url) {
+  const gate = document.getElementById('subscriptionGate');
+  if (!gate || gate.style.display === 'none') return;
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'clinicalflow:') return;
+
+    const refreshToken = parsed.searchParams.get('refresh_token');
+    if (!refreshToken) return;
+
+    const result = await subCompleteWebLogin(refreshToken);
+
+    if (result.success) {
+      const sub = result.subscription;
+      if (sub?.status === 'pending_verification') {
+        subShowGate('pending_verification');
+      } else if (sub?.valid) {
+        subHideGate();
+      } else {
+        subShowGate('expired', sub?.reason || 'Subscription inactive');
+      }
+    }
+  } catch (err) {
+    console.error('[subscription] Deep link auth error:', err);
+    const errorEl = document.getElementById('subLoginError');
+    if (errorEl) {
+      errorEl.textContent = err.message || 'Browser login failed. Please try again.';
+      errorEl.style.display = 'block';
+      errorEl.style.color = '';
+    }
+  }
 }
 
 async function _handleUpgrade() {

@@ -338,12 +338,57 @@
   function showErr(msg) { errBox.textContent = msg; errBox.classList.add('show'); }
   function hideErr() { errBox.classList.remove('show'); }
 
+  // ── Detect app-initiated login (desktop deep-link flow) ──
+  const params = new URLSearchParams(window.location.search);
+  const isAppSource = params.get('source') === 'app';
+  if (isAppSource) sessionStorage.setItem('loginSource', 'app');
+  const fromApp = isAppSource || sessionStorage.getItem('loginSource') === 'app';
+
+  /**
+   * Redirect back to the desktop app via deep link.
+   * Only passes the refresh_token — the app exchanges it securely for a full session.
+   */
+  async function redirectToApp() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    sessionStorage.removeItem('loginSource');
+
+    const p = new URLSearchParams({ refresh_token: session.refresh_token });
+    const deepLink = 'clinicalflow://auth-callback?' + p.toString();
+
+    // Show success message
+    document.querySelector('.auth-card').innerHTML =
+      '<div style="text-align:center; padding:40px 0;">' +
+        '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' +
+        '<h2 style="font-size:22px; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Login successful!</h2>' +
+        '<p style="color:var(--text-secondary); font-size:15px;">Returning to ClinicalFlow\u2026</p>' +
+      '</div>';
+
+    window.location.href = deepLink;
+
+    // Fallback if deep link doesn't fire (app not running / not installed)
+    setTimeout(() => {
+      document.querySelector('.auth-card').innerHTML =
+        '<div style="text-align:center; padding:40px 0;">' +
+          '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' +
+          '<h2 style="font-size:22px; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Login successful!</h2>' +
+          '<p style="color:var(--text-secondary); font-size:15px; margin-bottom:20px;">If ClinicalFlow didn\u2019t open, launch it from your Applications folder.</p>' +
+          '<button onclick="window.location.href=\'' + deepLink.replace(/'/g, "\\'") + '\'" ' +
+            'style="padding:12px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; margin-bottom:12px;">Try Again</button>' +
+          '<p style="color:var(--text-tertiary); font-size:13px;">You can close this tab.</p>' +
+        '</div>';
+    }, 3000);
+  }
+
   // ── Google OAuth ──────────────────────────────
   document.getElementById('googleBtn').addEventListener('click', async () => {
     try {
+      const redirectUrl = fromApp
+        ? window.location.origin + '/login.html?source=app'
+        : window.location.origin + '/welcome.html';
       const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/welcome.html' },
+        options: { redirectTo: redirectUrl },
       });
       if (error) throw error;
     } catch (err) {
@@ -352,11 +397,12 @@
   });
 
   // ── Handle OAuth PKCE callback ────────────────
-  const params = new URLSearchParams(window.location.search);
   if (params.has('code')) {
     sb.auth.exchangeCodeForSession(params.get('code')).then(({ error }) => {
       if (error) {
         showErr(error.message || 'OAuth login failed.');
+      } else if (fromApp) {
+        redirectToApp();
       } else {
         const redirect = sessionStorage.getItem('redirectAfterLogin') || 'welcome.html';
         sessionStorage.removeItem('redirectAfterLogin');
@@ -382,7 +428,10 @@
       const { error } = await sb.auth.signInWithPassword({ email, password: pw });
       if (error) throw error;
 
-      // Redirect to dashboard (or stored redirect target)
+      if (fromApp) {
+        redirectToApp();
+        return;
+      }
       const redirect = sessionStorage.getItem('redirectAfterLogin') || 'welcome.html';
       sessionStorage.removeItem('redirectAfterLogin');
       window.location.href = redirect;
@@ -399,9 +448,12 @@
     el.addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
   });
 
-  // If already logged in, redirect
+  // If already logged in, redirect (or return to app via deep link)
   sb.auth.getSession().then(({ data: { session } }) => {
-    if (session) window.location.href = 'welcome.html';
+    if (session) {
+      if (fromApp) redirectToApp();
+      else window.location.href = 'welcome.html';
+    }
   });
 
   // Mobile nav toggle

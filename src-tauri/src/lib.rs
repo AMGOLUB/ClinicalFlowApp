@@ -6,7 +6,19 @@ mod logging;
 mod pms;
 mod storage;
 
-use tauri::Manager;
+use tauri::{Manager, Emitter};
+use tauri_plugin_deep_link::DeepLinkExt;
+use std::sync::{Arc, Mutex};
+
+/// Buffers deep-link URLs that arrive before the JS frontend is ready (cold-start race condition).
+#[derive(Default, Clone)]
+struct PendingDeepLink(Arc<Mutex<Option<String>>>);
+
+/// Returns (and consumes) any deep-link URL that arrived before the JS listener was set up.
+#[tauri::command]
+fn get_pending_deep_link(state: tauri::State<PendingDeepLink>) -> Option<String> {
+    state.0.lock().unwrap().take()
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -16,6 +28,8 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_deep_link::init())
+        .manage(PendingDeepLink::default())
         .manage(audio::RecordingState::default())
         .manage(auth::AppState::default())
         .manage(pms::PmsState::default())
@@ -69,6 +83,7 @@ pub fn run() {
             license::clear_pre_pin_session,
             license::get_device_info,
             license::decrypt_license,
+            get_pending_deep_link,
         ])
         .setup(|app| {
             // Initialize logging first
@@ -80,6 +95,18 @@ pub fn run() {
             }
 
             tracing::info!("ClinicalFlow app ready");
+
+            // Register deep-link handler for clinicalflow:// URLs
+            let dl_handle = app.handle().clone();
+            let dl_pending = app.state::<PendingDeepLink>().inner().clone();
+            app.deep_link().on_open_url(move |event| {
+                if let Some(url) = event.urls().first() {
+                    let s = url.to_string();
+                    tracing::info!("Deep link received: {}", s);
+                    *dl_pending.0.lock().unwrap() = Some(s.clone());
+                    let _ = dl_handle.emit("deep-link-received", &s);
+                }
+            });
 
             // Initialize storage directory structure on startup
             let handle = app.handle().clone();

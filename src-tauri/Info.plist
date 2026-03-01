@@ -4,5 +4,16 @@
 <dict>
     <key>NSMicrophoneUsageDescription</key>
     <string>ClinicalFlow needs microphone access to record and transcribe clinical encounters.</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.clinicalflow.ai</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>clinicalflow</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>

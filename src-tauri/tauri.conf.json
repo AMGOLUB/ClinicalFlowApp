@@ -55,5 +55,11 @@
       "entitlements": "Entitlements.plist"
     }
   },
-  "plugins": {}
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["clinicalflow"]
+      }
+    }
+  }
 }
