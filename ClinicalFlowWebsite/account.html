@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account — ClinicalFlow</title>
+  <meta name="description" content="Manage your ClinicalFlow account, subscription, and billing.">
+  <meta property="og:title" content="My Account — ClinicalFlow">
+  <meta property="og:description" content="Manage your ClinicalFlow account, subscription, and billing.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230891B2'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'>C</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .account-section {
+      padding: calc(var(--nav-height) + 60px) 0 80px;
+      flex: 1;
+    }
+    .account-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .account-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .account-header p {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+    .account-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    .account-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-card);
+    }
+    .account-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .account-card h3 svg {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+    }
+    .account-card.full-width {
+      grid-column: 1 / -1;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .info-value {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .status-badge.trial {
+      background: #DBEAFE;
+      color: #1D4ED8;
+    }
+    .status-badge.active {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+    .status-badge.expired {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+    .status-badge.past_due {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+    .status-badge.pending_verification {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+    .status-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .account-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .account-btn:hover:not(:disabled) {
+      background: #0e7490;
+      box-shadow: 0 4px 20px rgba(8, 145, 178, 0.35);
+    }
+    .account-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .account-btn--outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    .account-btn--outline:hover {
+      background: rgba(8, 145, 178, 0.06);
+      box-shadow: none;
+    }
+    .account-btn--danger {
+      background: transparent;
+      color: #DC2626;
+      border: 1px solid #FECACA;
+    }
+    .account-btn--danger:hover {
+      background: #FEF2F2;
+      box-shadow: none;
+    }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .field {
+      margin-bottom: 20px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border-med);
+      border-radius: var(--radius-sm);
+      background: var(--bg-white);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+    }
+    .msg-box {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .msg-box.show { display: block; }
+    .msg-box.error {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #DC2626;
+    }
+    .msg-box.success {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      color: #166534;
+    }
+    .loading-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+    .spin {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    .spin-dark {
+      border-color: var(--border);
+      border-top-color: var(--accent);
+      width: 32px;
+      height: 32px;
+      border-width: 3px;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ─── Edit name inline ─── */
+    .info-value-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .edit-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: var(--font);
+    }
+    .edit-link:hover { text-decoration: underline; }
+    .edit-inline {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .edit-inline.active { display: flex; }
+    .edit-inline input {
+      padding: 6px 10px;
+      border: 1px solid var(--border-med);
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text-primary);
+      flex: 1;
+      min-width: 0;
+    }
+    .edit-inline input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+    }
+    .edit-inline .edit-save {
+      padding: 6px 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .edit-inline .edit-save:hover { background: #0e7490; }
+    .edit-inline .edit-cancel {
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: var(--font);
+    }
+    .edit-inline .edit-cancel:hover { color: var(--text-primary); }
+
+    /* ─── Plan & trial card ─── */
+    .plan-progress {
+      margin: 20px 0 4px;
+    }
+    .plan-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .plan-progress-bar {
+      height: 8px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .plan-progress-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #0891B2, #06B6D4, #22D3EE);
+      border-radius: var(--radius-full);
+      transition: width 0.6s ease;
+    }
+    .plan-progress-fill--warn {
+      background: linear-gradient(135deg, #F59E0B, #EF4444);
+    }
+    .plan-highlight {
+      text-align: center;
+      padding: 16px;
+      margin: 16px 0 0;
+      background: linear-gradient(135deg, rgba(8,145,178,0.06), rgba(6,182,212,0.06));
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .plan-highlight strong {
+      color: var(--accent);
+    }
+
+    /* ─── Delete account card ─── */
+    .account-card--danger {
+      border-left: 3px solid #EF4444;
+    }
+    .account-card--danger h3 svg { color: #EF4444; }
+    .danger-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .delete-confirm {
+      display: none;
+      margin-top: 16px;
+    }
+    .delete-confirm.active { display: block; }
+    .delete-confirm p {
+      font-size: 14px;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+    .delete-confirm p strong { color: #DC2626; }
+    .delete-confirm-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .delete-confirm-row input {
+      padding: 8px 12px;
+      border: 1px solid #FECACA;
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text-primary);
+      width: 160px;
+    }
+    .delete-confirm-row input:focus {
+      outline: none;
+      border-color: #EF4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    }
+
+    @media (max-width: 768px) {
+      .account-grid { grid-template-columns: 1fr; }
+      .account-header h1 { font-size: 26px; }
+      .delete-confirm-row { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+<div class="auth-page">
+
+<!-- NAV -->
+<nav class="nav scrolled" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+          <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+      </div>
+      Clinical<span>Flow</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="docs.html">Docs</a></li>
+    </ul>
+    <div class="nav-cta nav-cta--loading">
+      <a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>
+      <a href="login.html" class="btn btn--ghost btn--sm">Log In</a>
+      <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
+    </div>
+    <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+
+<section class="account-section">
+  <div class="container">
+    <div class="account-header">
+      <h1>My Account</h1>
+      <p id="accountEmail"></p>
+    </div>
+
+    <!-- Loading state -->
+    <div id="loadingState" class="loading-state">
+      <div class="spin spin-dark"></div>
+      Loading your account...
+    </div>
+
+    <!-- Account content (hidden until loaded) -->
+    <div id="accountContent" class="account-grid" style="display:none;">
+
+      <!-- Subscription card -->
+      <div class="account-card">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Subscription
+        </h3>
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="info-value" id="subStatus"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Plan</span>
+          <span class="info-value" id="subPlan">—</span>
+        </div>
+        <div class="info-row" id="trialRow" style="display:none;">
+          <span class="info-label">Trial Ends</span>
+          <span class="info-value" id="trialEnds">—</span>
+        </div>
+        <div class="info-row" id="renewRow" style="display:none;">
+          <span class="info-label">Next Renewal</span>
+          <span class="info-value" id="renewDate">—</span>
+        </div>
+        <div class="btn-row">
+          <button class="account-btn" id="manageBillingBtn" style="display:none;">Manage Billing</button>
+          <a href="pricing.html" class="account-btn account-btn--outline" id="upgradePlanBtn" style="display:none;">View Plans</a>
+        </div>
+      </div>
+
+      <!-- Download card -->
+      <div class="account-card">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          Download
+        </h3>
+        <div class="info-row">
+          <span class="info-label">Platform</span>
+          <span class="info-value">macOS (Apple Silicon & Intel)</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Version</span>
+          <span class="info-value">1.0.0</span>
+        </div>
+        <div class="btn-row">
+          <button class="account-btn" id="downloadBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Download .dmg
+          </button>
+        </div>
+      </div>
+
+      <!-- Profile card -->
+      <div class="account-card">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile
+        </h3>
+        <div class="info-row" style="flex-wrap:wrap;">
+          <span class="info-label">Name</span>
+          <div class="info-value-row" id="nameDisplay">
+            <span class="info-value" id="userName">—</span>
+            <button class="edit-link" id="editNameBtn">Edit</button>
+          </div>
+          <div class="edit-inline" id="nameEditor">
+            <input type="text" id="editNameInput" maxlength="100">
+            <button class="edit-save" id="editNameSave">Save</button>
+            <button class="edit-cancel" id="editNameCancel">Cancel</button>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-value" id="userEmail">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Member Since</span>
+          <span class="info-value" id="memberSince">—</span>
+        </div>
+      </div>
+
+      <!-- Plan status card -->
+      <div class="account-card" id="planCard">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          Your Plan
+        </h3>
+        <div id="planCardContent"></div>
+      </div>
+
+      <!-- Change password card -->
+      <div class="account-card full-width">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Change Password
+        </h3>
+        <div class="msg-box" id="pwMsg"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="field">
+            <label for="newPw">New Password</label>
+            <input type="password" id="newPw" placeholder="At least 8 characters">
+          </div>
+          <div class="field">
+            <label for="confirmPw">Confirm New Password</label>
+            <input type="password" id="confirmPw" placeholder="Re-enter your password">
+          </div>
+        </div>
+        <button class="account-btn" id="changePwBtn">Update Password</button>
+      </div>
+
+      <!-- Delete account card -->
+      <div class="account-card full-width account-card--danger">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Delete Account
+        </h3>
+        <p class="danger-desc">Permanently delete your account and all associated data. This action cannot be undone.</p>
+        <button class="account-btn account-btn--danger" id="deleteAccountBtn">Delete My Account</button>
+        <div class="delete-confirm" id="deleteConfirm">
+          <p>Type <strong>DELETE</strong> to confirm:</p>
+          <div class="delete-confirm-row">
+            <input type="text" id="deleteConfirmInput" placeholder="DELETE" autocomplete="off">
+            <button class="account-btn account-btn--danger" id="deleteConfirmBtn" disabled>Confirm Deletion</button>
+            <button class="account-btn account-btn--outline" id="deleteCancelBtn">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+          </div>
+          Clinical<span>Flow</span>
+        </a>
+        <p>AI-powered clinical documentation for healthcare providers. Transcribe encounters, generate structured notes, and reclaim time for patient care.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#templates">Templates</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="index.html#download">Download</a>
+        <a href="get-started.html">Get Started</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="docs.html">Documentation</a>
+        <a href="docs.html#transcription">Transcription</a>
+        <a href="docs.html#troubleshooting">Troubleshooting</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="about.html">About</a>
+        <a href="index.html#security">Security</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 ClinicalFlow. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+
+<script>
+(function() {
+  'use strict';
+
+  const SUPABASE_URL = 'https://seuinmmslazvibotoupm.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNldWlubW1zbGF6dmlib3RvdXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjM4MjAsImV4cCI6MjA4Nzc5OTgyMH0.YE4e8bf6Q_4zfvu9zLpaMIrfbnsf6Z9ucf2mSebyrqY';
+  const sb = window.__cfSupabase || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const planNames = {
+    pro_monthly: 'Pro (Monthly)',
+    pro_annual: 'Pro (Annual)',
+    team_monthly: 'Team (Monthly)',
+    team_annual: 'Team (Annual)',
+  };
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  async function loadAccount() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      sessionStorage.setItem('redirectAfterLogin', 'account.html');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const user = session.user;
+    document.getElementById('accountEmail').textContent = user.email;
+
+    // Load profile
+    const { data: profile } = await sb
+      .from('profiles')
+      .select('status, selected_plan, trial_ends_at, subscription_ends_at, stripe_subscription_id, created_at')
+      .eq('id', user.id)
+      .single();
+
+    // Profile info
+    document.getElementById('userName').textContent = user.user_metadata?.full_name || '—';
+    document.getElementById('userEmail').textContent = user.email;
+    document.getElementById('memberSince').textContent = formatDate(user.created_at);
+
+    // Subscription info
+    const status = profile?.status || 'pending';
+    const statusEl = document.getElementById('subStatus');
+    statusEl.innerHTML = '<span class="status-badge ' + status + '">' + (status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')) + '</span>';
+
+    document.getElementById('subPlan').textContent = planNames[profile?.selected_plan] || 'Free Trial';
+
+    if (status === 'trial' && profile?.trial_ends_at) {
+      document.getElementById('trialRow').style.display = '';
+      document.getElementById('trialEnds').textContent = formatDate(profile.trial_ends_at);
+    }
+
+    if (status === 'active' && profile?.subscription_ends_at) {
+      document.getElementById('renewRow').style.display = '';
+      document.getElementById('renewDate').textContent = formatDate(profile.subscription_ends_at);
+    }
+
+    // Show manage billing if they have a Stripe subscription
+    if (profile?.stripe_subscription_id) {
+      document.getElementById('manageBillingBtn').style.display = '';
+    }
+
+    // Show upgrade button for trial/expired users
+    if (status === 'trial' || status === 'expired') {
+      document.getElementById('upgradePlanBtn').style.display = '';
+    }
+
+    // Plan status card
+    const planContent = document.getElementById('planCardContent');
+    if (status === 'trial' && profile?.trial_ends_at) {
+      const trialEnd = new Date(profile.trial_ends_at);
+      const created = new Date(profile.created_at || user.created_at);
+      const now = new Date();
+      const totalDays = Math.max(1, Math.round((trialEnd - created) / 86400000));
+      const elapsed = Math.max(0, Math.round((now - created) / 86400000));
+      const daysLeft = Math.max(0, Math.ceil((trialEnd - now) / 86400000));
+      const pct = Math.min(100, Math.round((elapsed / totalDays) * 100));
+      const warn = daysLeft <= 3;
+
+      planContent.innerHTML = ''
+        + '<div class="info-row">'
+        +   '<span class="info-label">Plan</span>'
+        +   '<span class="info-value">' + (planNames[profile?.selected_plan] || 'Free Trial') + '</span>'
+        + '</div>'
+        + '<div class="plan-progress">'
+        +   '<div class="plan-progress-label">'
+        +     '<span>' + (daysLeft <= 0 ? 'Trial expired' : daysLeft + (daysLeft === 1 ? ' day' : ' days') + ' remaining') + '</span>'
+        +     '<span>' + elapsed + ' / ' + totalDays + ' days</span>'
+        +   '</div>'
+        +   '<div class="plan-progress-bar">'
+        +     '<div class="plan-progress-fill' + (warn ? ' plan-progress-fill--warn' : '') + '" style="width:' + pct + '%"></div>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="btn-row">'
+        +   '<a href="pricing.html" class="account-btn">Subscribe Now</a>'
+        + '</div>';
+    } else if (status === 'active') {
+      planContent.innerHTML = ''
+        + '<div class="info-row">'
+        +   '<span class="info-label">Plan</span>'
+        +   '<span class="info-value">' + (planNames[profile?.selected_plan] || 'Active') + '</span>'
+        + '</div>'
+        + (profile?.subscription_ends_at
+          ? '<div class="info-row"><span class="info-label">Renews</span><span class="info-value">' + formatDate(profile.subscription_ends_at) + '</span></div>'
+          : '')
+        + '<div class="plan-highlight"><strong>You\'re all set!</strong> Your subscription is active.</div>'
+        + '<div class="btn-row">'
+        +   '<a href="pricing.html" class="account-btn account-btn--outline">Change Plan</a>'
+        + '</div>';
+    } else if (status === 'past_due') {
+      planContent.innerHTML = ''
+        + '<div class="info-row">'
+        +   '<span class="info-label">Plan</span>'
+        +   '<span class="info-value">' + (planNames[profile?.selected_plan] || '—') + '</span>'
+        + '</div>'
+        + '<div class="plan-highlight" style="background:rgba(239,68,68,0.06);"><strong style="color:#DC2626;">Payment issue</strong> — please update your billing info.</div>'
+        + '<div class="btn-row">'
+        +   '<button class="account-btn" id="fixBillingBtn">Update Billing</button>'
+        + '</div>';
+    } else if (status === 'expired' || status === 'canceled') {
+      planContent.innerHTML = ''
+        + '<div class="info-row">'
+        +   '<span class="info-label">Plan</span>'
+        +   '<span class="info-value">Expired</span>'
+        + '</div>'
+        + '<div class="plan-highlight" style="background:rgba(239,68,68,0.06);"><strong style="color:#DC2626;">Your plan has expired.</strong> Subscribe to regain access.</div>'
+        + '<div class="btn-row">'
+        +   '<a href="pricing.html" class="account-btn">Reactivate</a>'
+        + '</div>';
+    } else if (status === 'pending_verification') {
+      planContent.innerHTML = ''
+        + '<div class="info-row">'
+        +   '<span class="info-label">Status</span>'
+        +   '<span class="info-value">Email verification required</span>'
+        + '</div>'
+        + '<div class="plan-highlight" style="background:rgba(245,158,11,0.06);"><strong style="color:#92400E;">Verify your email</strong> to start your 14-day free trial.</div>';
+    } else {
+      planContent.innerHTML = ''
+        + '<div class="info-row">'
+        +   '<span class="info-label">Plan</span>'
+        +   '<span class="info-value">—</span>'
+        + '</div>'
+        + '<div class="btn-row">'
+        +   '<a href="pricing.html" class="account-btn account-btn--outline">View Plans</a>'
+        + '</div>';
+    }
+
+    // Wire up fixBillingBtn if it was rendered (past_due state)
+    document.getElementById('fixBillingBtn')?.addEventListener('click', () => {
+      document.getElementById('manageBillingBtn')?.click();
+    });
+
+    // Reveal content
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('accountContent').style.display = '';
+  }
+
+  // Manage Billing — calls customer-portal Edge Function
+  document.getElementById('manageBillingBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('manageBillingBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span>Loading…';
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(SUPABASE_URL + '/functions/v1/customer-portal', {
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer ' + session.access_token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ return_url: window.location.href }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || 'Failed to open billing portal');
+      window.location.href = body.url;
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Manage Billing';
+    }
+  });
+
+  // Download .dmg — calls download-release Edge Function
+  document.getElementById('downloadBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('downloadBtn');
+    const origHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span>Preparing\u2026';
+
+    try {
+      const { data: { session } } = await sb.auth.refreshSession();
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      var res = await fetch(SUPABASE_URL + '/functions/v1/download-release', {
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'apikey': SUPABASE_KEY,
+        },
+      });
+
+      var text = await res.text();
+      var body = {};
+      try { body = JSON.parse(text); } catch (_) {}
+
+      if (res.status === 403) {
+        alert('Please select a plan before downloading.');
+        btn.innerHTML = origHTML;
+        btn.disabled = false;
+        return;
+      }
+
+      if (!res.ok) {
+        var msg = body.error || body.message || body.msg || text || ('HTTP ' + res.status);
+        throw new Error(msg);
+      }
+
+      if (!body.url) throw new Error('No download URL in response');
+
+      window.location.href = body.url;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg> Download started!';
+      setTimeout(function() { btn.innerHTML = origHTML; btn.disabled = false; }, 5000);
+    } catch (err) {
+      console.error('Download error:', err);
+      alert(err.message || 'Could not start download. Please try again.');
+      btn.innerHTML = origHTML;
+      btn.disabled = false;
+    }
+  });
+
+  // Change password
+  const pwMsg = document.getElementById('pwMsg');
+  document.getElementById('changePwBtn').addEventListener('click', async () => {
+    const pw = document.getElementById('newPw').value;
+    const cpw = document.getElementById('confirmPw').value;
+    pwMsg.classList.remove('show', 'error', 'success');
+
+    if (pw.length < 8) {
+      pwMsg.textContent = 'Password must be at least 8 characters.';
+      pwMsg.classList.add('show', 'error');
+      return;
+    }
+    if (pw !== cpw) {
+      pwMsg.textContent = 'Passwords do not match.';
+      pwMsg.classList.add('show', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('changePwBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span>Updating…';
+
+    try {
+      const { error } = await sb.auth.updateUser({ password: pw });
+      if (error) throw error;
+      pwMsg.textContent = 'Password updated successfully.';
+      pwMsg.classList.add('show', 'success');
+      document.getElementById('newPw').value = '';
+      document.getElementById('confirmPw').value = '';
+    } catch (err) {
+      pwMsg.textContent = err.message || 'Failed to update password.';
+      pwMsg.classList.add('show', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Update Password';
+    }
+  });
+
+  // ── Edit name ────────────────────────────────
+  const nameDisplay = document.getElementById('nameDisplay');
+  const nameEditor = document.getElementById('nameEditor');
+  const editNameInput = document.getElementById('editNameInput');
+
+  document.getElementById('editNameBtn').addEventListener('click', () => {
+    editNameInput.value = document.getElementById('userName').textContent || '';
+    nameDisplay.style.display = 'none';
+    nameEditor.classList.add('active');
+    editNameInput.focus();
+  });
+
+  document.getElementById('editNameCancel').addEventListener('click', () => {
+    nameEditor.classList.remove('active');
+    nameDisplay.style.display = '';
+  });
+
+  document.getElementById('editNameSave').addEventListener('click', async () => {
+    const newName = editNameInput.value.trim();
+    if (!newName) return;
+
+    const saveBtn = document.getElementById('editNameSave');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+
+    try {
+      const { error } = await sb.auth.updateUser({ data: { full_name: newName } });
+      if (error) throw error;
+
+      // Also update profiles table for data consistency
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        await sb.from('profiles').update({ full_name: newName }).eq('id', session.user.id);
+      }
+
+      document.getElementById('userName').textContent = newName;
+      nameEditor.classList.remove('active');
+      nameDisplay.style.display = '';
+
+      // Refresh nav avatar and name without a full page reload
+      const firstName = newName.split(' ')[0];
+      const initial = (firstName[0] || '?').toUpperCase();
+      const navAvatar = document.querySelector('.nav-avatar');
+      const navUserName = document.querySelector('.nav-user-name');
+      const navDropdownName = document.querySelector('.nav-dropdown-name');
+      if (navAvatar) navAvatar.textContent = initial;
+      if (navUserName) navUserName.textContent = firstName;
+      if (navDropdownName) navDropdownName.textContent = newName;
+    } catch (err) {
+      alert(err.message || 'Failed to update name.');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save';
+    }
+  });
+
+  editNameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('editNameSave').click();
+    if (e.key === 'Escape') document.getElementById('editNameCancel').click();
+  });
+
+  // ── Delete account ─────────────────────────────
+  const deleteBtn = document.getElementById('deleteAccountBtn');
+  const deleteConfirm = document.getElementById('deleteConfirm');
+  const deleteInput = document.getElementById('deleteConfirmInput');
+  const deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
+
+  deleteBtn.addEventListener('click', () => {
+    deleteBtn.style.display = 'none';
+    deleteConfirm.classList.add('active');
+    deleteInput.focus();
+  });
+
+  document.getElementById('deleteCancelBtn').addEventListener('click', () => {
+    deleteConfirm.classList.remove('active');
+    deleteInput.value = '';
+    deleteConfirmBtn.disabled = true;
+    deleteBtn.style.display = '';
+  });
+
+  deleteInput.addEventListener('input', () => {
+    deleteConfirmBtn.disabled = deleteInput.value.trim() !== 'DELETE';
+  });
+
+  deleteConfirmBtn.addEventListener('click', async () => {
+    if (deleteInput.value.trim() !== 'DELETE') return;
+
+    deleteConfirmBtn.disabled = true;
+    deleteConfirmBtn.innerHTML = '<span class="spin"></span>Deleting…';
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const res = await fetch(SUPABASE_URL + '/functions/v1/delete-account', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || 'Deletion failed');
+
+      await sb.auth.signOut();
+      window.location.href = 'index.html';
+    } catch (err) {
+      alert(err.message || 'Failed to delete account. Please try again.');
+      deleteConfirmBtn.disabled = false;
+      deleteConfirmBtn.textContent = 'Confirm Deletion';
+    }
+  });
+
+  // Log out (handled by auth-nav.js dropdown; kept as fallback)
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    await sb.auth.signOut();
+    window.location.href = 'login.html';
+  });
+
+  // Mobile nav toggle
+  document.getElementById('navToggle')?.addEventListener('click', () => {
+    document.getElementById('navLinks')?.classList.toggle('nav-links--open');
+  });
+
+  loadAccount();
+})();
+</script>
+<script src="auth-nav.js"></script>
+
+</body>
+</html>

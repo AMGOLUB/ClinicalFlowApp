@@ -355,8 +355,9 @@
       <li><a href="index.html#download">Download</a></li>
       <li><a href="pricing.html">Pricing</a></li>
     </ul>
-    <div class="nav-cta">
+    <div class="nav-cta nav-cta--loading">
       <a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>
+      <a href="login.html" class="btn btn--ghost btn--sm">Log In</a>
       <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
     </div>
     <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
@@ -639,6 +640,7 @@
         <a href="index.html#templates">Templates</a>
         <a href="pricing.html">Pricing</a>
         <a href="index.html#download">Download</a>
+        <a href="get-started.html">Get Started</a>
       </div>
       <div class="footer-col">
         <h5>Resources</h5>
@@ -686,5 +688,7 @@ document.getElementById('navToggle')?.addEventListener('click', () => {
   document.getElementById('navLinks')?.classList.toggle('nav-links--open');
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="auth-nav.js"></script>
 </body>
 </html>

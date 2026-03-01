@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230891B2'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'>C</text></svg>">
   <link rel="stylesheet" href="styles.css">
   <style>
     /* ═══════════════════════════════════════════════════════════
@@ -486,8 +487,9 @@
       <li><a href="index.html#download">Download</a></li>
       <li><a href="pricing.html" class="active">Pricing</a></li>
     </ul>
-    <div class="nav-cta">
+    <div class="nav-cta nav-cta--loading">
       <a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>
+      <a href="login.html" class="btn btn--ghost btn--sm">Log In</a>
       <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
     </div>
     <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
@@ -646,7 +648,7 @@
           <span class="period" data-monthly="/seat/mo" data-annual="/seat/mo">/seat/mo</span>
         </div>
         <div class="pricing-card-annual-note" data-monthly="or $190/seat/year (save $38/seat)" data-annual="$190/seat billed annually · <strong>Save $38/seat</strong>">or $190/seat/year (save $38/seat)</div>
-        <a href="mailto:team@clinicalflow.ai?subject=ClinicalFlow%20Team%20Plan" class="btn btn--dark">Contact Us</a>
+        <a href="mailto:team@clinicalflow.us?subject=ClinicalFlow%20Team%20Plan" class="btn btn--dark">Contact Us</a>
         <ul class="pricing-card-features">
           <li>
             <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -687,7 +689,7 @@
         <h3>Enterprise</h3>
         <p>Need a BAA, custom EHR integrations, dedicated onboarding, or 50+ seats? We'll build a plan around your organization.</p>
       </div>
-      <a href="mailto:enterprise@clinicalflow.ai?subject=ClinicalFlow%20Enterprise%20Inquiry" class="btn btn--primary btn--lg" style="flex-shrink:0;">Contact Sales</a>
+      <a href="mailto:enterprise@clinicalflow.us?subject=ClinicalFlow%20Enterprise%20Inquiry" class="btn btn--primary btn--lg" style="flex-shrink:0;">Contact Sales</a>
     </div>
   </div>
 </section>
@@ -909,7 +911,7 @@
         </button>
         <div class="faq-answer">
           <div class="faq-answer-inner">
-            Business Associate Agreements are available on Enterprise plans. Since ClinicalFlow processes data locally on your device and never stores PHI on our servers, the typical BAA requirements are simplified. Contact us at <a href="mailto:enterprise@clinicalflow.ai">enterprise@clinicalflow.ai</a> to discuss your compliance needs.
+            Business Associate Agreements are available on Enterprise plans. Since ClinicalFlow processes data locally on your device and never stores PHI on our servers, the typical BAA requirements are simplified. Contact us at <a href="mailto:enterprise@clinicalflow.us">enterprise@clinicalflow.us</a> to discuss your compliance needs.
           </div>
         </div>
       </div>
@@ -1000,6 +1002,7 @@
         <a href="index.html#modes">Online &amp; Offline</a>
         <a href="pricing.html">Pricing</a>
         <a href="index.html#download">Download</a>
+        <a href="get-started.html">Get Started</a>
       </div>
       <div class="footer-col">
         <h5>Documentation</h5>
@@ -1112,6 +1115,8 @@ document.body.addEventListener('keydown', (e) => {
   if (e.key === 'Tab') document.body.classList.remove('using-mouse');
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="auth-nav.js"></script>
 
 </body>
 </html>

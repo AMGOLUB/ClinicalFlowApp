@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /account.html
+Disallow: /reset-password.html
+
+Sitemap: https://clinicalflow.us/sitemap.xml

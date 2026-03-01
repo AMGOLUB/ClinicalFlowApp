@@ -524,8 +524,8 @@ body::before {
 
     <div class="terms">
       By signing up, you agree to our
-      <a href="https://clinicalflow.ai/terms" target="_blank" rel="noopener">Terms of Service</a> and
-      <a href="https://clinicalflow.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+      <a href="https://clinicalflow.us/terms-of-service.html" target="_blank" rel="noopener">Terms of Service</a> and
+      <a href="https://clinicalflow.us/privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>.
     </div>
 
     <div class="app-link">

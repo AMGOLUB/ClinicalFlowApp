@@ -71,8 +71,8 @@ serve(async (req) => {
       customer: customerId,
       mode: 'subscription',
       line_items: [{ price: priceId, quantity }],
-      success_url: 'https://clinicalflow.ai/checkout-success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://clinicalflow.ai/checkout-cancel',
+      success_url: 'https://clinicalflow.us/account.html?checkout=success',
+      cancel_url: 'https://clinicalflow.us/account.html?checkout=cancelled',
       subscription_data: {
         metadata: {
           supabase_user_id: user.id,

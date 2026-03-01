@@ -30,6 +30,13 @@ serve(async (req) => {
   if (error || !user) return jsonResponse({ error: 'Invalid token' }, 401);
 
   try {
+    // Accept optional return_url from request body
+    let returnUrl = 'https://clinicalflow.us/account.html';
+    try {
+      const body = await req.json();
+      if (body?.return_url) returnUrl = body.return_url;
+    } catch { /* no body or invalid JSON — use default */ }
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('stripe_customer_id')
@@ -42,7 +49,7 @@ serve(async (req) => {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
-      return_url: 'https://clinicalflow.ai/billing-return',
+      return_url: returnUrl,
     });
 
     return jsonResponse({ url: session.url });

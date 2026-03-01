@@ -287,8 +287,9 @@
       <li><a href="index.html#download">Download</a></li>
       <li><a href="pricing.html">Pricing</a></li>
     </ul>
-    <div class="nav-cta">
+    <div class="nav-cta nav-cta--loading">
       <a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>
+      <a href="login.html" class="btn btn--ghost btn--sm">Log In</a>
       <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
     </div>
     <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
@@ -676,7 +677,7 @@
     <h2><span class="section-number">9</span> Cookies &amp; Analytics</h2>
 
     <h3>9.1 Website</h3>
-    <p>Our marketing website (clinicalflow.com) uses:</p>
+    <p>Our marketing website (clinicalflow.us) uses:</p>
     <ul>
       <li><strong>Essential cookies</strong> &mdash; Required for basic website functionality (session management, authentication state). Cannot be disabled.</li>
       <li><strong>Analytics</strong> &mdash; We may use privacy-respecting analytics to understand traffic patterns. We do not use Google Analytics, Facebook Pixel, or any advertising trackers.</li>
@@ -796,7 +797,7 @@
     <h2><span class="section-number">15</span> Contact Us</h2>
     <p>If you have questions, concerns, or requests related to this Privacy Policy or our data practices, please contact us:</p>
     <ul>
-      <li><strong>Email:</strong> privacy@clinicalflow.com</li>
+      <li><strong>Email:</strong> privacy@clinicalflow.us</li>
       <li><strong>Subject line:</strong> &ldquo;Privacy Inquiry&rdquo; for general questions, &ldquo;Data Request&rdquo; for rights requests, or &ldquo;BAA Request&rdquo; for Business Associate Agreement inquiries</li>
     </ul>
     <p>We aim to respond to all privacy-related inquiries within 5 business days and to fulfill data access or deletion requests within 30 calendar days.</p>
@@ -836,6 +837,7 @@
         <a href="index.html#templates">Templates</a>
         <a href="pricing.html">Pricing</a>
         <a href="index.html#download">Download</a>
+        <a href="get-started.html">Get Started</a>
       </div>
       <div class="footer-col">
         <h5>Resources</h5>
@@ -893,5 +895,7 @@ document.querySelectorAll('.legal-toc a').forEach(link => {
   });
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="auth-nav.js"></script>
 </body>
 </html>

@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230891B2'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'>C</text></svg>">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     /* ═══════════════════════════════════════════════════════════
        GET STARTED PAGE — Extends the main website design system
@@ -535,8 +536,9 @@
       <li><a href="index.html#download">Download</a></li>
       <li><a href="pricing.html">Pricing</a></li>
     </ul>
-    <div class="nav-cta">
+    <div class="nav-cta nav-cta--loading">
       <a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>
+      <a href="login.html" class="btn btn--ghost btn--sm">Log In</a>
       <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
     </div>
     <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
@@ -628,7 +630,7 @@
         </div>
         <h4>macOS</h4>
         <p>Apple Silicon &amp; Intel<br>macOS 11.0 or later</p>
-        <a href="#" class="btn btn--primary btn--sm">Download .dmg</a>
+        <a href="#" class="btn btn--primary btn--sm" id="macDownloadBtn">Download .dmg</a>
       </div>
 
       <!-- Windows -->
@@ -653,9 +655,7 @@
     </div>
 
     <div class="gs-download-info reveal">
-      Version 1.0.0 &middot; Bundled Whisper model: 465 MB &middot;
-      <a href="#">Release notes</a> &middot;
-      <a href="#">SHA-256 checksums</a>
+      Version 1.0.0 &middot; Bundled Whisper model: 465 MB
     </div>
   </div>
 </section>
@@ -903,6 +903,7 @@
         <a href="index.html#templates">Templates</a>
         <a href="pricing.html">Pricing</a>
         <a href="index.html#download">Download</a>
+        <a href="get-started.html">Get Started</a>
       </div>
       <div class="footer-col">
         <h5>Resources</h5>
@@ -991,7 +992,66 @@ document.body.addEventListener('mousedown', () => document.body.classList.add('u
 document.body.addEventListener('keydown', (e) => {
   if (e.key === 'Tab') document.body.classList.remove('using-mouse');
 });
+
+// ─── Gated download via Supabase Edge Function ───
+(function() {
+  const SUPABASE_URL = 'https://seuinmmslazvibotoupm.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNldWlubW1zbGF6dmlib3RvdXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjM4MjAsImV4cCI6MjA4Nzc5OTgyMH0.YE4e8bf6Q_4zfvu9zLpaMIrfbnsf6Z9ucf2mSebyrqY';
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const macBtn = document.getElementById('macDownloadBtn');
+  if (macBtn) {
+    macBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const origText = macBtn.textContent;
+      macBtn.textContent = 'Preparing…';
+      macBtn.style.pointerEvents = 'none';
+
+      try {
+        const { data: { session } } = await sb.auth.refreshSession();
+        if (!session) {
+          window.location.href = 'signup.html';
+          return;
+        }
+
+        var res = await fetch(SUPABASE_URL + '/functions/v1/download-release', {
+          headers: {
+            'Authorization': 'Bearer ' + session.access_token,
+            'apikey': SUPABASE_KEY,
+          },
+        });
+
+        var text = await res.text();
+        var body = {};
+        try { body = JSON.parse(text); } catch (_) {}
+
+        if (res.status === 403) {
+          window.location.href = 'signup.html';
+          return;
+        }
+
+        if (!res.ok) {
+          var msg = body.error || body.message || body.msg || text || ('HTTP ' + res.status);
+          throw new Error(msg);
+        }
+
+        if (!body.url) throw new Error('No download URL in response');
+
+        window.location.href = body.url;
+        macBtn.textContent = 'Download started!';
+        setTimeout(() => { macBtn.textContent = origText; macBtn.style.pointerEvents = ''; }, 5000);
+      } catch (err) {
+        console.error('Download error:', err);
+        alert(err.message || 'Could not start download. Please try again.');
+        macBtn.textContent = origText;
+        macBtn.style.pointerEvents = '';
+      }
+    });
+  }
+})();
 </script>
+<script src="auth-nav.js"></script>
 
 </body>
 </html>
