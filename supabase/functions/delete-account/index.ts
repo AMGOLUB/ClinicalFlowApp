@@ -5,12 +5,17 @@
 // ────────────────────────────────────────────────────────────
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
+import Stripe from 'https://esm.sh/stripe@14?target=deno';
 import {
   getServiceClient,
   getTokenFromRequest,
   corsHeaders,
   jsonResponse,
 } from '../_shared/supabase-admin.ts';
+
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
+  apiVersion: '2023-10-16',
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -25,6 +30,23 @@ serve(async (req) => {
   if (error || !user) return jsonResponse({ error: 'Invalid token' }, 401);
 
   try {
+    // Look up Stripe IDs before deleting the profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('stripe_customer_id, stripe_subscription_id')
+      .eq('id', user.id)
+      .single();
+
+    // Cancel Stripe subscription if one exists
+    if (profile?.stripe_subscription_id) {
+      try {
+        await stripe.subscriptions.cancel(profile.stripe_subscription_id);
+      } catch (stripeErr) {
+        // Log but don't block deletion — subscription may already be cancelled
+        console.warn('[delete-account] Stripe cancel failed:', (stripeErr as Error).message);
+      }
+    }
+
     // Sever audit log link (subscription_events FK has no CASCADE)
     await supabase.from('subscription_events').update({ user_id: null }).eq('user_id', user.id);
 

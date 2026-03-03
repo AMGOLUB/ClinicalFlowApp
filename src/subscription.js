@@ -113,8 +113,10 @@ export async function checkSubscriptionPrePin() {
 
   const session = _prePinSession;
 
+  // Treat pending_verification as trial (email verification no longer required)
   if (session.cached_status === 'pending_verification') {
-    return { valid: false, status: 'pending_verification', reason: 'Please verify your email to activate your trial.' };
+    session.cached_status = 'trial';
+    await _savePrePinSession(session);
   }
 
   const now = Date.now();
@@ -141,10 +143,9 @@ export async function checkSubscriptionPrePin() {
   try {
     const result = await _verifyLicensePrePin(session);
 
+    // Treat pending_verification as trial (email verification no longer required)
     if (result.status === 'pending_verification') {
-      session.cached_status = 'pending_verification';
-      await _savePrePinSession(session);
-      return { valid: false, status: 'pending_verification', reason: result.reason || 'Please verify your email.' };
+      result.status = 'trial';
     }
 
     session.cached_status  = result.status;
@@ -180,6 +181,14 @@ export async function checkSubscriptionPrePin() {
 
     // Within grace period
     if (lastVerifiedTime > 0 && timeSinceVerify < OFFLINE_GRACE_MS) {
+      // Check trial expiration even when offline
+      if (session.cached_status === 'trial' && session.trial_ends) {
+        if (new Date(session.trial_ends) < new Date()) {
+          session.cached_status = 'expired';
+          await _savePrePinSession(session);
+          return { valid: false, status: 'expired', reason: 'Trial expired' };
+        }
+      }
       const isValid = ['trial', 'active'].includes(session.cached_status);
       return { valid: isValid, status: session.cached_status || 'unknown', reason: 'Offline — using cached subscription status' };
     }
@@ -459,6 +468,15 @@ export async function checkSubscription(cfg) {
 
     // Case 4: within grace period
     if (lastVerifiedTime > 0 && timeSinceVerify < OFFLINE_GRACE_MS) {
+      // Check trial expiration even when offline
+      if (cachedStatus === 'trial') {
+        const trialEnds = cfg.get('ms-trial-ends');
+        if (trialEnds && new Date(trialEnds) < new Date()) {
+          cfg.set('ms-sub-status', 'expired');
+          await cfg._flush();
+          return { valid: false, status: 'expired', reason: 'Trial expired' };
+        }
+      }
       const isValid = ['trial', 'active'].includes(cachedStatus);
       return {
         valid: isValid,
@@ -730,7 +748,7 @@ export function initSubGate(cfg) {
 
   // "Create Free Account" → open signup page in browser
   document.getElementById('subOpenSignupBtn')?.addEventListener('click', async () => {
-    const signupUrl = `${window.ENV.SUPABASE_URL}/functions/v1/signup-page`;
+    const signupUrl = 'https://clinicalflow.us/signup.html';
     if (window.__TAURI__?.shell) {
       await window.__TAURI__.shell.open(signupUrl);
     } else {
@@ -835,10 +853,10 @@ export function initSubGate(cfg) {
     subShowGate('auth');
   });
 
-  // "Sign in with Google" → open browser for OAuth login
-  const googleBtn = document.getElementById('subGoogleLoginBtn');
-  if (googleBtn) {
-    googleBtn.addEventListener('click', async function() {
+  // "Log in on Website" → open browser for login (supports Google OAuth + email/password)
+  const webLoginBtn = document.getElementById('subWebLoginBtn');
+  if (webLoginBtn) {
+    webLoginBtn.addEventListener('click', async function() {
       this.disabled = true;
       const loginUrl = 'https://clinicalflow.us/login.html?source=app';
       if (window.__TAURI__?.shell) {
@@ -906,9 +924,7 @@ async function _handleLogin() {
 
   if (result.success) {
     const sub = result.subscription;
-    if (sub?.status === 'pending_verification') {
-      subShowGate('pending_verification');
-    } else if (sub?.valid) {
+    if (sub?.valid) {
       subHideGate();
     } else {
       subShowGate('expired', sub?.reason || 'Subscription inactive');
@@ -942,9 +958,7 @@ async function _handleDeepLinkAuth(url) {
 
     if (result.success) {
       const sub = result.subscription;
-      if (sub?.status === 'pending_verification') {
-        subShowGate('pending_verification');
-      } else if (sub?.valid) {
+      if (sub?.valid) {
         subHideGate();
       } else {
         subShowGate('expired', sub?.reason || 'Subscription inactive');

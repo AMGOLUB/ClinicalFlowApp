@@ -5734,7 +5734,15 @@ kbd {
   box-shadow: 0 2px 12px rgba(10, 205, 207, 0.15);
 }
 
-/* Google sign-in button */
+/* Website login button hint text */
+.sub-gate-web-login-hint {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: 6px 0 0;
+}
+
+/* Google sign-in button (kept for reference) */
 .sub-gate-google-btn {
   width: 100%;
   padding: 12px 16px;
