@@ -1,6 +1,6 @@
 # ClinicalFlow — Complete Infrastructure Documentation
 
-> **Generated:** 2026-02-28
+> **Updated:** 2026-03-02 (full system audit)
 > **Version:** 1.0.0
 > **Identifier:** `com.clinicalflow.ai`
 > **Domain:** `https://clinicalflow.us`
@@ -36,9 +36,10 @@
    - 6.1 [Email/Password Flow](#61-emailpassword-flow)
    - 6.2 [Google OAuth (PKCE)](#62-google-oauth-pkce)
    - 6.3 [Password Reset Flow](#63-password-reset-flow)
-   - 6.4 [Email Verification](#64-email-verification)
+   - 6.4 [Deep Link Login (clinicalflow://)](#64-deep-link-login)
    - 6.5 [Supabase Auth Configuration](#65-supabase-auth-configuration)
    - 6.6 [Redirect URLs](#66-redirect-urls)
+   - 6.7 [Desktop Login Gate](#67-desktop-login-gate)
 7. [Stripe Billing Integration](#7-stripe-billing-integration)
    - 7.1 [Pricing Tiers](#71-pricing-tiers)
    - 7.2 [Checkout Flow](#72-checkout-flow)
@@ -270,13 +271,19 @@ ClinicalFlowApp/
 │   │   ├── 001_profiles.sql            # User profiles + triggers
 │   │   ├── 002_device_activations.sql  # Device seat tracking
 │   │   ├── 003_subscription_events.sql # Stripe webhook audit log
-│   │   └── 004_selected_plan.sql       # Plan selection column + RLS
+│   │   ├── 004_selected_plan.sql       # Plan selection column + RLS
+│   │   ├── 005_oauth_email_verified.sql # Fix Google OAuth pending_verification
+│   │   ├── 006_skip_email_verification.sql # Skip email verify, start users in trial
+│   │   ├── 007_fix_remaining_pending.sql   # Bulk-upgrade remaining pending users
+│   │   ├── 008_fix_pending_with_trigger.sql # Same, with trigger disable workaround
+│   │   └── 009_free_demo_plan.sql      # Add free_demo to selected_plan CHECK
 │   └── functions/
 │       ├── _shared/
 │       │   ├── supabase-admin.ts       # CORS, token extraction, JSON helpers
 │       │   └── license-crypto.ts       # AES-256-GCM license encryption
 │       ├── create-checkout/index.ts    # Stripe checkout session
 │       ├── customer-portal/index.ts    # Stripe billing portal
+│       ├── delete-account/index.ts     # Cancel Stripe + delete profile + auth user
 │       ├── download-release/index.ts   # Presigned R2 .dmg URL
 │       ├── signup-page/index.ts        # Branded HTML signup (for Tauri)
 │       ├── stripe-webhook/index.ts     # Stripe event handler
@@ -582,8 +589,9 @@ CREATE TABLE public.profiles (
   stripe_customer_id     TEXT UNIQUE,
   tier                   TEXT NOT NULL DEFAULT 'trial',
     -- Values: trial | pro | team | enterprise | none
-  status                 TEXT NOT NULL DEFAULT 'pending_verification',
+  status                 TEXT NOT NULL DEFAULT 'trial',
     -- Values: pending_verification | trial | active | past_due | canceled | expired | none
+    -- Note: Default changed from 'pending_verification' to 'trial' by migration 006
   seats                  INT NOT NULL DEFAULT 1,
   trial_ends_at          TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days'),
   subscription_ends_at   TIMESTAMPTZ,
@@ -591,7 +599,7 @@ CREATE TABLE public.profiles (
   stripe_price_id        TEXT,
   email_verified_at      TIMESTAMPTZ,
   selected_plan          TEXT,
-    -- Values: pro_monthly | pro_annual | team_monthly | team_annual
+    -- Values: pro_monthly | pro_annual | team_monthly | team_annual | free_demo
   created_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at             TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -642,10 +650,10 @@ All other fields (tier, status, seats, stripe_*, dates, license_key) are service
 
 | Trigger | Event | Action |
 |---------|-------|--------|
-| `on_auth_user_created` | `auth.users` INSERT | Creates `profiles` row: status=`pending_verification`, copies full_name from metadata |
-| `on_auth_email_verified` | `auth.users` UPDATE (email_confirmed_at) | Sets status→`trial`, trial_ends_at→NOW()+14 days, email_verified_at |
+| `on_auth_user_created` | `auth.users` INSERT | Creates `profiles` row: status=`trial`, email_verified_at=NOW(), trial_ends_at=NOW()+14 days (migration 006 removed email verification requirement) |
+| `on_auth_email_verified` | `auth.users` UPDATE (email_confirmed_at) | Legacy — Sets status→`trial` when email_confirmed_at changes (no longer needed since 006) |
 | `profiles_updated_at` | `profiles` UPDATE | Auto-sets `updated_at = NOW()` |
-| `enforce_profile_update_restrictions` | `profiles` UPDATE | Blocks non-service-role changes to protected fields |
+| `enforce_profile_update_restrictions` | `profiles` UPDATE | Blocks non-service-role changes to protected fields (must be disabled for migrations) |
 
 ### 5.5 Edge Functions
 
@@ -659,6 +667,7 @@ All functions deployed to: `https://seuinmmslazvibotoupm.supabase.co/functions/v
 | `download-release` | GET | Bearer JWT | **Disabled** (--no-verify-jwt) | Returns presigned R2 URL for .dmg |
 | `verify-license` | POST | License key | Gateway | Returns encrypted license blob |
 | `stripe-webhook` | POST | Stripe signature | None | Handles Stripe subscription lifecycle events |
+| `delete-account` | POST | Bearer JWT | **Disabled** (--no-verify-jwt) | Cancels Stripe sub, deletes profile + auth user |
 
 #### `create-checkout` — Stripe Checkout Session
 
@@ -822,16 +831,16 @@ encryptLicense(payload) → base64(nonce_12 + ciphertext + GCM_tag_16)
 ```
 User → signup.html → sb.auth.signUp({email, password, data: {full_name}})
   → Supabase creates auth.users entry
-  → Trigger creates profiles row (status: pending_verification)
-  → Supabase sends verification email
-  → User clicks email link
-  → Redirect to signup.html#access_token=...&type=signup
-  → JS calls sb.auth.setSession({access_token, refresh_token})
-  → Trigger sets status→trial, trial_ends_at→+14 days
-  → Show plan selection screen
+  → Trigger creates profiles row (status: trial, trial_ends_at = NOW()+14 days)
+  → No email verification required (confirmations disabled)
+  → Show plan selection screen (Demo / Pro / Team)
   → User selects plan → profiles.selected_plan updated
   → Show success screen with download button
 ```
+
+**Anti-enumeration:** Supabase returns a fake success with empty `identities` array for duplicate confirmed emails. The signup page detects this with `Array.isArray(data?.user?.identities) && data.user.identities.length === 0` and shows "An account with this email already exists."
+
+**Rate limiting:** Supabase enforces a 45-second cooldown per email address. The signup page shows friendly messages for rate limit errors.
 
 ### 6.2 Google OAuth (PKCE)
 
@@ -874,32 +883,28 @@ User → reset-password.html → sb.auth.resetPasswordForEmail(email, {redirectT
   → Success screen → redirect to login
 ```
 
-### 6.4 Email Verification
+### 6.4 Deep Link Login (clinicalflow://)
 
-**Email templates** defined in `docs/supabase-email-templates.md`:
+The desktop app supports browser-based login via custom URL scheme deep links. This enables Google OAuth and other browser-based auth flows.
 
-| Template | Subject | Variable |
-|----------|---------|----------|
-| Confirm Signup | "Verify your ClinicalFlow account" | `{{ .ConfirmationURL }}` |
-| Reset Password | "Reset your ClinicalFlow password" | `{{ .ConfirmationURL }}` |
-| Magic Link | "Your ClinicalFlow login link" | `{{ .ConfirmationURL }}` |
+**Flow:**
+1. User clicks "Log in on Website" in the desktop app login gate
+2. System browser opens `https://clinicalflow.us/login.html?source=app`
+3. User authenticates (Google OAuth or email/password)
+4. Website detects `?source=app` (persisted in `sessionStorage` across redirects)
+5. After auth success, redirects to `clinicalflow://auth-callback?refresh_token=...`
+6. Tauri deep-link plugin captures the URL
+7. Desktop app exchanges refresh token for full session via `POST /auth/v1/token?grant_type=refresh_token`
+8. Gate closes, user proceeds to PIN entry
 
-All templates use branded dark-header design with ClinicalFlow logo, teal accent (#0891B2).
+**Security:**
+- Only `refresh_token` is passed in the deep link (never `access_token`)
+- Supabase refresh tokens are single-use (rotated on exchange)
+- Custom URL scheme `clinicalflow://` registered in `Info.plist` and `tauri.conf.json`
 
-**Apply at:** `https://supabase.com/dashboard/project/seuinmmslazvibotoupm/auth/templates`
+**Cold-start handling:** If the app launches from a deep link URL, `PendingDeepLink` (Rust `Arc<Mutex<Option<String>>>`) buffers it. JS retrieves via `get_pending_deep_link` command after gate init.
 
-#### Applying Email Templates
-
-The branded HTML templates are defined in `docs/supabase-email-templates.md`. To apply:
-
-1. Go to `https://supabase.com/dashboard/project/seuinmmslazvibotoupm/auth/templates`
-2. For each template type (Confirm signup, Reset password, Magic link):
-   - Click the template tab
-   - Update the **Subject** field with the value from the doc
-   - Replace the entire **Body** with the HTML from the doc (copy everything inside the ```html blocks)
-   - Click **Save**
-3. Templates use ClinicalFlow branding: dark header (#0F172A), teal accent (#0891B2), microphone icon, professional footer
-4. Required variable: `{{ .ConfirmationURL }}` — Supabase auto-replaces with the verification/reset link
+**Files:** `src-tauri/src/lib.rs` (plugin + handler), `src/subscription.js` (`_handleDeepLinkAuth`, `subCompleteWebLogin`), `ClinicalFlowWebsite/login.html` (`redirectToApp`)
 
 ### 6.5 Supabase Auth Configuration
 
@@ -909,7 +914,7 @@ The branded HTML templates are defined in `docs/supabase-email-templates.md`. To
 | Phone signup | Disabled |
 | Anonymous sign-ins | Disabled |
 | Google OAuth | Enabled |
-| Email confirmations | Required (`mailer_autoconfirm: false`) |
+| Email confirmations | **Disabled** (`enable_confirmations = false` in config.toml) |
 | Minimum password length | 6 |
 | JWT expiry | 3600 seconds (1 hour) |
 | Refresh token rotation | Enabled |
@@ -917,6 +922,19 @@ The branded HTML templates are defined in `docs/supabase-email-templates.md`. To
 | Rate limit: emails | 2 per hour |
 | Rate limit: signups | 30 per 5 minutes |
 | Rate limit: token refresh | 150 per 5 minutes |
+
+> **Note:** Email verification was disabled (migration 006) so new users start directly in `trial` status. The `handle_new_user()` trigger sets `status='trial'`, `email_verified_at=NOW()`, `trial_ends_at=NOW()+14 days`. Any legacy `pending_verification` users were bulk-upgraded to `trial` by migrations 007/008.
+
+### 6.7 Desktop Login Gate
+
+The subscription gate in the desktop app (`src/index.html` `#subscriptionGate`) has three modes:
+
+1. **`auth`** — Login form with two options:
+   - **"Log in on Website"** (primary button) — Opens browser for Google OAuth + email/password
+   - **Direct email/password form** — Below a divider, for users who prefer in-app login
+   - **"Create Free Account"** — Opens `https://clinicalflow.us/signup.html` in browser
+2. **`expired`** — Plan selection (Pro/Team) + Stripe checkout + manage billing link
+3. **`pending_verification`** — Legacy screen (no longer shown since email verification disabled)
 
 ### 6.6 Redirect URLs
 
@@ -1076,16 +1094,36 @@ trial_ends_at?, subscription_ends_at?
 ### 8.4 Subscription Lifecycle
 
 ```
-1. SIGNUP → profiles.status = pending_verification
-2. EMAIL VERIFIED → status = trial, trial_ends_at = NOW() + 14 days
-3. TRIAL ACTIVE → App works, verify-license returns valid=true
-4. TRIAL EXPIRES → verify-license auto-updates status→expired, returns valid=false
-5. USER SUBSCRIBES → Stripe checkout → webhook → status=active, tier=pro/team
-6. RENEWAL → invoice.paid webhook → subscription_ends_at extended
-7. PAYMENT FAILS → invoice.payment_failed → status=past_due (grace period)
-8. USER CANCELS → subscription.updated → status=canceled (access until period end)
-9. PERIOD ENDS → subscription.deleted → status=expired
+1. SIGNUP → profiles.status = trial, trial_ends_at = NOW() + 14 days
+   (email verification disabled; users start directly in trial)
+2. TRIAL ACTIVE → App works, verify-license returns valid=true
+3. TRIAL EXPIRES → verify-license auto-updates status→expired, returns valid=false
+4. USER SUBSCRIBES → Stripe checkout → webhook → status=active, tier=pro/team
+5. RENEWAL → invoice.paid webhook → subscription_ends_at extended
+6. PAYMENT FAILS → invoice.payment_failed → status=past_due (grace period)
+7. USER CANCELS → subscription.updated → status=canceled (access until period end)
+8. PERIOD ENDS → subscription.deleted → status=expired
+9. DELETE ACCOUNT → delete-account edge fn → cancels Stripe sub → deletes profile + auth user
 ```
+
+### 8.5 Offline Grace Period & Trial Enforcement
+
+The app allows offline usage with cached subscription status:
+
+- **24-hour cache:** If verified within 24h, trusts cached status without network call
+- **License blob:** Server-issued AES-256-GCM encrypted blob with `valid_until` (24h from issuance). If network fails, app decrypts blob and checks `valid_until`.
+- **30-day grace period:** If blob decryption fails but last verification was within 30 days, trusts cached status — **except for expired trials**
+- **Trial expiration check:** Even offline, the grace period path checks `trial_ends` date. If the trial has expired, returns `valid: false` regardless of grace period. This prevents the bypass where an expired trial user could continue using the app indefinitely while offline.
+
+**Code:** `src/subscription.js` — `checkSubscriptionPrePin()` (pre-PIN) and `checkSubscription()` (post-PIN) both enforce this.
+
+### 8.6 Free Demo Plan (v1.0.0)
+
+For the v1.0.0 early release, a "Free Demo" plan tile is available on the website's plan selection wizard:
+- **Database:** `selected_plan` CHECK constraint includes `'free_demo'` (migration 009)
+- **Website:** `signup.html` shows Demo/Pro/Team tiles in a 3-column grid
+- **Behavior:** Selecting Free Demo saves `free_demo` to `profiles.selected_plan`, enables download access (no Stripe checkout needed)
+- **App behavior:** Trial status and 14-day expiration still apply — Free Demo is just a plan selection preference, not a different subscription tier
 
 ---
 
@@ -1875,48 +1913,69 @@ Tests are run locally before committing. No automated test runner in CI (solo pr
 
 | Directory | Files | Purpose |
 |-----------|-------|---------|
-| `src/` | ~25 | Desktop app frontend |
-| `src-tauri/src/` | 8 | Rust backend modules |
-| `src-tauri/binaries/` | 3 | Sidecar executables |
-| `src-tauri/resources/` | ~8 | Models, corrections, fonts |
-| `src-tauri/icons/` | 5 | App icons |
-| `ClinicalFlowWebsite/` | ~20 | Marketing website |
-| `supabase/functions/` | 8 | Edge functions |
-| `supabase/migrations/` | 4 | Database schema |
+| `src/` | ~25 | Desktop app frontend (vanilla JS modules) |
+| `src-tauri/src/` | 8 | Rust backend modules (lib, audio, auth, crypto, license, storage, pms, logging) |
+| `src-tauri/binaries/` | 3 | Sidecar executables (whisper-cli, whisper-server, html2pdf) |
+| `src-tauri/resources/` | ~8 | Models, corrections dictionaries, fonts |
+| `src-tauri/icons/` | 5 | App icons (png, icns, ico) |
+| `ClinicalFlowWebsite/` | ~22 | Marketing website (11 HTML pages + CSS + JS + SEO) |
+| `supabase/functions/` | 9 | Edge functions (7 functions + 2 shared modules) |
+| `supabase/migrations/` | 9 | Database schema (001–009) |
 | `chrome-extension/` | 6 | EHR paste extension (not distributed) |
 | `tests/` | 4 | Test suite |
-| `docs/` | ~15 | Documentation |
+| `docs/` | ~5 | Documentation |
 | Root | ~8 | Config files |
 
-### Git Status (as of 2026-02-28)
+### Recent Changes (2026-03-02)
 
-**Branch:** `main`
-**Last commit:** `74d045c` — "Initial commit: ClinicalFlow v1.0.0"
+**Commits since initial release:**
+- `c9ce425` — Harden subscription checks, add Free Demo plan, misc fixes
+- `6bb68ff` — Show rate limit messages on signup
+- `4d0b52e` — Fix duplicate email check blocking all new signups
+- `2b397ee` — Fix duplicate email check to handle null/undefined identities
+- `dc2fd3f` — Fix duplicate email signup silently succeeding
+- `771abb1` — Add web-based login with Tauri deep links for Google OAuth support
+- `74d045c` — Initial commit: ClinicalFlow v1.0.0
 
-**Modified (unstaged):**
-- `.claude/settings.local.json`
-- `ClinicalFlowWebsite/about.html`
-- `ClinicalFlowWebsite/docs.html`
-- `ClinicalFlowWebsite/get-started.html`
-- `ClinicalFlowWebsite/index.html`
-- `ClinicalFlowWebsite/pricing.html`
-- `ClinicalFlowWebsite/privacy-policy.html`
-- `ClinicalFlowWebsite/signup.html`
-- `ClinicalFlowWebsite/terms-of-service.html`
-- `supabase/functions/_shared/supabase-admin.ts`
-- `supabase/functions/create-checkout/index.ts`
-- `supabase/functions/customer-portal/index.ts`
-- `supabase/functions/signup-page/index.ts`
+### Stripe Setup Checklist (NOT YET DONE)
 
-**Untracked:**
-- `ClinicalFlowWebsite/account.html`
-- `ClinicalFlowWebsite/login.html`
-- `ClinicalFlowWebsite/reset-password.html`
-- `ClinicalFlowWebsite/robots.txt`
-- `ClinicalFlowWebsite/sitemap.xml`
-- `docs/WEBSITE_COMPLETION_SPEC.md`
-- `docs/supabase-email-templates.md`
-- `supabase/functions/download-release/`
+1. [ ] Create Stripe Products & Prices (Pro $25/$250, Team $19/$190 per seat)
+2. [ ] Add webhook endpoint: `https://seuinmmslazvibotoupm.supabase.co/functions/v1/stripe-webhook`
+3. [ ] Set Supabase secrets: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, 4 price IDs
+4. [ ] Test full checkout flow with Stripe test mode cards
+
+### Database Migration Status
+
+| Migration | Applied? | Description |
+|-----------|----------|-------------|
+| 001_profiles | Yes | Core profiles table + triggers |
+| 002_device_activations | Yes | Device seat tracking |
+| 003_subscription_events | Yes | Stripe webhook audit log |
+| 004_selected_plan | Yes | Plan selection column + column restriction trigger |
+| 005_oauth_email_verified | Yes | Fix OAuth users stuck in pending_verification |
+| 006_skip_email_verification | Yes | Start new users in trial, skip email verification |
+| 007_fix_remaining_pending | Yes | Bulk-upgrade pending_verification users |
+| 008_fix_pending_with_trigger | Yes | Same fix, with trigger disable workaround |
+| 009_free_demo_plan | **Pending** | Add `free_demo` to `selected_plan` CHECK constraint |
+
+### Key Environment Variables (Supabase Edge Functions)
+
+| Variable | Status | Purpose |
+|----------|--------|---------|
+| `SUPABASE_URL` | Auto-set | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Auto-set | Service-role key (bypasses RLS) |
+| `SUPABASE_ANON_KEY` | Auto-set | Public anon key |
+| `STRIPE_SECRET_KEY` | **Not set** | Stripe API secret |
+| `STRIPE_WEBHOOK_SECRET` | **Not set** | Stripe webhook signing secret |
+| `STRIPE_PRICE_PRO_MONTHLY` | **Not set** | Stripe price ID |
+| `STRIPE_PRICE_PRO_ANNUAL` | **Not set** | Stripe price ID |
+| `STRIPE_PRICE_TEAM_MONTHLY` | **Not set** | Stripe price ID |
+| `STRIPE_PRICE_TEAM_ANNUAL` | **Not set** | Stripe price ID |
+| `LICENSE_ENCRYPTION_KEY` | Set | 64-char hex key for AES-256-GCM license blobs |
+| `R2_ENDPOINT` | Set | Cloudflare R2 S3-compatible endpoint |
+| `R2_BUCKET` | Set | R2 bucket name (`clinicalflow-releases`) |
+| `R2_ACCESS_KEY_ID` | Set | R2 access key |
+| `R2_SECRET_ACCESS_KEY` | Set | R2 secret key |
 
 ---
 

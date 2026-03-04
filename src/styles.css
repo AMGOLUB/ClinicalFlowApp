@@ -5329,6 +5329,51 @@ kbd {
   font-size: var(--text-base);
 }
 
+/* Language screen (Screen 1) */
+#wizScreenLang {
+  text-align: left;
+}
+
+#wizScreenLang .wiz-step-label,
+#wizScreenLang .wiz-heading,
+#wizScreenLang .wiz-desc {
+  text-align: left;
+}
+
+.wiz-lang-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 0 var(--space-4);
+  background: var(--accent-dim);
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 24px var(--accent-glow);
+}
+
+.wiz-lang-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--accent);
+}
+
+.wiz-lang-select-wrap {
+  margin: var(--space-5) 0 var(--space-3);
+}
+
+.wiz-lang-select-wrap .select {
+  width: 100%;
+  font-size: var(--text-base);
+  padding: 10px 14px;
+}
+
+.wiz-lang-hint {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
 /* Mode cards (Screen 2) */
 .wiz-mode-cards {
   display: grid;

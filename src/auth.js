@@ -22,8 +22,19 @@ function _cacheLockDOM(){
   };
 }
 
+function _enforcePinInput(el){
+  if(!el||el._pinEnforced)return;
+  el._pinEnforced=true;
+  el.addEventListener('input',()=>{
+    el.value=el.value.replace(/\D/g,'').slice(0,8);
+  });
+}
+
 function _showLockScreen(mode){
   const L=_cacheLockDOM();
+  _enforcePinInput(L.pinInput);
+  _enforcePinInput(L.newPin);
+  _enforcePinInput(L.confirmPin);
   L.screen.style.display='flex';
   if(mode==='create'){
     L.entryDiv.style.display='none';L.createDiv.style.display='block';

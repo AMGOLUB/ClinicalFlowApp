@@ -558,9 +558,9 @@
 <section class="gs-hero">
   <div class="container">
     <div style="animation: fadeInUp 0.6s ease both;">
-      <span class="badge">
+      <span class="badge" id="gsBadge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-        Account created &middot; 14-day trial active
+        <span id="gsBadgeText">Account created</span>
       </span>
     </div>
 
@@ -1049,6 +1049,33 @@ document.body.addEventListener('keydown', (e) => {
       }
     });
   }
+})();
+</script>
+<script>
+// ─── Dynamic hero badge based on profile status ───
+(async function() {
+  var badge = document.getElementById('gsBadge');
+  var badgeText = document.getElementById('gsBadgeText');
+  if (!badge || !badgeText || typeof supabase === 'undefined') return;
+  var sb = window.__cfSupabase || supabase.createClient(
+    'https://seuinmmslazvibotoupm.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNldWlubW1zbGF6dmlib3RvdXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjM4MjAsImV4cCI6MjA4Nzc5OTgyMH0.YE4e8bf6Q_4zfvu9zLpaMIrfbnsf6Z9ucf2mSebyrqY'
+  );
+  try {
+    var res = await sb.auth.getSession();
+    if (!res.data.session) return;
+    var p = await sb.from('profiles').select('status').eq('id', res.data.session.user.id).single();
+    var s = p.data?.status;
+    if (s === 'pending_verification') {
+      badgeText.textContent = 'Verify your email to start your trial';
+    } else if (s === 'trial') {
+      badgeText.textContent = 'Account created \u00b7 14-day trial active';
+    } else if (s === 'active') {
+      badgeText.textContent = 'Account active';
+    } else {
+      badgeText.textContent = 'Account created';
+    }
+  } catch (_) {}
 })();
 </script>
 <script src="auth-nav.js"></script>

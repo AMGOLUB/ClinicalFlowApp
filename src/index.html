@@ -82,20 +82,7 @@
         <button class="btn btn-primary btn-lg sub-gate-submit sub-gate-web-login" id="subWebLoginBtn">Log in on Website</button>
         <p class="sub-gate-web-login-hint">Opens your browser — supports Google, email &amp; password</p>
 
-        <div class="sub-gate-divider"><span>or log in directly</span></div>
-
-        <div class="sub-gate-field">
-          <label for="subLoginEmail">Email</label>
-          <input type="email" id="subLoginEmail" placeholder="you@practice.com" autocomplete="email" spellcheck="false">
-        </div>
-        <div class="sub-gate-field">
-          <label for="subLoginPassword">Password</label>
-          <input type="password" id="subLoginPassword" placeholder="••••••••" autocomplete="current-password">
-        </div>
-
-        <button class="btn btn-primary btn-lg sub-gate-submit" id="subLoginBtn">Log In</button>
         <div class="sub-gate-error" id="subLoginError" style="display:none"></div>
-        <p class="sub-gate-link-row"><a href="#" id="subForgotPassword">Forgot password?</a></p>
 
         <div class="sub-gate-divider"><span>New to ClinicalFlow?</span></div>
         <button class="sub-gate-signup-external" id="subOpenSignupBtn">Create Free Account</button>
@@ -231,13 +218,21 @@
       <!-- Screen Lang: Choose Language -->
       <div class="wiz-screen" id="wizScreenLang" style="display:none;">
         <div class="wiz-step-label">Step 1 of 4</div>
+        <div class="wiz-lang-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
         <div class="wiz-heading">Choose Your Language</div>
-        <div class="wiz-desc">Select the language you'll use during clinical encounters. This affects transcription, note generation, and medical term corrections.</div>
-        <div style="display:flex;justify-content:center;margin:var(--space-6) 0;">
-          <select class="select" id="wizLanguageSelect" style="width:240px;font-size:var(--text-base);">
+        <div class="wiz-desc">Select the language for clinical encounters. This affects transcription, note generation, and medical term corrections.</div>
+        <div class="wiz-lang-select-wrap">
+          <select class="select" id="wizLanguageSelect">
             <option value="en-US">English (US)</option>
           </select>
         </div>
+        <div class="wiz-lang-hint">You can change this later in Settings.</div>
         <div class="wiz-nav">
           <button class="btn btn-secondary btn-md" id="wizBackLang">Back</button>
           <button class="btn btn-primary btn-md" id="wizNextLang">Continue</button>

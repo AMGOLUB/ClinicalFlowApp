@@ -740,12 +740,6 @@ export function subWaitForGateClose() {
 export function initSubGate(cfg) {
   _gateCfg = cfg;   // null = pre-PIN mode
 
-  // Login handler
-  document.getElementById('subLoginBtn').addEventListener('click', _handleLogin);
-  document.getElementById('subLoginPassword').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('subLoginBtn').click();
-  });
-
   // "Create Free Account" → open signup page in browser
   document.getElementById('subOpenSignupBtn')?.addEventListener('click', async () => {
     const signupUrl = 'https://clinicalflow.us/signup.html';
@@ -831,23 +825,6 @@ export function initSubGate(cfg) {
     subShowGate('auth');
   });
 
-  // Forgot password — send Supabase reset email
-  document.getElementById('subForgotPassword')?.addEventListener('click', async e => {
-    e.preventDefault();
-    const email = document.getElementById('subLoginEmail').value.trim();
-    const errorEl = document.getElementById('subLoginError');
-    const result = await subForgotPassword(email);
-    if (result.success) {
-      errorEl.textContent = 'Password reset email sent. Check your inbox.';
-      errorEl.style.display = 'block';
-      errorEl.style.color = 'var(--color-success, #10b981)';
-    } else {
-      errorEl.textContent = result.error;
-      errorEl.style.display = 'block';
-      errorEl.style.color = '';
-    }
-  });
-
   // Pending verification → go to login
   document.getElementById('subPendingLoginBtn')?.addEventListener('click', () => {
     subShowGate('auth');
@@ -897,47 +874,6 @@ function _updateSeatTotal() {
 }
 
 // ─── Internal handlers ───────────────────────────────────────
-
-async function _handleLogin() {
-  const email    = document.getElementById('subLoginEmail').value.trim();
-  const password = document.getElementById('subLoginPassword').value;
-  const errorEl  = document.getElementById('subLoginError');
-  const btn      = document.getElementById('subLoginBtn');
-
-  if (!email || !password) {
-    errorEl.textContent = 'Please enter your email and password.';
-    errorEl.style.display = 'block';
-    errorEl.style.color = '';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Logging in\u2026';
-  errorEl.style.display = 'none';
-
-  let result;
-  if (_gateCfg) {
-    result = await subLogIn(email, password, _gateCfg);
-  } else {
-    result = await subLogInPrePin(email, password);
-  }
-
-  if (result.success) {
-    const sub = result.subscription;
-    if (sub?.valid) {
-      subHideGate();
-    } else {
-      subShowGate('expired', sub?.reason || 'Subscription inactive');
-    }
-  } else {
-    errorEl.textContent = result.error || 'Login failed. Please try again.';
-    errorEl.style.display = 'block';
-    errorEl.style.color = '';
-  }
-
-  btn.disabled = false;
-  btn.textContent = 'Log In';
-}
 
 /**
  * Handle a clinicalflow://auth-callback?refresh_token=... deep link.

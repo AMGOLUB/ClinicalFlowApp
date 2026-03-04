@@ -1121,6 +1121,26 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const el = document.getElementById(id);
     if (el) { el.offsetHeight; el.classList.add('active'); }
+    // Stop verification polling when leaving pending screen
+    if (id !== 'pendingScreen') stopPendingPoll();
+  }
+
+  // ── Pending screen: poll for email verification ──
+  let _pendingPoll = null;
+  function startPendingPoll() {
+    if (_pendingPoll) return;
+    _pendingPoll = setInterval(async () => {
+      try {
+        const { data: { session } } = await sb.auth.refreshSession();
+        if (session?.user?.email_confirmed_at) {
+          stopPendingPoll();
+          await showPostVerification();
+        }
+      } catch (_) {}
+    }, 5000);
+  }
+  function stopPendingPoll() {
+    if (_pendingPoll) { clearInterval(_pendingPoll); _pendingPoll = null; }
   }
 
   // ── Password strength ─────────────────────────
@@ -1212,6 +1232,7 @@
       _email = email;
       document.getElementById('pendingEmail').textContent = email;
       show('pendingScreen');
+      startPendingPoll();
     } catch (err) {
       const msg = err.message || 'Signup failed. Please try again.';
       if (msg.includes('security') || msg.includes('rate') || msg.includes('seconds')) {
