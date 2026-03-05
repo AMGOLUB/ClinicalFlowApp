@@ -373,8 +373,8 @@ The frontend runs inside Tauri's WKWebView (macOS) with `withGlobalTauri: true` 
 | `state.js` | Global `App` state object, config backend | `ConfigFallback` (localStorage) or encrypted Tauri storage |
 | `ui.js` | DOM manipulation, modals, panel resizing | Toast, modal, draggable divider |
 | `auth.js` | PIN entry/creation, auto-lock timer | `lockApp()`, `unlockApp()`, 5-min default |
-| `audio.js` | Audio playback controls | Waveform visualization |
-| `recording.js` | Recording state machine | Start/stop/pause, chunk management |
+| `audio.js` | Audio engine, waveform visualization | Deepgram WebSocket, Whisper via Tauri, Web Speech API, real-time waveform (audio_level events + CSS fallback) |
+| `recording.js` | Recording state machine | Start/stop/pause, dual-SVG icon toggling, timer |
 | `transcript.js` | Transcript entry rendering | Speaker colors, word count, timestamps |
 | `speakers.js` | Speaker management | Doctor (teal), Patient (amber), Other (purple) |
 | `notes.js` | Note generation orchestrator | Template selection, AI dispatch, formatting |
@@ -1302,7 +1302,7 @@ Microphone (cpal)
   ↓ RMS-based silence detection (threshold: 200.0)
   ↓ HTTP POST to whisper-server (multipart/form-data, Metal GPU)
   ↓ Adaptive performance monitoring (rolling 10-chunk window)
-  ↓ Hallucination filtering (regex: "thank you", "(silence)", etc.)
+  ↓ Hallucination filtering (regex, non-ASCII density >20%, repeated punctuation)
   ↓ Medical term corrections (82+ patterns)
   ↓ Transcript event emitted to frontend
 ```
@@ -1315,6 +1315,17 @@ Microphone (cpal)
 - Inference timeout: 5s per chunk (fail-fast with Metal GPU)
 - `navigator.mediaDevices.getUserMedia()` NOT available in Tauri WKWebView
 - `cpal::Stream` is `!Send+!Sync` → wrapped in `StreamWrapper` with unsafe impl
+
+**Audio Level Emission (Waveform Visualization):**
+- Rust cpal callback computes RMS of resampled samples and emits `audio_level` Tauri event (~15fps, throttled to 66ms intervals)
+- Frontend `audio.js` listens for `audio_level` events and drives 20 waveform bars with real levels (center louder, edges tapered, jitter)
+- CSS `wave-pulse` keyframe animation serves as fallback when `audio_level` events aren't available
+- Waveform bars use `.css-anim` class for the fallback animation, removed when real levels arrive
+
+**Pause Button (Dual-SVG Approach):**
+- WKWebView does not support `querySelector('svg').innerHTML` replacement — breaks SVG rendering
+- Pause button uses two separate `<svg>` elements (`.icon-pause` and `.icon-play`) with visibility toggling via `style.display`
+- `updateRecUI(false)` resets icons to pause state for next recording session
 
 **Persistent Whisper Server:**
 - Server starts on first recording and stays alive across recordings (zero cold start)
