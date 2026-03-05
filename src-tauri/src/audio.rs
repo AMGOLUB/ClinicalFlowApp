@@ -19,6 +19,21 @@ const PERF_WINDOW_SIZE: usize = 10; // Rolling window for inference time trackin
 const GROQ_CHUNK_SAMPLES: usize = 16000 * 4; // 4s chunks → 15 RPM (25% headroom under 20 RPM free tier)
 const GROQ_API_URL: &str = "https://api.groq.com/openai/v1/audio/transcriptions";
 
+// Groq limits prompt to 896 chars — condensed version of MEDICAL_PROMPT
+const GROQ_MEDICAL_PROMPT: &str = "\
+Medical clinical transcription. \
+Meds: metformin, lisinopril, losartan, amlodipine, atorvastatin, omeprazole, gabapentin, \
+hydrochlorothiazide, furosemide, prednisone, azithromycin, amoxicillin, ciprofloxacin, \
+fluoxetine, sertraline, escitalopram, duloxetine, bupropion, alprazolam, lorazepam, \
+oxycodone, hydrocodone, tramadol, warfarin, apixaban, insulin, levothyroxine, albuterol, \
+fluticasone, montelukast, metoprolol. \
+Dx: hypertension, atrial fibrillation, myocardial infarction, dyspnea, pneumonia, asthma, \
+COPD, diabetes mellitus, hypothyroidism, osteoarthritis, neuropathy, radiculopathy, GERD, \
+UTI, chronic kidney disease, anemia, fracture, syncope, migraine, stroke, TIA, DVT, \
+pulmonary embolism, BPH. \
+Dental: caries, periodontitis, gingivitis, root canal, crown, implant, extraction, \
+periapical abscess. Labs: A1c, CBC, BMP, CMP, TSH, creatinine, eGFR.";
+
 // --- Types ---
 
 #[derive(Clone, Serialize)]
@@ -448,7 +463,7 @@ async fn send_to_groq(api_key: &str, wav_path: &PathBuf, language: &str) -> Resu
         .text("response_format", "text")
         .text("language", language.to_string())
         .text("temperature", "0.0")
-        .text("prompt", MEDICAL_PROMPT.to_string());
+        .text("prompt", GROQ_MEDICAL_PROMPT.to_string());
 
     let resp = reqwest::Client::new()
         .post(GROQ_API_URL)
