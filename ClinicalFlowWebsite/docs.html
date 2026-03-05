@@ -67,7 +67,6 @@
         <div class="docs-sidebar-title">Recording &amp; Transcription</div>
         <a href="#recording-basics" class="docs-sidebar-link">Recording Basics</a>
         <a href="#online-transcription" class="docs-sidebar-link">Online Transcription</a>
-        <a href="#groq-transcription" class="docs-sidebar-link">Groq Whisper (Cloud)</a>
         <a href="#offline-transcription" class="docs-sidebar-link">Offline Transcription</a>
         <a href="#microphone" class="docs-sidebar-link">Microphone Setup</a>
         <a href="#languages" class="docs-sidebar-link">Languages (37)</a>
@@ -349,46 +348,6 @@
       <p>Deepgram automatically identifies different speakers in the audio stream. ClinicalFlow maps these speaker IDs to the speakers you&rsquo;ve defined in the sidebar.</p>
     </article>
 
-    <article id="groq-transcription" class="docs-article">
-      <h2>Groq Whisper (Cloud)</h2>
-      <p>Groq mode uses <strong>Whisper large-v3-turbo</strong> running on Groq&rsquo;s cloud infrastructure. It offers near-Deepgram speed (~200&ndash;300ms latency) with excellent Whisper accuracy, and a generous free tier requiring only a free API key.</p>
-
-      <h3>Setup</h3>
-      <ol>
-        <li>Sign up at <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> (free, no credit card)</li>
-        <li>Create an API key (starts with <code>gsk_</code>)</li>
-        <li>Open ClinicalFlow Settings &rarr; Transcription &rarr; select <strong>Groq</strong> &rarr; paste your key &rarr; click <strong>Save</strong></li>
-      </ol>
-
-      <h3>How It Works</h3>
-      <p>Audio is captured in 4-second chunks with 0.3-second overlap. Each chunk is saved as a 16 kHz mono WAV and sent to Groq&rsquo;s OpenAI-compatible API endpoint via HTTPS POST. The medical vocabulary prompt is included for conditioning. Silent chunks (RMS &lt; 200) are skipped.</p>
-
-      <h3>Free Tier Limits</h3>
-      <table class="docs-table">
-        <tbody>
-          <tr><td>Requests per minute</td><td>20 RPM (4-second chunks = 15 RPM with headroom)</td></tr>
-          <tr><td>Audio per hour</td><td>7,200 seconds (2 hours of recording)</td></tr>
-          <tr><td>Audio per day</td><td>28,800 seconds (8 hours of recording)</td></tr>
-          <tr><td>Cost if exceeded</td><td>$0.111 per hour of audio</td></tr>
-        </tbody>
-      </table>
-
-      <h3>Comparison</h3>
-      <table class="docs-table">
-        <thead><tr><th>Feature</th><th>Deepgram</th><th>Groq</th><th>Offline</th></tr></thead>
-        <tbody>
-          <tr><td>Latency</td><td>~200ms (streaming)</td><td>~300ms per chunk</td><td>~2s per chunk</td></tr>
-          <tr><td>Speaker diarization</td><td>Yes</td><td>No</td><td>No</td></tr>
-          <tr><td>Free tier</td><td>$200 credit</td><td>Generous (see above)</td><td>Unlimited (local)</td></tr>
-          <tr><td>Internet required</td><td>Yes</td><td>Yes</td><td>No</td></tr>
-          <tr><td>Medical vocabulary</td><td>Nova-3 Medical model</td><td>Prompt conditioning</td><td>Prompt conditioning</td></tr>
-        </tbody>
-      </table>
-
-      <div class="docs-callout docs-callout--info">
-        <strong>No speaker diarization:</strong> Like offline Whisper, Groq does not provide speaker labels. Use manual speaker switching or silence-based auto-detection.
-      </div>
-    </article>
 
     <article id="offline-transcription" class="docs-article">
       <h2>Offline Transcription (Whisper)</h2>
@@ -1157,9 +1116,8 @@
       <table class="docs-table">
         <thead><tr><th>Setting</th><th>Options</th><th>Description</th></tr></thead>
         <tbody>
-          <tr><td>Mode</td><td>Deepgram / Groq / Offline</td><td>Deepgram: cloud streaming with speaker diarization. Groq: fast cloud Whisper (free tier). Offline: local Whisper, no internet.</td></tr>
-          <tr><td>Deepgram API Key</td><td>Text input (masked)</td><td>Your Deepgram API key. Encrypted at rest. Shown when Deepgram mode selected.</td></tr>
-          <tr><td>Groq API Key</td><td>Text input (masked)</td><td>Your Groq API key (starts with gsk_). Encrypted at rest. Shown when Groq mode selected.</td></tr>
+          <tr><td>Mode</td><td>Online / Offline</td><td>Online: Deepgram cloud streaming with speaker diarization. Offline: local Whisper, no internet.</td></tr>
+          <tr><td>Deepgram API Key</td><td>Text input (masked)</td><td>Your Deepgram API key. Encrypted at rest. Shown when Online mode selected.</td></tr>
           <tr><td>Recognition Language</td><td>37 languages</td><td>Primary language for speech recognition. Applies to both modes.</td></tr>
         </tbody>
       </table>

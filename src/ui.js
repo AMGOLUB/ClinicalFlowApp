@@ -26,7 +26,7 @@ export function cacheDOM(){
   D.newSessModal=g('newSessionModal');D.addSpkModal=g('addSpeakerModal');D.helpModal=g('helpModal');D.clearTxModal=g('clearTranscriptModal');
   D.toasts=g('toastContainer');
   D.pdfPrev=g('pdfPreview');D.pdfTitle=g('pdfTitle');D.pdfMeta=g('pdfMeta');D.pdfSec=g('pdfSections');D.pdfDate=g('pdfFooterDate');
-  D.txModeToggle=g('transcriptionModeToggle');D.onlineSettings=g('onlineTranscriptionSettings');D.groqSettings=g('groqTranscriptionSettings');
+  D.txModeToggle=g('transcriptionModeToggle');D.onlineSettings=g('onlineTranscriptionSettings');
   D.aiEngineToggle=g('aiEngineToggle');D.cloudAISettings=g('cloudAISettings');D.ollamaSettings=g('ollamaSettings');
   D.ollamaUrl=g('ollamaUrl');D.ollamaTestBtn=g('ollamaTestBtn');
   D.ollamaStatus=g('ollamaStatus');D.ollamaStatusText=g('ollamaStatusText');

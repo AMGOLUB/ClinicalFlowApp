@@ -1328,18 +1328,15 @@ Microphone (cpal)
 | Engine | Mode | Protocol | Key Features |
 |--------|------|----------|-------------|
 | **Deepgram Nova-3 Medical** | Online (`online`) | WebSocket (`wss://`) | Medical vocabulary, speaker diarization, streaming, keyterm boosting (100 terms) |
-| **Groq Whisper** | Online (`groq`) | HTTPS POST (`api.groq.com`) | Whisper large-v3-turbo on cloud hardware, ~300ms latency, 4s chunks, medical vocab prompt, free tier (20 RPM / 7200 audio sec/hr) |
 | **Whisper (whisper-server)** | Offline (`offline`) | HTTP POST (`localhost:{port}`) | Metal GPU-accelerated, large-v3-turbo-q5_0 model, 100 languages, flash attention, persistent server (zero cold start), adaptive chunk sizing, medical vocabulary prompt |
 | **Web Speech API** | Fallback | Browser native | No setup required, limited accuracy |
 
-**Config keys:** `ms-tx-mode` (values: `online`, `groq`, `offline`), `ms-dg-key` (Deepgram API key), `ms-groq-key` (Groq API key, starts with `gsk_`).
-
-**Groq integration:** Audio chunks are processed in the Rust backend (`send_to_groq()` in `audio.rs`), using 4-second chunks to stay within the 20 RPM free tier limit (15 RPM actual = 25% headroom). On error (429 rate limit, timeout, etc.), the chunk is skipped with a warning toast — no fallback to local Whisper mid-session (would require 10+ second model load). The recording continues uninterrupted.
+**Config keys:** `ms-tx-mode` (values: `online`, `offline`), `ms-dg-key` (Deepgram API key).
 
 **Whisper model search order:** `large-v3-turbo` → `large-v3-turbo-q5_0` → `small` → `tiny` (multilingual before `-en`). Default shipped model: `large-v3-turbo-q5_0` (574 MB, near-large accuracy at tiny speed, 4 decoder layers).
 
 **Medical vocabulary prompt** (~5KB, embedded in binary):
-Covers medications (metformin, lisinopril...), conditions, anatomy, labs, vitals, dental terms. Used by both local Whisper and Groq modes.
+Covers medications (metformin, lisinopril...), conditions, anatomy, labs, vitals, dental terms. Used by local Whisper mode.
 
 ### 11.3 Post-Processing
 

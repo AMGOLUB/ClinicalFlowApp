@@ -141,33 +141,6 @@ export async function stopWhisper(){
     if(wavPath)App.lastWavPath=wavPath;
   }catch(e){console.warn('Whisper stop:',e);}
 }
-/* Groq Engine (Cloud Whisper, via Tauri backend) */
-export async function startGroq(){
-  if(!tauriInvoke){toast('Groq transcription requires the desktop app.','error');startWebSpeech();return;}
-  if(!App.groqKey){toast('No Groq API key — add one in Settings or switch modes.','warning');startWhisper();return;}
-  try{
-    await tauriInvoke('start_recording',{mode:'groq',language:getWhisperCode(App.language),groqApiKey:App.groqKey});
-    App.engine='groq';
-    updConn('connected','Online — Groq Whisper');
-    whisperUnlisten=await tauriListen('transcription',ev=>{
-      const{text,is_partial}=ev.payload;
-      if(is_partial){updatePartial(text);}
-      else{removePartial();addEntry(text,0.95);}
-    });
-  }catch(e){
-    console.error('Groq start failed:',e);
-    toast('Groq failed, falling back to offline: '+e,'warning',6000);
-    startWhisper();
-  }
-}
-export async function stopGroq(){
-  if(!tauriInvoke)return;
-  try{
-    if(whisperUnlisten){whisperUnlisten();whisperUnlisten=null;}
-    const wavPath=await tauriInvoke('stop_recording');
-    if(wavPath)App.lastWavPath=wavPath;
-  }catch(e){console.warn('Groq stop:',e);}
-}
 
 export async function pauseWhisper(){
   if(!tauriInvoke)return;

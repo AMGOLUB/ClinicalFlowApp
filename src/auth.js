@@ -186,7 +186,6 @@ export function showWelcomeWizard(){
       document.getElementById('wizScreenLang'),
       document.getElementById('wizScreen2'),
       document.getElementById('wizScreen3a'),
-      document.getElementById('wizScreen3g'),
       document.getElementById('wizScreen3b'),
       document.getElementById('wizScreen4')
     ];
@@ -233,8 +232,6 @@ export function showWelcomeWizard(){
     document.getElementById('wizNext2').addEventListener('click',()=>{
       if(selectedMode==='online'){
         showScreen('wizScreen3a');
-      }else if(selectedMode==='groq'){
-        showScreen('wizScreen3g');
       }else{
         showScreen('wizScreen3b');
         _wizCheckOffline();
@@ -299,66 +296,6 @@ export function showWelcomeWizard(){
       }
     });
 
-    // Groq setup screen navigation
-    document.getElementById('wizBack3g').addEventListener('click',()=>showScreen('wizScreen2'));
-    document.getElementById('wizNext3g').addEventListener('click',()=>showScreen('wizScreen4'));
-
-    // Test Groq key
-    document.getElementById('wizTestGroq').addEventListener('click',async()=>{
-      const key=document.getElementById('wizGroqKey').value.trim();
-      const statusEl=document.getElementById('wizGroqStatus');
-      if(!key){statusEl.className='wiz-key-status error';statusEl.textContent='Enter a key first';return;}
-      if(!key.startsWith('gsk_')){statusEl.className='wiz-key-status error';statusEl.textContent='Groq keys start with gsk_';return;}
-      statusEl.className='wiz-key-status';statusEl.textContent='Testing...';
-      try{
-        const ctrl=new AbortController();
-        const timer=setTimeout(()=>ctrl.abort(),5000);
-        const resp=await fetch('https://api.groq.com/openai/v1/models',{
-          method:'GET',
-          headers:{'Authorization':'Bearer '+key},
-          signal:ctrl.signal
-        });
-        clearTimeout(timer);
-        if(resp.ok){
-          statusEl.className='wiz-key-status success';statusEl.textContent='Key is valid';
-        }else if(resp.status===401||resp.status===403){
-          statusEl.className='wiz-key-status error';statusEl.textContent='Invalid API key';
-        }else{
-          statusEl.className='wiz-key-status success';statusEl.textContent='Key accepted (status '+resp.status+')';
-        }
-      }catch(e){
-        statusEl.className='wiz-key-status error';statusEl.textContent='Connection failed: '+e.message;
-      }
-    });
-
-    // Test Claude key (Groq screen — same logic as online screen)
-    document.getElementById('wizTestClaudeGroq').addEventListener('click',async()=>{
-      const key=document.getElementById('wizClaudeKeyGroq').value.trim();
-      const statusEl=document.getElementById('wizClaudeStatusGroq');
-      if(!key){statusEl.className='wiz-key-status error';statusEl.textContent='Enter a key first';return;}
-      statusEl.className='wiz-key-status';statusEl.textContent='Testing...';
-      try{
-        const ctrl=new AbortController();
-        const timer=setTimeout(()=>ctrl.abort(),5000);
-        const resp=await fetch('https://api.anthropic.com/v1/messages',{
-          method:'POST',
-          headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-          body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1,messages:[{role:'user',content:'hi'}]}),
-          signal:ctrl.signal
-        });
-        clearTimeout(timer);
-        if(resp.ok||resp.status===200){
-          statusEl.className='wiz-key-status success';statusEl.textContent='Key is valid';
-        }else if(resp.status===401){
-          statusEl.className='wiz-key-status error';statusEl.textContent='Invalid API key';
-        }else{
-          statusEl.className='wiz-key-status success';statusEl.textContent='Key accepted (status '+resp.status+')';
-        }
-      }catch(e){
-        statusEl.className='wiz-key-status error';statusEl.textContent='Connection failed: '+e.message;
-      }
-    });
-
     document.getElementById('wizBack3b').addEventListener('click',()=>showScreen('wizScreen2'));
     document.getElementById('wizNext3b').addEventListener('click',()=>showScreen('wizScreen4'));
     document.getElementById('wizTestOllama').addEventListener('click',()=>_wizCheckOffline());
@@ -366,19 +303,14 @@ export function showWelcomeWizard(){
     document.getElementById('wizFinish').addEventListener('click',()=>{
       const dgKey=document.getElementById('wizDgKey')?.value.trim()||'';
       const claudeKey=document.getElementById('wizClaudeKey')?.value.trim()||'';
-      const groqKey=document.getElementById('wizGroqKey')?.value.trim()||'';
-      const claudeKeyGroq=document.getElementById('wizClaudeKeyGroq')?.value.trim()||'';
-      App.transcriptionMode=selectedMode; // 'online', 'groq', or 'offline'
+      App.transcriptionMode=selectedMode==='online'?'online':'offline';
       App.aiEngine=selectedMode==='offline'?'ollama':'cloud';
       if(dgKey){App.dgKey=dgKey;}
-      if(groqKey){App.groqKey=groqKey;}
-      // Use Claude key from whichever screen was filled
-      const finalClaudeKey=claudeKey||claudeKeyGroq;
-      if(finalClaudeKey){App.claudeKey=finalClaudeKey;}
+      if(claudeKey){App.claudeKey=claudeKey;}
       if(wizLangSel) App.language=wizLangSel.value;
       tauriInvoke('set_welcome_completed').catch(e=>console.warn('[ClinicalFlow] set_welcome_completed failed:',e));
       wiz.style.display='none';
-      resolve({mode:selectedMode,dgKey,claudeKey:finalClaudeKey,groqKey});
+      resolve({mode:selectedMode,dgKey,claudeKey});
     });
   });
 }
@@ -490,7 +422,6 @@ export async function checkAuthAndInit(initApp){
     cfg.set('ms-ai-engine',App.aiEngine);
     cfg.set('ms-language',App.language);
     if(wizResult.dgKey){cfg.set('ms-dg-key',wizResult.dgKey);}
-    if(wizResult.groqKey){cfg.set('ms-groq-key',wizResult.groqKey);}
     if(wizResult.claudeKey){cfg.set('ms-claude-key',wizResult.claudeKey);}
     await cfg._flush();
   }

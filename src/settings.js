@@ -147,8 +147,6 @@ export function loadApiKey(){
     D.txModeToggle.querySelectorAll('.theme-option').forEach(b=>b.classList.toggle('active',b.dataset.mode===App.transcriptionMode));
   }
   if(D.onlineSettings)D.onlineSettings.style.display=App.transcriptionMode==='online'?'':'none';
-  const gs=document.getElementById('groqTranscriptionSettings');
-  if(gs)gs.style.display=App.transcriptionMode==='groq'?'':'none';
   updApiStatus();
 }
 
@@ -159,47 +157,8 @@ export function updApiStatus(){
     D.dgStatus.className='api-key-status connected';D.dgStatusText.textContent='Online — API key saved';updConn('connected','Online — Deepgram connected');
   }else if(App.transcriptionMode==='online'&&!App.dgKey){
     D.dgStatus.className='api-key-status disconnected';D.dgStatusText.textContent='No API key configured';updConn('disconnected','No Deepgram API key');
-  }else if(App.transcriptionMode==='groq'&&App.groqKey){
-    D.dgStatus.className='api-key-status connected';D.dgStatusText.textContent='Groq Whisper — API key saved';updConn('connected','Online — Groq Whisper');
-  }else if(App.transcriptionMode==='groq'&&!App.groqKey){
-    D.dgStatus.className='api-key-status disconnected';D.dgStatusText.textContent='No Groq API key configured';updConn('disconnected','No Groq API key');
   }else{
     D.dgStatus.className='api-key-status connected';D.dgStatusText.textContent='Offline — Whisper ready';updConn('connected','Offline (Whisper)');
-  }
-}
-
-/* ── Groq API Key ── */
-
-export function loadGroqKey(){
-  const key=cfg.get('ms-groq-key','');
-  App.groqKey=key;
-  const input=document.getElementById('groqKeyInput');
-  if(input)input.value=key?'••••••••••••••••':'';
-  updGroqStatus();
-}
-
-export function saveGroqKey(){
-  const input=document.getElementById('groqKeyInput');
-  const key=input.value.trim();
-  if(!key||key.includes('•')){toast('Enter a valid API key.','warning');return;}
-  if(!key.startsWith('gsk_')){toast('Groq API keys start with gsk_','warning');return;}
-  App.groqKey=key;
-  cfg.set('ms-groq-key',key);
-  input.value='••••••••••••••••';
-  updGroqStatus();updApiStatus();
-  toast('Groq API key saved','success');
-}
-
-export function updGroqStatus(){
-  const dot=document.getElementById('groqStatus');
-  const text=document.getElementById('groqStatusText');
-  if(!dot||!text)return;
-  if(App.groqKey){
-    dot.className='api-key-status connected';
-    text.textContent='API key saved — Groq Whisper ready';
-  }else{
-    dot.className='api-key-status disconnected';
-    text.textContent='No API key configured';
   }
 }
 

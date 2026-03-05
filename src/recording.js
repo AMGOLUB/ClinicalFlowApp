@@ -8,7 +8,7 @@ import { addSpeaker, setActiveSpk, renderSpeakers } from './speakers.js';
 import { removePartial } from './transcript.js';
 import { initAudio, startAudioRecording, stopAudioRecording, pauseAudioRecording, resumeAudioRecording,
          stopAudio, resetWave, animWave,
-         startDeepgram, stopDeepgram, startWhisper, stopWhisper, startGroq, stopGroq,
+         startDeepgram, stopDeepgram, startWhisper, stopWhisper,
          pauseWhisper, resumeWhisper,
          startWebSpeech, stopWebSpeech } from './audio.js';
 import { newSession } from './session.js'; // circular — safe: only called at runtime
@@ -38,7 +38,6 @@ export async function startRecording(){
     if(App.speakers.length===0){addSpeaker('Doctor','doctor');addSpeaker('Patient','patient');setActiveSpk(App.speakers[0].id);}
     startTimer();updateRecUI(true);
     if(App.transcriptionMode==='online'&&App.dgKey){console.debug('[REC] Engine → Deepgram (online)');startDeepgram();}
-    else if(App.transcriptionMode==='groq'&&App.groqKey){console.debug('[REC] Engine → Groq');startGroq();}
     else if(tauriInvoke){console.debug('[REC] Engine → Whisper (offline/no key)');startWhisper();}
     else{console.debug('[REC] Engine → WebSpeech');startWebSpeech();}
     toast('Recording started','success');
@@ -52,7 +51,6 @@ export async function startRecording(){
 
 export function stopRecording(){
   if(App.engine==='whisper')stopWhisper();
-  else if(App.engine==='groq')stopGroq();
   else if(App.engine==='deepgram'){stopDeepgram();if(tauriInvoke)tauriInvoke('stop_recording').catch(()=>{});}
   else{stopWebSpeech();if(tauriInvoke)tauriInvoke('stop_recording').catch(()=>{});}
   stopAudioRecording();
@@ -68,13 +66,13 @@ export function pauseRecording(){
   if(!App.isRecording)return;
   if(App.isPaused){
     App.isPaused=false;
-    if(App.engine==='whisper'||App.engine==='groq')resumeWhisper();else if(App.engine==='deepgram'){if(tauriInvoke)resumeWhisper();startDeepgram();}else{try{App.recognition.start();}catch(e){}}
+    if(App.engine==='whisper')resumeWhisper();else if(App.engine==='deepgram'){if(tauriInvoke)resumeWhisper();startDeepgram();}else{try{App.recognition.start();}catch(e){}}
     resumeAudioRecording();startTimer();animWave();updStatus('recording');
     D.pauseBtn.querySelector('svg').innerHTML='<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
     toast('Resumed','success');
   }else{
     App.isPaused=true;
-    if(App.engine==='whisper'||App.engine==='groq')pauseWhisper();else if(App.engine==='deepgram'){if(tauriInvoke)pauseWhisper();stopDeepgram();}else{try{App.recognition.stop();}catch(e){}}
+    if(App.engine==='whisper')pauseWhisper();else if(App.engine==='deepgram'){if(tauriInvoke)pauseWhisper();stopDeepgram();}else{try{App.recognition.stop();}catch(e){}}
     pauseAudioRecording();stopTimer();resetWave();removePartial();updStatus('paused');
     D.pauseBtn.querySelector('svg').innerHTML='<polygon points="5 3 19 12 5 21 5 3"/>';
     toast('Paused','warning');
