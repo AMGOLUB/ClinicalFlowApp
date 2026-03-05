@@ -36,7 +36,7 @@ export async function startRecording(){
     }
     App.isRecording=true;App.isPaused=false;App.sessionStartTime=App.sessionStartTime||new Date();
     if(App.speakers.length===0){addSpeaker('Doctor','doctor');addSpeaker('Patient','patient');setActiveSpk(App.speakers[0].id);}
-    startTimer();updateRecUI(true);
+    startTimer();updateRecUI(true);animWave();
     if(App.transcriptionMode==='online'&&App.dgKey){console.debug('[REC] Engine → Deepgram (online)');startDeepgram();}
     else if(tauriInvoke){console.debug('[REC] Engine → Whisper (offline/no key)');startWhisper();}
     else{console.debug('[REC] Engine → WebSpeech');startWebSpeech();}
@@ -68,13 +68,17 @@ export function pauseRecording(){
     App.isPaused=false;
     if(App.engine==='whisper')resumeWhisper();else if(App.engine==='deepgram'){if(tauriInvoke)resumeWhisper();startDeepgram();}else{try{App.recognition.start();}catch(e){}}
     resumeAudioRecording();startTimer();animWave();updStatus('recording');
-    D.pauseBtn.querySelector('svg').innerHTML='<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
+    D.pauseBtn.querySelector('.icon-pause').style.display='';
+    D.pauseBtn.querySelector('.icon-play').style.display='none';
+    D.pauseBtn.setAttribute('aria-label','Pause recording');
     toast('Resumed','success');
   }else{
     App.isPaused=true;
     if(App.engine==='whisper')pauseWhisper();else if(App.engine==='deepgram'){if(tauriInvoke)pauseWhisper();stopDeepgram();}else{try{App.recognition.stop();}catch(e){}}
     pauseAudioRecording();stopTimer();resetWave();removePartial();updStatus('paused');
-    D.pauseBtn.querySelector('svg').innerHTML='<polygon points="5 3 19 12 5 21 5 3"/>';
+    D.pauseBtn.querySelector('.icon-pause').style.display='none';
+    D.pauseBtn.querySelector('.icon-play').style.display=''
+    D.pauseBtn.setAttribute('aria-label','Resume recording');
     toast('Paused','warning');
   }
 }
@@ -88,6 +92,13 @@ export function resetTimer(){stopTimer();App.elapsed=0;D.timer.textContent='00:0
 export function updateRecUI(on){
   D.recBtn.classList.toggle('recording',on);D.recBtn.setAttribute('aria-label',on?'Stop recording':'Start recording');
   D.pauseBtn.style.display=on?'flex':'none';D.liveDot.classList.toggle('visible',on);
+  if(!on){
+    // Reset pause button icon to pause (not play) for next recording
+    const iconPause=D.pauseBtn.querySelector('.icon-pause');
+    const iconPlay=D.pauseBtn.querySelector('.icon-play');
+    if(iconPause)iconPause.style.display='';
+    if(iconPlay)iconPlay.style.display='none';
+  }
   if(on){updStatus('recording');D.genBtn.style.display='none';D.actSpkBadge.style.display='flex';}
   else{updStatus('ready');D.actSpkBadge.style.display='none';}
 }

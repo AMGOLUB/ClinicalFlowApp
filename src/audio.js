@@ -12,8 +12,16 @@ let dgTauriUnlisten = null;
 
 /* Audio & Waveform */
 export async function initAudio(stream){try{App.audioCtx=new(window.AudioContext||window.webkitAudioContext)();App.analyser=App.audioCtx.createAnalyser();App.analyser.fftSize=256;App.analyser.smoothingTimeConstant=0.7;App.audioCtx.createMediaStreamSource(stream).connect(App.analyser);animWave();}catch(e){console.warn('Audio analysis unavailable:',e);}}
-export function animWave(){if(!App.isRecording||App.isPaused){resetWave();return;}const buf=new Uint8Array(App.analyser.frequencyBinCount);App.analyser.getByteFrequencyData(buf);const avg=buf.reduce((a,b)=>a+b,0)/buf.length/255;const n=D.waveBars.length;for(let i=0;i<n;i++){const v=buf[Math.floor(i/n*buf.length)]/255;D.waveBars[i].style.height=`${Math.max(4,v*32)}px`;D.waveBars[i].classList.remove('inactive');D.waveBars[i].style.background=avg>0.05?'var(--accent)':'var(--text-tertiary)';}detectSpkChange(avg);App.animFrame=requestAnimationFrame(animWave);}
-export function resetWave(){D.waveBars.forEach(b=>{b.style.height='4px';b.classList.add('inactive');b.style.background='';});if(App.animFrame){cancelAnimationFrame(App.animFrame);App.animFrame=null;}}
+export function animWave(){
+  if(!App.isRecording||App.isPaused){resetWave();return;}
+  if(!App.analyser){
+    // Tauri mode: no MediaStream — use CSS animation fallback
+    D.waveBars.forEach(b=>{b.classList.remove('inactive');b.classList.add('css-anim');});
+    return;
+  }
+  const buf=new Uint8Array(App.analyser.frequencyBinCount);App.analyser.getByteFrequencyData(buf);const avg=buf.reduce((a,b)=>a+b,0)/buf.length/255;const n=D.waveBars.length;for(let i=0;i<n;i++){const v=buf[Math.floor(i/n*buf.length)]/255;D.waveBars[i].style.height=`${Math.max(4,v*32)}px`;D.waveBars[i].classList.remove('inactive');D.waveBars[i].style.background=avg>0.05?'var(--accent)':'var(--text-tertiary)';}detectSpkChange(avg);App.animFrame=requestAnimationFrame(animWave);
+}
+export function resetWave(){D.waveBars.forEach(b=>{b.style.height='4px';b.classList.add('inactive');b.classList.remove('css-anim');b.style.background='';});if(App.animFrame){cancelAnimationFrame(App.animFrame);App.animFrame=null;}}
 export function stopAudio(){resetWave();if(App.audioCtx){App.audioCtx.close().catch(()=>{});App.audioCtx=null;App.analyser=null;}}
 
 /* Audio Recording (for download) */

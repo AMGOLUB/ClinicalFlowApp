@@ -1484,6 +1484,39 @@ body {
 .waveform-bar.inactive {
   background: var(--text-tertiary);
   height: 4px !important;
+  animation: none !important;
+}
+
+/* CSS-driven waveform for Tauri mode (no MediaStream analyser) */
+.waveform-bar.css-anim {
+  animation: wave-pulse 1.2s ease-in-out infinite alternate;
+  background: var(--accent);
+}
+.waveform-bar.css-anim:nth-child(1)  { animation-delay: 0.00s; }
+.waveform-bar.css-anim:nth-child(2)  { animation-delay: 0.05s; }
+.waveform-bar.css-anim:nth-child(3)  { animation-delay: 0.10s; }
+.waveform-bar.css-anim:nth-child(4)  { animation-delay: 0.15s; }
+.waveform-bar.css-anim:nth-child(5)  { animation-delay: 0.20s; }
+.waveform-bar.css-anim:nth-child(6)  { animation-delay: 0.25s; }
+.waveform-bar.css-anim:nth-child(7)  { animation-delay: 0.30s; }
+.waveform-bar.css-anim:nth-child(8)  { animation-delay: 0.35s; }
+.waveform-bar.css-anim:nth-child(9)  { animation-delay: 0.40s; }
+.waveform-bar.css-anim:nth-child(10) { animation-delay: 0.45s; }
+.waveform-bar.css-anim:nth-child(11) { animation-delay: 0.50s; }
+.waveform-bar.css-anim:nth-child(12) { animation-delay: 0.55s; }
+.waveform-bar.css-anim:nth-child(13) { animation-delay: 0.60s; }
+.waveform-bar.css-anim:nth-child(14) { animation-delay: 0.55s; }
+.waveform-bar.css-anim:nth-child(15) { animation-delay: 0.50s; }
+.waveform-bar.css-anim:nth-child(16) { animation-delay: 0.45s; }
+.waveform-bar.css-anim:nth-child(17) { animation-delay: 0.40s; }
+.waveform-bar.css-anim:nth-child(18) { animation-delay: 0.35s; }
+.waveform-bar.css-anim:nth-child(19) { animation-delay: 0.30s; }
+.waveform-bar.css-anim:nth-child(20) { animation-delay: 0.25s; }
+
+@keyframes wave-pulse {
+  0%   { height: 4px; }
+  50%  { height: 20px; }
+  100% { height: 8px; }
 }
 
 
