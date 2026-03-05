@@ -226,13 +226,12 @@ ClinicalFlowApp/
 │   │   ├── pms.rs                      # Open Dental MySQL sync (17KB)
 │   │   └── logging.rs                  # Structured logging (1.4KB)
 │   ├── binaries/                       # Sidecar executables (GITIGNORED)
-│   │   ├── whisper-cli-aarch64-apple-darwin      (3 MB)
-│   │   ├── whisper-server-aarch64-apple-darwin   (3.4 MB)
+│   │   ├── whisper-cli-aarch64-apple-darwin      (3 MB, not actively used)
+│   │   ├── whisper-server-aarch64-apple-darwin   (3.3 MB, Metal GPU-accelerated)
 │   │   └── html2pdf-aarch64-apple-darwin         (62 KB)
 │   ├── resources/
 │   │   ├── models/                     # Whisper ML models (GITIGNORED)
-│   │   │   ├── ggml-small.bin          (488 MB, multilingual)
-│   │   │   └── ggml-small.en.bin       (488 MB, English-only)
+│   │   │   └── ggml-large-v3-turbo-q5_0.bin  (574 MB, multilingual, quantized)
 │   │   ├── corrections.json            # Bundled English corrections
 │   │   ├── corrections-{de,es,fr,it,pt}.json
 │   │   └── fonts/                      # Custom fonts
@@ -327,7 +326,7 @@ ClinicalFlowApp/
 
 | Module | File | Lines | Purpose |
 |--------|------|-------|---------|
-| **audio** | `audio.rs` | ~1,013 | cpal audio capture, 16kHz resampling, whisper-server HTTP API, chunk management (3s + 0.5s overlap), silence detection, hallucination filtering, WAV writing |
+| **audio** | `audio.rs` | ~1,023 | cpal audio capture, 16kHz resampling, whisper-server HTTP API (persistent server, health checks), adaptive chunk management (2s default + 0.3s overlap, auto-scales 2–3s), silence detection, hallucination filtering, WAV writing, Metal GPU acceleration |
 | **auth** | `auth.rs` | ~217 | PIN creation/verification via Argon2id, `AppState` (authenticated flag, last_activity), auto-lock, PIN reset |
 | **crypto** | `crypto.rs` | ~84 | AES-256-GCM encrypt/decrypt, PBKDF2-HMAC-SHA256 key derivation (100k iterations), atomic file writes |
 | **license** | `license.rs` | ~245 | Session data encryption (compiled-in SESSION_KEY), license blob decryption (compiled-in LICENSE_KEY), device hash computation (SHA256 of hostname:username) |
@@ -403,7 +402,7 @@ window.ENV = {
 
 | Binary | Platform | Size | Purpose |
 |--------|----------|------|---------|
-| `whisper-server` | `aarch64-apple-darwin` | 3.4 MB | HTTP transcription server (Whisper.cpp), port auto-selected, model loaded at startup |
+| `whisper-server` | `aarch64-apple-darwin` | 3.3 MB | HTTP transcription server (Whisper.cpp), Metal GPU-accelerated, flash attention, persistent across recordings (zero cold start), port auto-selected, health-checked before each recording |
 | `whisper-cli` | `aarch64-apple-darwin` | 3.0 MB | CLI fallback (not actively used) |
 | `html2pdf` | `aarch64-apple-darwin` | 62 KB | Swift executable using WebKit `createPDF`, produces paginated PDF from HTML |
 
@@ -413,12 +412,11 @@ All binaries are **platform-specific** and **gitignored**. Compiled separately f
 
 | Resource | Size | Purpose |
 |----------|------|---------|
-| `models/ggml-small.bin` | 488 MB | Whisper small model (multilingual, 37 languages) |
-| `models/ggml-small.en.bin` | 488 MB | Whisper small model (English-only, higher accuracy) |
+| `models/ggml-large-v3-turbo-q5_0.bin` | 574 MB | Whisper large-v3-turbo model (multilingual, 100 languages, quantized q5_0, near-large accuracy at tiny speed) |
 | `corrections.json` (x6) | ~2 KB each | Phonetic error correction dictionaries (EN, DE, ES, FR, IT, PT) |
 | `fonts/` | — | Custom fonts for UI |
 
-Model search order: `large-v3-turbo` → `small` → `tiny` (multilingual preferred over `-en` variants).
+Model search order: `large-v3-turbo` → `large-v3-turbo-q5_0` → `small` → `tiny` (multilingual preferred over `-en` variants). Default shipped model: `ggml-large-v3-turbo-q5_0.bin` (574 MB).
 
 ### 3.5 Tauri Configuration
 
@@ -1300,9 +1298,10 @@ Microphone (cpal)
   ↓ Input stream (variable sample rate, i16 or f32)
   ↓ Resample to 16kHz mono i16 (linear interpolation)
   ↓ Continuous WAV file writer (crash-safe, periodic flush)
-  ↓ Chunk buffer (3 seconds + 0.5s overlap)
+  ↓ Chunk buffer (2s default, adaptive 2–3s + 0.3s overlap)
   ↓ RMS-based silence detection (threshold: 200.0)
-  ↓ HTTP POST to whisper-server (multipart/form-data)
+  ↓ HTTP POST to whisper-server (multipart/form-data, Metal GPU)
+  ↓ Adaptive performance monitoring (rolling 10-chunk window)
   ↓ Hallucination filtering (regex: "thank you", "(silence)", etc.)
   ↓ Medical term corrections (82+ patterns)
   ↓ Transcript event emitted to frontend
@@ -1310,22 +1309,37 @@ Microphone (cpal)
 
 **Constraints:**
 - Max recording: 4 hours per session (sample limit)
-- Chunk size: 3 seconds (+ 0.5s overlap for continuity)
+- Chunk size: 2 seconds default (adaptive: auto-scales to 3s if inference falls behind, back to 2s when headroom available)
+- Overlap: 0.3s (5000 samples) for continuity between chunks
+- Polling interval: 150ms (processing loop)
+- Inference timeout: 5s per chunk (fail-fast with Metal GPU)
 - `navigator.mediaDevices.getUserMedia()` NOT available in Tauri WKWebView
 - `cpal::Stream` is `!Send+!Sync` → wrapped in `StreamWrapper` with unsafe impl
+
+**Persistent Whisper Server:**
+- Server starts on first recording and stays alive across recordings (zero cold start)
+- `ensure_whisper_server()` health-checks existing server before each recording
+- Auto-restarts if server is unresponsive or language changed
+- Killed on app exit (RunEvent::Exit handler in lib.rs) or via `shutdown_whisper_server` command
+- Thread count capped at 6 to avoid overwhelming E-cores on Apple Silicon
 
 ### 11.2 Transcription Engines
 
 | Engine | Mode | Protocol | Key Features |
 |--------|------|----------|-------------|
-| **Deepgram Nova-3 Medical** | Online | WebSocket (`wss://`) | Medical vocabulary, speaker diarization, streaming, keyterm boosting (100 terms) |
-| **Whisper (whisper-server)** | Offline | HTTP POST (`localhost:{port}`) | Local inference, 37 languages, medical vocabulary prompt, model selection |
+| **Deepgram Nova-3 Medical** | Online (`online`) | WebSocket (`wss://`) | Medical vocabulary, speaker diarization, streaming, keyterm boosting (100 terms) |
+| **Groq Whisper** | Online (`groq`) | HTTPS POST (`api.groq.com`) | Whisper large-v3-turbo on cloud hardware, ~300ms latency, 4s chunks, medical vocab prompt, free tier (20 RPM / 7200 audio sec/hr) |
+| **Whisper (whisper-server)** | Offline (`offline`) | HTTP POST (`localhost:{port}`) | Metal GPU-accelerated, large-v3-turbo-q5_0 model, 100 languages, flash attention, persistent server (zero cold start), adaptive chunk sizing, medical vocabulary prompt |
 | **Web Speech API** | Fallback | Browser native | No setup required, limited accuracy |
 
-**Whisper model search order:** `large-v3-turbo` → `small` → `tiny` (multilingual before `-en`)
+**Config keys:** `ms-tx-mode` (values: `online`, `groq`, `offline`), `ms-dg-key` (Deepgram API key), `ms-groq-key` (Groq API key, starts with `gsk_`).
+
+**Groq integration:** Audio chunks are processed in the Rust backend (`send_to_groq()` in `audio.rs`), using 4-second chunks to stay within the 20 RPM free tier limit (15 RPM actual = 25% headroom). On error (429 rate limit, timeout, etc.), the chunk is skipped with a warning toast — no fallback to local Whisper mid-session (would require 10+ second model load). The recording continues uninterrupted.
+
+**Whisper model search order:** `large-v3-turbo` → `large-v3-turbo-q5_0` → `small` → `tiny` (multilingual before `-en`). Default shipped model: `large-v3-turbo-q5_0` (574 MB, near-large accuracy at tiny speed, 4 decoder layers).
 
 **Medical vocabulary prompt** (~5KB, embedded in binary):
-Covers medications (metformin, lisinopril...), conditions, anatomy, labs, vitals, dental terms.
+Covers medications (metformin, lisinopril...), conditions, anatomy, labs, vitals, dental terms. Used by both local Whisper and Groq modes.
 
 ### 11.3 Post-Processing
 
@@ -1697,8 +1711,8 @@ rustup default stable
 #    src-tauri/binaries/whisper-server-aarch64-apple-darwin
 #    src-tauri/binaries/html2pdf-aarch64-apple-darwin
 
-# 6. Place Whisper model (not in git — 488MB)
-#    src-tauri/resources/models/ggml-small.en.bin
+# 6. Place Whisper model (not in git — 574MB)
+#    src-tauri/resources/models/ggml-large-v3-turbo-q5_0.bin
 
 # 7. Launch dev mode
 PATH="/Users/aidengolub/.cargo/bin:/usr/local/bin:$PATH" npm run dev
@@ -1920,7 +1934,7 @@ Tests are run locally before committing. No automated test runner in CI (solo pr
 | `src-tauri/icons/` | 5 | App icons (png, icns, ico) |
 | `ClinicalFlowWebsite/` | ~22 | Marketing website (11 HTML pages + CSS + JS + SEO) |
 | `supabase/functions/` | 9 | Edge functions (7 functions + 2 shared modules) |
-| `supabase/migrations/` | 9 | Database schema (001–009) |
+| `supabase/migrations/` | 10 | Database schema (001–010) |
 | `chrome-extension/` | 6 | EHR paste extension (not distributed) |
 | `tests/` | 4 | Test suite |
 | `docs/` | ~5 | Documentation |

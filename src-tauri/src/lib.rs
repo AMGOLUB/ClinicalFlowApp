@@ -39,6 +39,7 @@ pub fn run() {
             audio::pause_recording,
             audio::resume_recording,
             audio::get_audio_devices,
+            audio::shutdown_whisper_server,
             storage::init_storage,
             storage::load_config,
             storage::save_config,
@@ -136,6 +137,18 @@ pub fn run() {
             }
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running ClinicalFlow");
+        .build(tauri::generate_context!())
+        .expect("error while building ClinicalFlow")
+        .run(|app, event| {
+            if let tauri::RunEvent::Exit = event {
+                // Clean up persistent whisper server on app exit
+                let state = app.state::<audio::RecordingState>();
+                let child = state.whisper_server_process.lock().unwrap().take();
+                if let Some(mut child) = child {
+                    tracing::info!("[app] Shutting down whisper-server on exit");
+                    let _ = child.kill();
+                    let _ = child.wait();
+                }
+            }
+        });
 }

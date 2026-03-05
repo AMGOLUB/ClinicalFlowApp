@@ -111,7 +111,7 @@ export const cfg = {
 /* Application State */
 export const App = {
   isRecording:false, isPaused:false, sessionStartTime:null, timerInterval:null, elapsed:0,
-  engine:'webspeech', transcriptionMode:'online', dgKey:'', dgSocket:null,
+  engine:'webspeech', transcriptionMode:'online', dgKey:'', groqKey:'', dgSocket:null,
   recognition:null, recognitionActive:false,
   audioCtx:null, analyser:null, stream:null, animFrame:null,
   mediaRecorder:null, audioChunks:[], audioBlob:null,

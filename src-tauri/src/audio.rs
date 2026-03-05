@@ -5,13 +5,19 @@ use hound::{WavSpec, WavWriter};
 use serde::Serialize;
 use std::io::BufWriter;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, Manager, State};
 
 // --- Constants ---
 
 const MAX_SESSION_SAMPLES: u64 = 16000 * 60 * 60 * 4; // 4 hours at 16kHz
+const DEFAULT_CHUNK_SAMPLES: usize = 16000 * 2; // 2 seconds at 16kHz
+const MIN_CHUNK_SAMPLES: usize = 16000 * 2; // Floor: 2 seconds
+const MAX_CHUNK_SAMPLES: usize = 16000 * 3; // Ceiling: 3 seconds (fallback)
+const PERF_WINDOW_SIZE: usize = 10; // Rolling window for inference time tracking
+const GROQ_CHUNK_SAMPLES: usize = 16000 * 4; // 4s chunks → 15 RPM (25% headroom under 20 RPM free tier)
+const GROQ_API_URL: &str = "https://api.groq.com/openai/v1/audio/transcriptions";
 
 // --- Types ---
 
@@ -46,9 +52,15 @@ pub struct RecordingState {
     wav_writer: Arc<Mutex<Option<WavWriter<BufWriter<std::fs::File>>>>>,
     wav_path: Arc<Mutex<Option<String>>>,
     total_samples: Arc<Mutex<u64>>,
-    whisper_server_process: Arc<Mutex<Option<std::process::Child>>>,
+    pub whisper_server_process: Arc<Mutex<Option<std::process::Child>>>,
     whisper_server_port: Arc<Mutex<u16>>,
     whisper_language: Arc<Mutex<String>>,
+    // Adaptive performance monitoring
+    current_chunk_samples: Arc<AtomicU64>,
+    inference_times: Arc<Mutex<Vec<f64>>>,
+    // Recording mode tracking (for stop_recording final chunk routing)
+    recording_mode: Arc<Mutex<String>>,
+    groq_api_key: Arc<Mutex<String>>,
 }
 
 impl Default for RecordingState {
@@ -67,6 +79,10 @@ impl Default for RecordingState {
             whisper_server_process: Arc::new(Mutex::new(None)),
             whisper_server_port: Arc::new(Mutex::new(0)),
             whisper_language: Arc::new(Mutex::new("en".to_string())),
+            current_chunk_samples: Arc::new(AtomicU64::new(DEFAULT_CHUNK_SAMPLES as u64)),
+            inference_times: Arc::new(Mutex::new(Vec::with_capacity(PERF_WINDOW_SIZE))),
+            recording_mode: Arc::new(Mutex::new(String::new())),
+            groq_api_key: Arc::new(Mutex::new(String::new())),
         }
     }
 }
@@ -297,9 +313,11 @@ fn start_whisper_server(
     port: u16,
     language: &str,
 ) -> Result<std::process::Child, String> {
+    // Cap threads at 6 to avoid overwhelming E-cores on Apple Silicon
     let threads = std::thread::available_parallelism()
         .map(|n| n.get())
         .unwrap_or(8)
+        .min(6)
         .max(4);
 
     tracing::info!(
@@ -315,6 +333,7 @@ fn start_whisper_server(
         .arg("--host")
         .arg("127.0.0.1")
         .arg("--no-timestamps")
+        .arg("--flash-attn")
         .arg("--language")
         .arg(language)
         .arg("-t")
@@ -387,7 +406,7 @@ async fn send_to_whisper_server(port: u16, wav_path: &PathBuf, language: &str) -
     let resp = reqwest::Client::new()
         .post(&url)
         .multipart(form)
-        .timeout(std::time::Duration::from_secs(10))
+        .timeout(std::time::Duration::from_secs(5))
         .send()
         .await
         .map_err(|e| format!("whisper-server request failed: {}", e))?;
@@ -412,12 +431,145 @@ async fn send_to_whisper_server(port: u16, wav_path: &PathBuf, language: &str) -
     Ok(cleaned)
 }
 
+// --- Helper: send audio to Groq cloud API ---
+
+async fn send_to_groq(api_key: &str, wav_path: &PathBuf, language: &str) -> Result<String, String> {
+    let wav_bytes = std::fs::read(wav_path)
+        .map_err(|e| format!("Failed to read WAV file: {}", e))?;
+
+    let part = reqwest::multipart::Part::bytes(wav_bytes)
+        .file_name("chunk.wav")
+        .mime_str("audio/wav")
+        .map_err(|e| format!("Failed to create multipart: {}", e))?;
+
+    let form = reqwest::multipart::Form::new()
+        .part("file", part)
+        .text("model", "whisper-large-v3-turbo")
+        .text("response_format", "text")
+        .text("language", language.to_string())
+        .text("temperature", "0.0")
+        .text("prompt", MEDICAL_PROMPT.to_string());
+
+    let resp = reqwest::Client::new()
+        .post(GROQ_API_URL)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .multipart(form)
+        .timeout(std::time::Duration::from_secs(10))
+        .send()
+        .await
+        .map_err(|e| format!("Groq API request failed: {}", e))?;
+
+    if resp.status().as_u16() == 429 {
+        return Err("rate_limited".to_string());
+    }
+
+    if !resp.status().is_success() {
+        let status = resp.status();
+        let body = resp.text().await.unwrap_or_default();
+        return Err(format!("Groq API returned status {}: {}", status, body));
+    }
+
+    let text = resp
+        .text()
+        .await
+        .map_err(|e| format!("Failed to read Groq response: {}", e))?;
+
+    let cleaned: String = text
+        .lines()
+        .map(|l| l.trim())
+        .filter(|l| !l.is_empty())
+        .collect::<Vec<&str>>()
+        .join(" ");
+
+    Ok(cleaned)
+}
+
 // --- Helper: kill the whisper-server process ---
 
 fn kill_whisper_server(process: &mut std::process::Child) {
     tracing::info!("[whisper-server] Shutting down (PID: {})", process.id());
     let _ = process.kill();
     let _ = process.wait();
+}
+
+// --- Helper: ensure whisper server is running (persistent, reused across recordings) ---
+
+async fn ensure_whisper_server(
+    app: &AppHandle,
+    state: &State<'_, RecordingState>,
+    language: &str,
+) -> Result<u16, String> {
+    let current_port = *state.whisper_server_port.lock().unwrap();
+    let current_lang = state.whisper_language.lock().unwrap().clone();
+
+    // If we have a server, check if it's alive and correct language
+    if current_port > 0 {
+        let needs_restart = current_lang != language;
+
+        if !needs_restart {
+            // Health check: quick GET to see if server is responsive
+            let health_ok = reqwest::Client::new()
+                .get(format!("http://127.0.0.1:{}/", current_port))
+                .timeout(std::time::Duration::from_secs(2))
+                .send()
+                .await
+                .map(|r| r.status().is_success())
+                .unwrap_or(false);
+
+            if health_ok {
+                tracing::info!("[whisper-server] Reusing existing server on port {} (healthy)", current_port);
+                return Ok(current_port);
+            }
+            tracing::warn!("[whisper-server] Existing server on port {} is unresponsive, restarting", current_port);
+        } else {
+            tracing::info!("[whisper-server] Language changed ({} → {}), restarting", current_lang, language);
+        }
+
+        // Kill the old server
+        if let Some(mut child) = state.whisper_server_process.lock().unwrap().take() {
+            kill_whisper_server(&mut child);
+        }
+        *state.whisper_server_port.lock().unwrap() = 0;
+    }
+
+    // Start a new server
+    let server_bin = find_whisper_server_binary(app)
+        .map_err(|e| { tracing::error!("{}", e); e })?;
+    let model_path = find_whisper_model(app)
+        .map_err(|e| { tracing::error!("{}", e); e })?;
+
+    tracing::info!("Found whisper-server: {:?}, model: {:?}", server_bin, model_path);
+
+    let port = find_free_port();
+    let mut child = start_whisper_server(&server_bin, &model_path, port, language)?;
+
+    let _ = app.emit("whisper_status", "Loading speech model...");
+
+    match tokio::time::timeout(
+        tokio::time::Duration::from_secs(30),
+        wait_for_whisper_server(port, 30),
+    )
+    .await
+    {
+        Ok(Ok(())) => {
+            tracing::info!("[whisper-server] Server ready on port {}", port);
+            let _ = app.emit("whisper_status", "Speech model ready");
+        }
+        Ok(Err(e)) => {
+            kill_whisper_server(&mut child);
+            return Err(e);
+        }
+        Err(_) => {
+            kill_whisper_server(&mut child);
+            return Err("whisper-server timed out loading model (30s)".to_string());
+        }
+    }
+
+    *state.whisper_server_process.lock().unwrap() = Some(child);
+    *state.whisper_server_port.lock().unwrap() = port;
+    *state.whisper_language.lock().unwrap() = language.to_string();
+
+    Ok(port)
 }
 
 // --- Medical vocabulary prompt for Whisper conditioning ---
@@ -544,6 +696,7 @@ pub async fn start_recording(
     state: State<'_, RecordingState>,
     mode: Option<String>,
     language: Option<String>,
+    groq_api_key: Option<String>,
 ) -> Result<(), String> {
     let mode = mode.unwrap_or_else(|| "whisper".to_string());
     let lang = language.unwrap_or_else(|| "en".to_string());
@@ -551,55 +704,23 @@ pub async fn start_recording(
         return Err("Already recording".to_string());
     }
 
+    // Store mode and groq key for stop_recording final chunk routing
+    *state.recording_mode.lock().unwrap() = mode.clone();
+    *state.groq_api_key.lock().unwrap() = groq_api_key.clone().unwrap_or_default();
+
     // Store language for use in processing loop
     *state.whisper_language.lock().unwrap() = lang.clone();
 
-    // Find whisper-server binary and model, start the server (only for whisper mode)
-    let whisper_port: u16 = if mode != "stream" {
-        let server_bin = find_whisper_server_binary(&app)
-            .map_err(|e| { tracing::error!("{}", e); e })?;
-        tracing::info!("Found whisper-server binary: {:?}", server_bin);
-
-        let model_path = find_whisper_model(&app)
-            .map_err(|e| { tracing::error!("{}", e); e })?;
-        tracing::info!("Found whisper model: {:?}", model_path);
-
-        let port = find_free_port();
-        let mut child = start_whisper_server(&server_bin, &model_path, port, &lang)?;
-
-        // Wait for server to be ready (model loading takes ~8-12s for small.en)
-        tracing::info!("[whisper-server] Waiting for model to load...");
-        let _ = app.emit("whisper_status", "Loading speech model...");
-
-        match tokio::time::timeout(
-            tokio::time::Duration::from_secs(30),
-            wait_for_whisper_server(port, 30),
-        )
-        .await
-        {
-            Ok(Ok(())) => {
-                tracing::info!("[whisper-server] Server ready on port {}", port);
-                let _ = app.emit("whisper_status", "Speech model ready");
-            }
-            Ok(Err(e)) => {
-                kill_whisper_server(&mut child);
-                tracing::error!("[whisper-server] {}", e);
-                return Err(e);
-            }
-            Err(_elapsed) => {
-                kill_whisper_server(&mut child);
-                let msg = "whisper-server timed out loading model (30s)".to_string();
-                tracing::error!("{}", msg);
-                return Err(msg);
-            }
-        }
-
-        *state.whisper_server_process.lock().unwrap() = Some(child);
-        *state.whisper_server_port.lock().unwrap() = port;
-        port
+    // Ensure whisper server is running (only for whisper mode — not groq or stream)
+    let whisper_port: u16 = if mode == "whisper" {
+        ensure_whisper_server(&app, &state, &lang).await?
     } else {
-        0 // not used in stream mode
+        0 // not used in stream or groq mode
     };
+
+    // Reset adaptive chunk size for new recording
+    state.current_chunk_samples.store(DEFAULT_CHUNK_SAMPLES as u64, Ordering::SeqCst);
+    state.inference_times.lock().unwrap().clear();
 
     // Get the default input device
     let host = cpal::default_host();
@@ -780,16 +901,16 @@ pub async fn start_recording(
                 let _ = app_handle.emit("audio-pcm", b64);
             }
         })
-    } else {
-        // ── WHISPER MODE: process audio chunks through whisper-server HTTP API ──
-        tracing::info!("[audio] Starting in WHISPER mode (audio → whisper-server HTTP → transcription)");
-        let chunk_samples = 16000 * 3; // 3 seconds at 16kHz
-        let silence_threshold: f64 = 200.0; // RMS below this = silence
+    } else if mode == "groq" {
+        // ── GROQ MODE: process audio chunks through Groq cloud API ──
+        tracing::info!("[audio] Starting in GROQ mode (audio → Groq cloud API → transcription)");
+        let silence_threshold: f64 = 200.0;
+        let groq_key = groq_api_key.unwrap_or_default();
 
         tokio::spawn(async move {
             loop {
                 if !is_recording.load(Ordering::SeqCst) { break; }
-                tokio::time::sleep(tokio::time::Duration::from_millis(250)).await;
+                tokio::time::sleep(tokio::time::Duration::from_millis(150)).await;
                 if is_paused_w.load(Ordering::SeqCst) { continue; }
 
                 // Check max session duration
@@ -807,11 +928,109 @@ pub async fn start_recording(
                 }
 
                 let buf_len = chunk_buffer.lock().unwrap().len();
-                if buf_len < chunk_samples {
+                if buf_len < GROQ_CHUNK_SAMPLES { continue; }
+
+                let overlap = 5000; // ~0.3s overlap at 16kHz
+                let chunk: Vec<i16> = {
+                    let mut buf = chunk_buffer.lock().unwrap();
+                    let chunk = buf[..GROQ_CHUNK_SAMPLES].to_vec();
+                    let drain_to = GROQ_CHUNK_SAMPLES - overlap;
+                    buf.drain(..drain_to);
+                    chunk
+                };
+
+                // Energy-based silence detection
+                let rms = {
+                    let sum_sq: f64 = chunk.iter().map(|&s| (s as f64) * (s as f64)).sum();
+                    (sum_sq / chunk.len() as f64).sqrt()
+                };
+                if rms < silence_threshold {
+                    tracing::debug!("[groq] Skipping silent chunk (RMS={:.0} < {})", rms, silence_threshold);
                     continue;
                 }
 
-                let overlap = 16000 / 2;
+                let tmp_dir = std::env::temp_dir();
+                let wav_path = tmp_dir.join("clinicalflow_groq_chunk.wav");
+                if let Err(e) = write_wav(&wav_path, &chunk, 16000) {
+                    tracing::error!("[groq] Failed to write chunk WAV: {}", e);
+                    continue;
+                }
+
+                let chunk_duration = chunk.len() as f64 / 16000.0;
+                tracing::info!("[groq] Processing chunk: {:.1}s of audio (RMS={:.0})", chunk_duration, rms);
+                let t0 = std::time::Instant::now();
+
+                let result = send_to_groq(&groq_key, &wav_path, &whisper_lang).await;
+
+                let processing_time = t0.elapsed().as_secs_f64();
+                tracing::info!("[groq] Processing took {:.2}s for {:.1}s chunk", processing_time, chunk_duration);
+
+                match result {
+                    Ok(text) => {
+                        let text = text.trim().to_string();
+                        tracing::info!("[groq] Transcribed: {} chars", text.len());
+                        if !text.is_empty() && !is_hallucination(&text) {
+                            let _ = app_handle.emit("transcription", TranscriptChunk {
+                                text,
+                                is_partial: false,
+                            });
+                        } else if !text.is_empty() {
+                            tracing::debug!("[groq] Filtered hallucination: {}", text);
+                        }
+                    }
+                    Err(e) if e == "rate_limited" => {
+                        tracing::warn!("[groq] Rate limited (429) — chunk skipped. Consider Groq Developer tier.");
+                        let _ = app_handle.emit("whisper_error",
+                            "Groq rate limited — chunk skipped. Recording continues.".to_string());
+                    }
+                    Err(e) => {
+                        tracing::error!("[groq] Failed on chunk: {}. Recording continues.", e);
+                        let _ = app_handle.emit("whisper_error",
+                            "Groq transcription error. Recording continues.".to_string());
+                    }
+                }
+
+                let _ = std::fs::remove_file(&wav_path);
+            }
+        })
+    } else {
+        // ── WHISPER MODE: process audio chunks through whisper-server HTTP API ──
+        tracing::info!("[audio] Starting in WHISPER mode (audio → whisper-server HTTP → transcription)");
+        let silence_threshold: f64 = 200.0; // RMS below this = silence
+        let current_chunk = state.current_chunk_samples.clone();
+        let inference_times = state.inference_times.clone();
+
+        tokio::spawn(async move {
+            loop {
+                if !is_recording.load(Ordering::SeqCst) { break; }
+                tokio::time::sleep(tokio::time::Duration::from_millis(150)).await;
+                if is_paused_w.load(Ordering::SeqCst) { continue; }
+
+                // Check max session duration
+                {
+                    let total = *total_samples_loop.lock().unwrap();
+                    if total >= MAX_SESSION_SAMPLES {
+                        tracing::warn!("Max session duration reached (4 hours), auto-stopping");
+                        is_recording.store(false, Ordering::SeqCst);
+                        if let Some(writer) = wav_writer_loop.lock().unwrap().take() {
+                            let _ = writer.finalize();
+                        }
+                        let _ = app_handle.emit("recording_max_duration", ());
+                        break;
+                    }
+                }
+
+                let chunk_samples = current_chunk.load(Ordering::SeqCst) as usize;
+                let buf_len = chunk_buffer.lock().unwrap().len();
+                if buf_len < chunk_samples {
+                    if buf_len > 0 && buf_len % 8000 < 150 {
+                        // Log occasionally while waiting for chunk to fill
+                        tracing::info!("[whisper] Buffer: {}/{} samples ({:.1}s/{:.1}s)", buf_len, chunk_samples, buf_len as f64 / 16000.0, chunk_samples as f64 / 16000.0);
+                    }
+                    continue;
+                }
+
+                let overlap = 5000; // ~0.3s overlap at 16kHz
                 let chunk: Vec<i16> = {
                     let mut buf = chunk_buffer.lock().unwrap();
                     let chunk = buf[..chunk_samples].to_vec();
@@ -826,7 +1045,7 @@ pub async fn start_recording(
                     (sum_sq / chunk.len() as f64).sqrt()
                 };
                 if rms < silence_threshold {
-                    tracing::debug!("[whisper] Skipping silent chunk (RMS={:.0} < {})", rms, silence_threshold);
+                    tracing::info!("[whisper] Skipping silent chunk (RMS={:.0} < {})", rms, silence_threshold);
                     continue;
                 }
 
@@ -838,16 +1057,47 @@ pub async fn start_recording(
                 }
 
                 let chunk_duration = chunk.len() as f64 / 16000.0;
-                tracing::debug!("[whisper-server] Processing chunk: {:.1}s of audio (RMS={:.0})", chunk_duration, rms);
+                tracing::info!("[whisper-server] Processing chunk: {:.1}s of audio (RMS={:.0})", chunk_duration, rms);
                 let t0 = std::time::Instant::now();
 
                 let result = send_to_whisper_server(whisper_port, &wav_path, &whisper_lang).await;
 
                 let processing_time = t0.elapsed().as_secs_f64();
-                tracing::debug!("[whisper-server] Processing took {:.2}s for {:.1}s chunk", processing_time, chunk_duration);
+                tracing::info!("[whisper-server] Processing took {:.2}s for {:.1}s chunk", processing_time, chunk_duration);
 
-                if processing_time > chunk_duration * 1.5 {
-                    tracing::warn!("[whisper-server] Falling behind: {:.2}s to process {:.1}s chunk", processing_time, chunk_duration);
+                // ── Adaptive performance monitoring ──
+                {
+                    let mut times = inference_times.lock().unwrap();
+                    if times.len() >= PERF_WINDOW_SIZE {
+                        times.remove(0);
+                    }
+                    times.push(processing_time);
+
+                    if times.len() >= 3 {
+                        let avg = times.iter().sum::<f64>() / times.len() as f64;
+                        if avg > chunk_duration {
+                            // Falling behind — increase chunk size to recover
+                            let new_chunk = (chunk_samples + 8000).min(MAX_CHUNK_SAMPLES);
+                            if new_chunk != chunk_samples {
+                                tracing::warn!(
+                                    "[whisper-server] Adaptive: avg inference {:.2}s > chunk {:.1}s, increasing to {:.1}s",
+                                    avg, chunk_duration, new_chunk as f64 / 16000.0
+                                );
+                                current_chunk.store(new_chunk as u64, Ordering::SeqCst);
+                                let _ = app_handle.emit("whisper_status", "Transcription running slower than realtime");
+                            }
+                        } else if avg < chunk_duration * 0.5 && chunk_samples > MIN_CHUNK_SAMPLES {
+                            // Plenty of headroom — could decrease (but stay at floor)
+                            let new_chunk = (chunk_samples - 4000).max(MIN_CHUNK_SAMPLES);
+                            if new_chunk != chunk_samples {
+                                tracing::info!(
+                                    "[whisper-server] Adaptive: avg inference {:.2}s << chunk {:.1}s, decreasing to {:.1}s",
+                                    avg, chunk_duration, new_chunk as f64 / 16000.0
+                                );
+                                current_chunk.store(new_chunk as u64, Ordering::SeqCst);
+                            }
+                        }
+                    }
                 }
 
                 match result {
@@ -918,7 +1168,7 @@ pub async fn stop_recording(
         let _ = tokio::time::timeout(tokio::time::Duration::from_secs(5), t).await;
     }
 
-    // Process any remaining audio in the chunk buffer through whisper-server
+    // Process any remaining audio in the chunk buffer
     let remaining: Vec<i16> = {
         let mut buf = state.chunk_buffer.lock().unwrap();
         let data = buf.clone();
@@ -926,15 +1176,23 @@ pub async fn stop_recording(
         data
     };
 
+    let rec_mode = state.recording_mode.lock().unwrap().clone();
     let server_port = *state.whisper_server_port.lock().unwrap();
     let final_lang = state.whisper_language.lock().unwrap().clone();
+    let final_groq_key = state.groq_api_key.lock().unwrap().clone();
 
-    if remaining.len() > 8000 && server_port > 0 {
-        // At least 0.5 seconds of audio remaining
+    if remaining.len() > 8000 {
         let tmp_dir = std::env::temp_dir();
         let tmp_wav_path = tmp_dir.join("clinicalflow_final_chunk.wav");
         if write_wav(&tmp_wav_path, &remaining, 16000).is_ok() {
-            match send_to_whisper_server(server_port, &tmp_wav_path, &final_lang).await {
+            let result = if rec_mode == "groq" && !final_groq_key.is_empty() {
+                send_to_groq(&final_groq_key, &tmp_wav_path, &final_lang).await
+            } else if server_port > 0 {
+                send_to_whisper_server(server_port, &tmp_wav_path, &final_lang).await
+            } else {
+                Err("No transcription backend available for final chunk".to_string())
+            };
+            match result {
                 Ok(text) => {
                     let text = text.trim().to_string();
                     if !text.is_empty() && !is_hallucination(&text) {
@@ -948,20 +1206,15 @@ pub async fn stop_recording(
                     }
                 }
                 Err(e) => {
-                    tracing::error!("[whisper-server] Failed on final chunk: {}", e);
+                    tracing::error!("[{}] Failed on final chunk: {}", rec_mode, e);
                 }
             }
             let _ = std::fs::remove_file(&tmp_wav_path);
         }
     }
 
-    // Shut down whisper-server
-    {
-        if let Some(mut child) = state.whisper_server_process.lock().unwrap().take() {
-            kill_whisper_server(&mut child);
-        }
-        *state.whisper_server_port.lock().unwrap() = 0;
-    }
+    // NOTE: whisper-server is intentionally kept alive for reuse across recordings.
+    // It will be shut down on app quit or via the shutdown_whisper_server command.
 
     // Clear session_samples buffer (continuous WAV writer already saved everything)
     state.session_samples.lock().unwrap().clear();
@@ -1009,4 +1262,15 @@ pub async fn get_audio_devices() -> Result<Vec<AudioDevice>, String> {
         });
     }
     Ok(result)
+}
+
+/// Shut down the persistent whisper server. Called on app quit or mode switch to online.
+#[tauri::command]
+pub async fn shutdown_whisper_server(state: State<'_, RecordingState>) -> Result<(), String> {
+    if let Some(mut child) = state.whisper_server_process.lock().unwrap().take() {
+        kill_whisper_server(&mut child);
+    }
+    *state.whisper_server_port.lock().unwrap() = 0;
+    tracing::info!("[whisper-server] Shut down via command");
+    Ok(())
 }

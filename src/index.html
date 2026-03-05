@@ -255,6 +255,16 @@
             <div class="wiz-mode-desc">Cloud transcription (Deepgram) + Cloud AI (Claude). Best accuracy, speaker diarization, requires internet and API keys.</div>
             <div class="wiz-mode-tag">Recommended</div>
           </div>
+          <div class="wiz-mode-card" data-mode="groq" id="wizModeGroq">
+            <div class="wiz-mode-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <div class="wiz-mode-title">Groq</div>
+            <div class="wiz-mode-desc">Cloud Whisper transcription + Cloud AI. Free API key, fast and accurate. No speaker diarization.</div>
+            <div class="wiz-mode-tag">Free & Fast</div>
+          </div>
           <div class="wiz-mode-card" data-mode="offline" id="wizModeOffline">
             <div class="wiz-mode-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -302,6 +312,39 @@
         <div class="wiz-nav">
           <button class="btn btn-secondary btn-md" id="wizBack3a">Back</button>
           <button class="btn btn-primary btn-md" id="wizNext3a">Continue</button>
+        </div>
+      </div>
+
+      <!-- Screen 3g: Groq Setup (Groq + Claude keys) -->
+      <div class="wiz-screen" id="wizScreen3g" style="display:none;">
+        <div class="wiz-step-label">Step 3 of 4</div>
+        <div class="wiz-heading">Groq Setup</div>
+        <div class="wiz-desc">Enter your API keys to enable Groq cloud transcription and AI note generation.</div>
+
+        <div class="wiz-key-group">
+          <label class="wiz-key-label">Groq API Key <span class="text-muted">(transcription)</span></label>
+          <div class="wiz-key-row">
+            <input type="password" class="input" id="wizGroqKey" placeholder="gsk_..." autocomplete="off" spellcheck="false">
+            <button class="btn btn-secondary btn-sm" id="wizTestGroq">Test</button>
+          </div>
+          <div class="wiz-key-status" id="wizGroqStatus"></div>
+          <div class="wiz-key-hint">Free key at <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a></div>
+        </div>
+
+        <div class="wiz-key-group">
+          <label class="wiz-key-label">Anthropic API Key <span class="text-muted">(AI notes)</span></label>
+          <div class="wiz-key-row">
+            <input type="password" class="input" id="wizClaudeKeyGroq" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+            <button class="btn btn-secondary btn-sm" id="wizTestClaudeGroq">Test</button>
+          </div>
+          <div class="wiz-key-status" id="wizClaudeStatusGroq"></div>
+          <div class="wiz-key-hint">Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></div>
+        </div>
+
+        <div class="wiz-note">You can change these anytime in Settings. Keys are encrypted with your PIN.</div>
+        <div class="wiz-nav">
+          <button class="btn btn-secondary btn-md" id="wizBack3g">Back</button>
+          <button class="btn btn-primary btn-md" id="wizNext3g">Continue</button>
         </div>
       </div>
 
@@ -1295,14 +1338,20 @@
           <div class="settings-row settings-row-stacked">
             <div class="settings-row-info">
               <div class="settings-row-label">Transcription</div>
-              <div class="settings-row-desc">Online uses cloud transcription for accuracy with speaker diarization. Offline uses Whisper AI locally — no internet required.</div>
+              <div class="settings-row-desc">Deepgram: cloud streaming with speaker diarization. Groq: fast cloud Whisper (free tier). Offline: local Whisper, no internet.</div>
             </div>
             <div class="theme-switcher" id="transcriptionModeToggle" style="margin-top:var(--space-2);">
-              <button class="theme-option active" data-mode="online" aria-label="Online transcription">
+              <button class="theme-option active" data-mode="online" aria-label="Deepgram transcription">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
                 </svg>
-                Online
+                Deepgram
+              </button>
+              <button class="theme-option" data-mode="groq" aria-label="Groq Whisper transcription">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Groq
               </button>
               <button class="theme-option" data-mode="offline" aria-label="Offline transcription">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1326,6 +1375,22 @@
             <div class="api-key-status disconnected" id="apiKeyStatus">
               <span class="status-dot"></span>
               <span id="apiKeyStatusText">No API key configured</span>
+            </div>
+          </div>
+
+          <!-- Groq Transcription Settings -->
+          <div id="groqTranscriptionSettings" style="display:none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-subtle);">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Groq API Key</div>
+              <div class="settings-row-desc">Fast cloud transcription powered by Whisper large-v3-turbo. Get a free key at <a href="https://console.groq.com" target="_blank" rel="noopener" class="settings-link">console.groq.com</a></div>
+            </div>
+            <div class="api-key-input-group">
+              <input type="password" class="input" id="groqKeyInput" placeholder="gsk_..." autocomplete="off" aria-label="Groq API key">
+              <button class="btn btn-primary btn-sm" id="saveGroqKeyBtn">Save</button>
+            </div>
+            <div class="api-key-status disconnected" id="groqStatus">
+              <span class="status-dot"></span>
+              <span id="groqStatusText">No API key configured</span>
             </div>
           </div>
 

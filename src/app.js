@@ -18,7 +18,7 @@ import { saveSession, clearSavedSession, getSavedSession, restoreSession,
          newSession, loadArchiveList } from './session.js';
 import { ollamaCheck, ollamaCheckWithRetry, saveOllamaSettings, loadOllamaSettings,
          loadClaudeKey, saveClaudeKey, updClaudeStatus, loadApiKey, saveApiKey,
-         updApiStatus, initToggles, initFmtSel, loadAccountSettings,
+         updApiStatus, loadGroqKey, saveGroqKey, updGroqStatus, initToggles, initFmtSel, loadAccountSettings,
          saveCustomTemplate, addTemplateSection, refreshFmtSel,
          loadEhrSettings, initEhrSettings } from './settings.js';
 import { checkAuthAndInit, _resetAutoLock, setAutoLockMs, clearAutoLockTimer } from './auth.js';
@@ -431,6 +431,13 @@ function initEvents(){
     D.dgInput.addEventListener('keydown',e=>{if(e.key==='Enter')saveApiKey();});
     D.dgInput.addEventListener('focus',()=>{if(D.dgInput.value.includes('•'))D.dgInput.value='';});
   }
+  const groqSave=document.getElementById('saveGroqKeyBtn');
+  if(groqSave)groqSave.addEventListener('click',saveGroqKey);
+  const groqInput=document.getElementById('groqKeyInput');
+  if(groqInput){
+    groqInput.addEventListener('keydown',e=>{if(e.key==='Enter')saveGroqKey();});
+    groqInput.addEventListener('focus',()=>{if(groqInput.value.includes('•'))groqInput.value='';});
+  }
   if(D.txModeToggle){
     D.txModeToggle.querySelectorAll('.theme-option').forEach(btn=>{
       btn.addEventListener('click',()=>{
@@ -439,6 +446,8 @@ function initEvents(){
         App.transcriptionMode=btn.dataset.mode;
         cfg.set('ms-tx-mode',App.transcriptionMode);
         if(D.onlineSettings)D.onlineSettings.style.display=App.transcriptionMode==='online'?'':'none';
+        const gs=document.getElementById('groqTranscriptionSettings');
+        if(gs)gs.style.display=App.transcriptionMode==='groq'?'':'none';
         updApiStatus();
       });
     });
@@ -589,7 +598,7 @@ async function initApp(){
     await cfg.load();
   }
 
-  cacheDOM();loadTheme();loadApiKey();loadOllamaSettings();loadClaudeKey();loadAccountSettings();loadEhrSettings();initToggles();initFmtSel();initKeys();initEvents();initEhrSettings();renderPmsSettings();initDemo();
+  cacheDOM();loadTheme();loadApiKey();loadGroqKey();loadOllamaSettings();loadClaudeKey();loadAccountSettings();loadEhrSettings();initToggles();initFmtSel();initKeys();initEvents();initEhrSettings();renderPmsSettings();initDemo();
   _populateLanguageSelect();
   hideDownloadBtns();
   loadCorrectionsDictionary();
