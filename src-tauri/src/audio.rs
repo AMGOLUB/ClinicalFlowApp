@@ -659,6 +659,20 @@ fn is_hallucination(text: &str) -> bool {
             return true;
         }
     }
+    // Non-ASCII gibberish: if >20% of chars are non-ASCII, likely hallucination
+    // (CJK, Cyrillic, Arabic etc. when expecting English medical transcription)
+    let total_alpha: usize = t.chars().filter(|c| c.is_alphabetic()).count();
+    if total_alpha > 0 {
+        let non_ascii: usize = t.chars().filter(|c| c.is_alphabetic() && !c.is_ascii()).count();
+        if non_ascii as f64 / total_alpha as f64 > 0.2 {
+            return true;
+        }
+    }
+    // Repeated punctuation/dots (". . . . . ." or "...")
+    let stripped: String = t.chars().filter(|c| !c.is_whitespace() && *c != '.').collect();
+    if stripped.len() < 3 && t.len() > 5 {
+        return true;
+    }
     false
 }
 
@@ -919,7 +933,7 @@ pub async fn start_recording(
     } else if mode == "groq" {
         // ── GROQ MODE: process audio chunks through Groq cloud API ──
         tracing::info!("[audio] Starting in GROQ mode (audio → Groq cloud API → transcription)");
-        let silence_threshold: f64 = 200.0;
+        let silence_threshold: f64 = 300.0; // Higher than whisper — cloud calls are expensive on silence
         let groq_key = groq_api_key.unwrap_or_default();
 
         tokio::spawn(async move {
