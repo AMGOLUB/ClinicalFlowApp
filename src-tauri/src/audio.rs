@@ -714,6 +714,12 @@ pub async fn start_recording(
     let wav_writer_cb = state.wav_writer.clone();
     let total_samples_cb = state.total_samples.clone();
 
+    // Audio level emission (throttled to ~15fps for waveform visualization)
+    let level_app = app.clone();
+    let last_level_emit = std::sync::Arc::new(std::sync::Mutex::new(std::time::Instant::now()));
+    let last_level_emit2 = last_level_emit.clone();
+    let level_app2 = app.clone();
+
     // Build the cpal input stream
     let stream = match config.sample_format() {
         SampleFormat::I16 => device.build_input_stream(
@@ -723,6 +729,17 @@ pub async fn start_recording(
                     return;
                 }
                 let resampled = resample_to_16k_mono(data, source_rate, channels);
+
+                // Emit audio level for waveform (~15fps)
+                if let Ok(mut last) = last_level_emit.lock() {
+                    if last.elapsed().as_millis() >= 66 {
+                        let sum_sq: f64 = resampled.iter().map(|&s| (s as f64) * (s as f64)).sum();
+                        let rms = (sum_sq / resampled.len().max(1) as f64).sqrt();
+                        let level = (rms / 8000.0).min(1.0); // Normalize to 0.0–1.0
+                        let _ = level_app.emit("audio_level", level);
+                        *last = std::time::Instant::now();
+                    }
+                }
 
                 // Write to continuous WAV file (crash-safe)
                 if let Ok(mut guard) = wav_writer_cb.lock() {
@@ -765,6 +782,17 @@ pub async fn start_recording(
                         .map(|&s| (s * 32767.0).clamp(-32768.0, 32767.0) as i16)
                         .collect();
                     let resampled = resample_to_16k_mono(&i16_data, source_rate, channels);
+
+                    // Emit audio level for waveform (~15fps)
+                    if let Ok(mut last) = last_level_emit2.lock() {
+                        if last.elapsed().as_millis() >= 66 {
+                            let sum_sq: f64 = resampled.iter().map(|&s| (s as f64) * (s as f64)).sum();
+                            let rms = (sum_sq / resampled.len().max(1) as f64).sqrt();
+                            let level = (rms / 8000.0).min(1.0);
+                            let _ = level_app2.emit("audio_level", level);
+                            *last = std::time::Instant::now();
+                        }
+                    }
 
                     // Write to continuous WAV file (crash-safe)
                     if let Ok(mut guard) = wav_writer_cb.lock() {
