@@ -23,6 +23,8 @@ export async function animWave(){
         const level=ev.payload; // 0.0–1.0
         const n=D.waveBars.length;
         const mid=n/2;
+        // Real data arrived — remove CSS fallback animation
+        D.waveBars.forEach(b=>b.classList.remove('css-anim'));
         for(let i=0;i<n;i++){
           // Create a natural wave shape: louder in center, tapering at edges
           const dist=Math.abs(i-mid)/mid;
@@ -34,8 +36,8 @@ export async function animWave(){
         }
       });
     }
-    // Mark bars as active immediately
-    D.waveBars.forEach(b=>b.classList.remove('inactive'));
+    // CSS animation as immediate fallback; real levels will override if events arrive
+    D.waveBars.forEach(b=>{b.classList.remove('inactive');b.classList.add('css-anim');});
     return;
   }
   if(!App.analyser){resetWave();return;}
