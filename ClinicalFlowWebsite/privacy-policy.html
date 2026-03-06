@@ -878,11 +878,6 @@ window.addEventListener('scroll', () => {
   else nav.classList.remove('scrolled');
 }, { passive: true });
 
-// ── Mobile nav toggle ──────────────────────
-document.getElementById('navToggle')?.addEventListener('click', () => {
-  document.getElementById('navLinks')?.classList.toggle('nav-links--open');
-});
-
 // ── Smooth scroll for TOC links ────────────
 document.querySelectorAll('.legal-toc a').forEach(link => {
   link.addEventListener('click', (e) => {
@@ -896,6 +891,7 @@ document.querySelectorAll('.legal-toc a').forEach(link => {
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="main.js"></script>
 <script src="auth-nav.js"></script>
 </body>
 </html>

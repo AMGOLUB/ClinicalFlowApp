@@ -955,11 +955,6 @@ function tryLaunch() {
   }, 1500);
 }
 
-// ─── Mobile nav toggle ───
-document.getElementById('navToggle')?.addEventListener('click', () => {
-  document.getElementById('navLinks')?.classList.toggle('nav-links--open');
-});
-
 // ─── Scroll reveal ───
 const revealEls = document.querySelectorAll('.reveal');
 const revealObserver = new IntersectionObserver((entries) => {
@@ -1101,6 +1096,7 @@ document.body.addEventListener('keydown', (e) => {
   } catch (_) {}
 })();
 </script>
+<script src="main.js"></script>
 <script src="auth-nav.js"></script>
 
 </body>

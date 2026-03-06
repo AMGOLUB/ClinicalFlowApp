@@ -703,12 +703,9 @@ window.addEventListener('scroll', () => {
   lastScroll = window.scrollY;
 }, { passive: true });
 
-// ── Mobile nav toggle ──────────────────────
-document.getElementById('navToggle')?.addEventListener('click', () => {
-  document.getElementById('navLinks')?.classList.toggle('nav-links--open');
-});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="main.js"></script>
 <script src="auth-nav.js"></script>
 </body>
 </html>

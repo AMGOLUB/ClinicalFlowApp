@@ -1066,13 +1066,6 @@ window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 20);
 }, { passive: true });
 
-// ─── Mobile nav toggle ───
-const navToggle = document.getElementById('navToggle');
-const navLinks = document.getElementById('navLinks');
-navToggle.addEventListener('click', () => {
-  navLinks.classList.toggle('nav-links--open');
-});
-
 // ─── Scroll reveal ───
 const revealEls = document.querySelectorAll('.reveal');
 const revealObserver = new IntersectionObserver((entries) => {
@@ -1135,6 +1128,7 @@ document.body.addEventListener('keydown', (e) => {
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="main.js"></script>
 <script src="auth-nav.js"></script>
 
 </body>
