@@ -1681,16 +1681,32 @@ body.using-mouse *:focus { outline: none; }
   }
 
   /* Footer */
+  .footer { padding: 40px 0 32px; }
   .footer-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    gap: 24px 20px;
+    margin-bottom: 32px;
   }
-  .footer-brand { grid-column: 1 / -1; }
-  .footer-bottom {
-    flex-direction: column;
-    gap: 12px;
+  .footer-brand {
+    grid-column: 1 / -1;
+    margin-bottom: 8px;
     text-align: center;
   }
+  .footer-brand p {
+    max-width: none;
+    margin: 8px auto 0;
+  }
+  .footer-brand .nav-logo {
+    justify-content: center;
+  }
+  .footer-col h5 { margin-bottom: 10px; }
+  .footer-col a { padding: 3px 0; }
+  .footer-bottom {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  .footer-bottom-links { gap: 16px; justify-content: center; }
 
   /* ── Mobile card padding reduction ── */
   .problem-stat { padding: 28px 20px; }
@@ -1730,7 +1746,16 @@ body.using-mouse *:focus { outline: none; }
 @media (max-width: 480px) {
   .container { padding: 0 16px; }
   .btn--lg { padding: 16px 28px; font-size: 15px; }
-  .footer-grid { grid-template-columns: 1fr; }
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+  .footer-col a { display: inline; padding: 0; }
+  .footer-col a::after { content: " · "; color: var(--text-tertiary); font-size: 11px; }
+  .footer-col a:last-child::after { content: ""; }
+  .footer-col h5 { margin-bottom: 6px; }
+  .footer-bottom-links { flex-wrap: wrap; gap: 12px; }
 
   /* ── Buttons ── */
   .btn { font-size: 14px; padding: 12px 24px; }
