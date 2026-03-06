@@ -53,18 +53,17 @@
     backdrop.className = 'nav-mobile-backdrop';
     document.body.appendChild(backdrop);
 
-    // Inject mobile CTA buttons into the menu
+    // Inject mobile CTA buttons into the menu (Log In + Sign Up only)
     const navCta = document.querySelector('.nav-cta');
     if (navCta && !navLinks.querySelector('.nav-mobile-cta')) {
       const mobileCta = document.createElement('li');
       mobileCta.className = 'nav-mobile-cta';
-      // Clone CTA buttons, adapting for mobile
       const links = navCta.querySelectorAll('a');
       links.forEach(a => {
+        // Skip "Docs" link on mobile for compactness
+        if (a.textContent.trim() === 'Docs') return;
         const clone = a.cloneNode(true);
-        // Make all buttons visible in mobile menu
-        clone.classList.remove('btn--ghost');
-        // Keep primary as primary, make others secondary
+        clone.classList.remove('btn--ghost', 'btn--sm');
         if (!a.classList.contains('btn--primary')) {
           clone.classList.add('btn--secondary');
         }
