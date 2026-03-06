@@ -1567,10 +1567,60 @@ body.using-mouse *:focus { outline: none; }
     gap: 12px;
     text-align: center;
   }
+
+  /* ── Mobile card padding reduction ── */
+  .problem-stat { padding: 28px 20px; }
+  .step-card { padding: 28px 20px; }
+  .mode-card { padding: 32px 24px; }
+  .format-card { padding: 24px 20px; }
+  .security-card { padding: 24px 20px; }
+  .download-card { padding: 28px 20px; }
+  .dental-card { padding: 24px 20px; }
+
+  /* ── Grid gap reduction for single-column stacks ── */
+  .problem-stats,
+  .steps-grid,
+  .modes-grid,
+  .formats-grid,
+  .security-grid,
+  .download-cards { gap: 16px; }
+
+  /* ── Hero background orbs (prevent viewport overflow) ── */
+  .hero::before { width: 100vw; height: 400px; }
+  .hero::after { width: 300px; height: 300px; right: -150px; top: 50px; }
+
+  /* ── Trust logos ── */
+  .trust-logo-item { width: 80px; padding: 12px 6px; font-size: 11px; gap: 6px; }
+  .trust-logo-item svg { width: 20px; height: 20px; }
+
+  /* ── Footer text sizes ── */
+  .footer-brand p { font-size: 13px; }
+  .footer-col h5 { font-size: 12px; }
+  .footer-col a { font-size: 13px; }
+  .footer-bottom, .footer-bottom-links a { font-size: 12px; }
+
+  /* ── Problem stat number ── */
+  .problem-stat-number { font-size: 36px; }
 }
 
 @media (max-width: 480px) {
   .container { padding: 0 16px; }
   .btn--lg { padding: 16px 28px; font-size: 15px; }
   .footer-grid { grid-template-columns: 1fr; }
+
+  /* ── Buttons ── */
+  .btn { font-size: 14px; padding: 12px 24px; }
+  .btn--sm { font-size: 13px; padding: 8px 16px; }
+
+  /* ── Hero orbs ── */
+  .hero::before { height: 300px; }
+  .hero::after { display: none; }
+
+  /* ── Trust logos ── */
+  .trust-logos { gap: 8px; }
+  .trust-logo-item { width: 72px; padding: 10px 4px; font-size: 10px; }
+
+  /* ── Problem stats ── */
+  .problem-stat-number { font-size: 32px; }
+  .problem-stat { padding: 24px 16px; }
 }

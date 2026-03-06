@@ -325,6 +325,26 @@
       .team-grid { grid-template-columns: 1fr; max-width: 360px; }
       .why-grid { grid-template-columns: 1fr; }
       .about-cta .btn-group { flex-direction: column; align-items: center; }
+      .value-card { padding: 24px 20px; }
+      .team-card { padding: 24px 20px; }
+      .why-card { padding: 24px 20px; }
+      .story-visual { padding: 28px 20px; }
+      .about-hero::before { width: 100vw; height: 350px; }
+      .about-hero { padding: calc(var(--nav-height) + 48px) 0 48px; }
+      .about-hero h1 { font-size: clamp(28px, 7vw, 40px); }
+      .about-hero p { font-size: 16px; }
+      .about-section-header h2 { font-size: 26px; }
+      .about-section-header p { font-size: 15px; }
+      .about-cta { padding: 60px 0 80px; }
+      .about-cta h2 { font-size: 26px; }
+      .about-cta p { font-size: 15px; }
+      .story-stat-value { font-size: 32px; }
+    }
+    @media (max-width: 480px) {
+      .why-card { flex-direction: column; gap: 12px; }
+      .team-avatar { width: 64px; height: 64px; font-size: 22px; }
+      .about-hero h1 { font-size: clamp(24px, 6vw, 32px); }
+      .about-cta .btn-group .btn { width: 100%; max-width: 300px; }
     }
   </style>
 </head>

@@ -507,6 +507,19 @@
       .gs-hero { padding: calc(var(--nav-height) + 48px) 0 48px; }
       .calc-card { padding: 36px 24px; }
       .calc-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .step-card { padding: 28px 20px; }
+      .stat-card { padding: 24px 20px; }
+      .chart-card { padding: 24px 20px; }
+      .session-list-card { padding: 24px 20px; }
+      .stat-card-value { font-size: 28px; }
+      .calc-result-value { font-size: 36px; }
+    }
+    @media (max-width: 480px) {
+      .stat-card-value { font-size: 24px; }
+      .calc-result-value { font-size: 30px; }
+      .calc-input { width: 70px; font-size: 14px; padding: 8px 10px; }
+      .calc-unit { font-size: 12px; }
+      .gs-hero h1 { font-size: clamp(28px, 7vw, 40px); }
     }
   </style>
 </head>
