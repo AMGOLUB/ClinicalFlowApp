@@ -8,19 +8,20 @@
   background: var(--bg-white);
 }
 
-/* ─── NAV OVERRIDE (center everything) ─── */
+/* ─── NAV OVERRIDE (logo + home + search, centered) ─── */
 .docs-body .nav-inner {
   justify-content: center;
-  gap: 20px;
+  gap: 24px;
 }
 .docs-body .nav-logo {
   margin-right: 0;
 }
 .docs-body .nav-links {
   margin: 0;
+  gap: 0;
 }
-.docs-body .nav-cta {
-  margin-left: 0;
+.docs-body .docs-search {
+  flex: 0 1 400px;
 }
 
 /* ─── LAYOUT ─── */
