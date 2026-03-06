@@ -8,6 +8,21 @@
   background: var(--bg-white);
 }
 
+/* ─── NAV OVERRIDE (center everything) ─── */
+.docs-body .nav-inner {
+  justify-content: center;
+  gap: 20px;
+}
+.docs-body .nav-logo {
+  margin-right: 0;
+}
+.docs-body .nav-links {
+  margin: 0;
+}
+.docs-body .nav-cta {
+  margin-left: 0;
+}
+
 /* ─── LAYOUT ─── */
 .docs-layout {
   display: grid;
