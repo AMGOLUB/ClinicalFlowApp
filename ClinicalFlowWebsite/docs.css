@@ -40,10 +40,11 @@
   padding: 0 20px;
 }
 
-/* ─── SEARCH ─── */
+/* ─── DOCS SEARCH (nav bar) ─── */
 .docs-search {
-  margin-bottom: 20px;
   position: relative;
+  margin: 0 16px;
+  flex: 0 1 260px;
 }
 .docs-search-box {
   position: relative;
@@ -53,56 +54,57 @@
 .docs-search-icon {
   position: absolute;
   left: 10px;
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   color: var(--text-tertiary);
   pointer-events: none;
 }
 .docs-search-input {
   width: 100%;
-  padding: 8px 36px 8px 32px;
+  padding: 6px 34px 6px 30px;
   font-size: 13px;
   font-family: inherit;
   color: var(--text-primary);
-  background: var(--bg-white);
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 .docs-search-input::placeholder {
   color: var(--text-tertiary);
 }
 .docs-search-input:focus {
   border-color: var(--accent);
+  background: var(--bg-white);
   box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
 }
 .docs-search-kbd {
   position: absolute;
-  right: 8px;
-  padding: 1px 6px;
-  font-size: 11px;
+  right: 7px;
+  padding: 0 5px;
+  font-size: 10px;
   font-family: inherit;
   color: var(--text-tertiary);
-  background: var(--bg);
+  background: var(--bg-white);
   border: 1px solid var(--border);
   border-radius: 4px;
   pointer-events: none;
-  line-height: 1.5;
+  line-height: 1.6;
   transition: opacity 0.15s;
 }
 .docs-search-results {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   left: 0;
-  right: 0;
-  max-height: 360px;
+  min-width: 380px;
+  max-height: 420px;
   overflow-y: auto;
   background: var(--bg-white);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  z-index: 100;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+  z-index: 200;
   display: none;
   scrollbar-width: thin;
 }
@@ -160,13 +162,20 @@
   border-bottom: 1px solid var(--border-light, rgba(0,0,0,0.05));
   font-weight: 500;
 }
-
-/* Highlight matches in articles */
-.docs-article mark.search-highlight {
-  background: rgba(8, 145, 178, 0.18);
-  color: inherit;
-  padding: 1px 2px;
-  border-radius: 2px;
+@media (max-width: 768px) {
+  .docs-search {
+    flex: 1 1 auto;
+    margin: 0 8px;
+    max-width: 180px;
+  }
+  .docs-search-results {
+    min-width: 300px;
+    left: auto;
+    right: 0;
+  }
+}
+@media (max-width: 480px) {
+  .docs-search { display: none; }
 }
 
 .docs-sidebar-group {
