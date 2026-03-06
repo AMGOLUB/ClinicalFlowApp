@@ -9,6 +9,9 @@ src/env.js
 .env
 .env.*
 
+# Infrastructure doc (contains credentials)
+docs/INFRASTRUCTURE.md
+
 # macOS
 .DS_Store
 
