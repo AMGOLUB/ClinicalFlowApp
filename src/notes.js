@@ -10,7 +10,8 @@ import { estimateTokens as _estimateTokens, formatNoteMarkdown as _formatNoteMar
          parseOllamaResponse as _parseOllamaResponse } from './pure.js';
 import { getTemplateRegistry, CODING_PROMPT, DENTAL_CODING_PROMPT } from './templates.js';
 import { formatDentalChartForPrompt, isDentalTemplate, parseDentalFindingsFromNote, applyParsedFindings, buildDentalChartExportSVG, buildDentalFindingsExportHTML } from './dental-chart.js';
-import { getLanguageLabel, isEnglish } from './languages.js';
+import { getLanguageLabel, isEnglish, getWhisperCode } from './languages.js';
+import { tauriListen } from './state.js';
 
 /* Show note action buttons — core always, optional gated by settings */
 export function updateNoteActions(){
@@ -370,16 +371,21 @@ export function parseOllamaResponse(text){
 }
 
 /* Note Generation — routes to Cloud AI, Ollama, or rule-based */
+let _generating=false;
 export async function generateNote(){
+  if(_generating){return;}
   if(App.entries.length===0){toast('No transcript to generate from.','warning');return;}
   if(App.isRecording){toast('Stop recording first.','warning');return;}
-  if(App.aiEngine==='cloud'&&App.claudeKey){await generateCloudNote();}
-  else if(App.aiEngine==='ollama'&&App.ollamaConnected){await generateOllamaNote();}
-  else{
-    if(App.aiEngine==='cloud'&&!App.claudeKey){toast('No API key. Add your Anthropic key in Settings, or switch to Ollama.','warning',5000);}
-    else if(App.aiEngine==='ollama'&&!App.ollamaConnected){toast('Ollama not connected. Using rule-based fallback.','warning',4000);}
-    await generateRuleBasedNote();
-  }
+  _generating=true;
+  try{
+    if(App.aiEngine==='cloud'&&App.claudeKey){await generateCloudNote();}
+    else if(App.aiEngine==='ollama'&&App.ollamaConnected){await generateOllamaNote();}
+    else{
+      if(App.aiEngine==='cloud'&&!App.claudeKey){toast('No API key. Add your Anthropic key in Settings, or switch to Ollama.','warning',5000);}
+      else if(App.aiEngine==='ollama'&&!App.ollamaConnected){toast('Ollama not connected. Using rule-based fallback.','warning',4000);}
+      await generateRuleBasedNote();
+    }
+  }finally{_generating=false;}
 }
 
 async function generateOllamaNote(){
@@ -853,7 +859,7 @@ export async function copyCoding(){
     for(const f of r.audit_flags)text+=`  ℹ ${f}\n`;
   }
   try{await navigator.clipboard.writeText(text);toast('Codes copied','success');}
-  catch(e){toast('Copy failed','error');}
+  catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Codes copied','success');}
 }
 
 /* Dental extraction: AI primary → regex supplement → regex-only fallback */
@@ -883,25 +889,455 @@ async function _extractAndApplyDental(fullText){
   }
 }
 
-/* Note Rendering */
+/* Note Rendering — line-level editing with move/add/delete/drag controls */
+
+/** Read live text from a section body (line-text spans only, ignoring action buttons) */
+function _readSectionText(key){
+  const body=document.getElementById(`section-${key}`);
+  if(!body)return null;
+  return[...body.querySelectorAll('.note-line-text')].map(el=>el.textContent).join('\n');
+}
+
+/** Split section content into lines by newlines */
+function _splitIntoLines(content){
+  const results=[];
+  for(const ln of content.split('\n')){
+    results.push(ln);
+  }
+  return results;
+}
+
+function _syncSectionData(key){
+  const body=document.getElementById(`section-${key}`);if(!body)return;
+  const lines=[...body.querySelectorAll('.note-line-text')].map(el=>el.textContent);
+  const s=App.noteSections.sections.find(x=>x.key===key);
+  if(s)s.content=lines.join('\n');
+}
+
+/* ── Line Dictation (Deepgram streaming) ── */
+
+/** Process raw dictation text: spoken punctuation → symbols, lowercase except after sentence-enders */
+function _processDictText(raw){
+  // Spoken punctuation map
+  const punctMap={
+    'period':'.','full stop':'.','dot':'.','comma':',','question mark':'?',
+    'exclamation mark':'!','exclamation point':'!','colon':':','semicolon':';',
+    'hyphen':'-','dash':'-','open parenthesis':'(','close parenthesis':')',
+    'open bracket':'(','close bracket':')','slash':'/','backslash':'\\',
+    'ampersand':'&','at sign':'@','hashtag':'#','percent':'%','plus sign':'+',
+    'equals sign':'=','new line':'\n','newline':'\n',
+  };
+  let text=raw;
+  // Replace spoken punctuation (case-insensitive, whole word boundaries)
+  // Match with optional surrounding spaces so we can collapse them
+  for(const[spoken,sym] of Object.entries(punctMap)){
+    const escaped=spoken.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    text=text.replace(new RegExp('\\s*\\b'+escaped+'\\b\\s*','gi'),sym);
+  }
+  // Clean up any remaining space before punctuation (e.g. "word ." → "word.")
+  text=text.replace(/\s+([.,;:!?\-)\]\/\\%])/g,'$1');
+  // Ensure space after punctuation when followed by a letter (e.g. "word.next" → "word. next")
+  text=text.replace(/([.,;:!?])(\w)/g,'$1 $2');
+  // No space after opening parens/brackets
+  text=text.replace(/([(\[])\s+/g,'$1');
+  // Lowercase everything, then capitalize after sentence-ending punctuation
+  text=text.toLowerCase();
+  text=text.replace(/([.!?]\s+)(\w)/g,(_,p,c)=>p+c.toUpperCase());
+  // Apply medical corrections dictionary
+  text=applyLiveCorrections(text);
+  return text;
+}
+
+/** Capitalize first character and after sentence-ending punctuation */
+function _capitalizeSentenceStart(text){
+  if(!text)return text;
+  // Capitalize very first letter
+  let result=text.replace(/^(\s*)(\w)/,(_, ws, c)=>ws+c.toUpperCase());
+  // Capitalize after . ! ?
+  result=result.replace(/([.!?]\s+)(\w)/g,(_,p,c)=>p+c.toUpperCase());
+  return result;
+}
+
+let _dictPcmUnlisten=null;
+let _dictSocket=null;
+let _dictRecognition=null;
+let _dictMicBtn=null;
+let _dictKA=null;
+let _dictClickHandler=null;
+// Mutable insert-point state — updated when user clicks during active dictation
+let _dictBefore='';
+let _dictAfter='';
+let _dictLastCursorPos=null; // saved before mic button steals focus
+
+function _saveCursorPos(){
+  const sel=window.getSelection();
+  if(!sel.rangeCount)return;
+  const r=sel.getRangeAt(0);
+  const node=r.startContainer;
+  const span=node.nodeType===3?node.parentElement:node;
+  if(span&&span.classList&&span.classList.contains('note-line-text')){
+    _dictLastCursorPos={span,startOffset:r.startOffset,endOffset:r.endOffset,startNode:r.startContainer,endNode:r.endContainer,collapsed:r.collapsed};
+  }
+}
+
+function _getSelectionOffsets(txtSpan){
+  const sel=window.getSelection();
+  const full=txtSpan.textContent;
+  if(!sel.rangeCount)return{start:full.length,end:full.length};
+  const r=sel.getRangeAt(0);
+  // Check that selection is within this span
+  const sc=r.startContainer.nodeType===3?r.startContainer.parentElement:r.startContainer;
+  if(sc!==txtSpan&&sc.parentElement!==txtSpan)return{start:full.length,end:full.length};
+  const start=Math.min(r.startOffset,full.length);
+  const end=r.collapsed?start:Math.min(r.endOffset,full.length);
+  return{start,end};
+}
+
+function _splitAtSelection(txtSpan,start,end){
+  const full=txtSpan.textContent;
+  _dictBefore=full.slice(0,start);
+  _dictAfter=full.slice(end); // skip selected text — it gets replaced
+  App.dictationTarget=txtSpan;
+}
+
+function _onDictClick(e){
+  if(!App.dictationActive)return;
+  const txtSpan=e.target.closest('.note-line-text');
+  if(!txtSpan)return;
+  // Use microtask so selection is updated after click
+  setTimeout(()=>{
+    const{start,end}=_getSelectionOffsets(txtSpan);
+    _splitAtSelection(txtSpan,start,end);
+  },0);
+}
+
+async function _startDictation(txtSpan,micBtn){
+  App.dictationTarget=txtSpan;
+  App.dictationActive=true;
+  _dictMicBtn=micBtn;
+  micBtn.classList.add('nl-mic-active');
+
+  // Determine initial insert position (supports highlighted selection replacement)
+  const fullText=txtSpan.textContent;
+  let startOff=fullText.length, endOff=fullText.length;
+  if(_dictLastCursorPos&&_dictLastCursorPos.span===txtSpan){
+    startOff=Math.min(_dictLastCursorPos.startOffset,fullText.length);
+    endOff=_dictLastCursorPos.collapsed?startOff:Math.min(_dictLastCursorPos.endOffset,fullText.length);
+  }
+  _dictLastCursorPos=null;
+  _dictBefore=fullText.slice(0,startOff);
+  _dictAfter=fullText.slice(endOff); // skip selected text — replaced by dictation
+
+  // Listen for clicks to reposition insert point during dictation
+  const noteContent=document.querySelector('.note-content');
+  if(noteContent){
+    _dictClickHandler=_onDictClick;
+    noteContent.addEventListener('click',_dictClickHandler,true);
+  }
+
+  if(tauriInvoke){
+    const key=App.dgKey;
+    if(!key){toast('No Deepgram API key — set it in Settings','error');_stopDictation();return;}
+    try{
+      await tauriInvoke('start_recording',{mode:'stream',language:App.language});
+
+      const p=new URLSearchParams({model:'nova-3-medical',language:App.language,smart_format:'false',punctuate:'false',interim_results:'true',utterance_end_ms:'1500',encoding:'linear16',sample_rate:'16000',channels:'1'});
+      // Add medical keyterms (same dictionary as main transcription)
+      const topMeds=MED_RX.slice(0,80);
+      const clinicalTerms=['crepitus','effusion','erythematous','tympanic','bilateral','McMurray','ligamentous laxity','monofilament','syncope','dyspnea','pneumonia','hypertension','diabetes','atrial fibrillation','pulmonary embolism','anaphylaxis','pneumothorax'];
+      const correctionTerms=CORRECTIONS_DICT.map(c=>c[1]).filter(t=>typeof t==='string');
+      const allKeyterms=[...new Set([...topMeds,...clinicalTerms,...correctionTerms])];
+      allKeyterms.slice(0,100).forEach(t=>p.append('keyterm',t));
+      const url='wss://api.deepgram.com/v1/listen?'+p.toString();
+      _dictSocket=new WebSocket(url,['token',key]);
+
+      _dictSocket.onopen=()=>{
+        toast('Dictating — click anywhere to reposition','success',2500);
+        _dictKA=setInterval(()=>{if(_dictSocket&&_dictSocket.readyState===WebSocket.OPEN)_dictSocket.send(JSON.stringify({type:'KeepAlive'}));},8000);
+      };
+
+      _dictSocket.onmessage=ev=>{
+        if(typeof ev.data!=='string')return;
+        try{
+          const data=JSON.parse(ev.data);
+          if(data.type!=='Results')return;
+          const alt=data.channel.alternatives[0];
+          const txRaw=alt.transcript;
+          if(!txRaw||!txRaw.trim()||!App.dictationTarget)return;
+          const tx=_processDictText(txRaw);
+          if(data.is_final){
+            _dictBefore=_dictBefore+((_dictBefore&&!_dictBefore.endsWith(' '))?' ':'')+tx.trim();
+            // Capitalize first char if at start of line or after sentence-ender
+            _dictBefore=_capitalizeSentenceStart(_dictBefore);
+            App.dictationTarget.textContent=_dictBefore+((_dictAfter&&!_dictBefore.endsWith(' '))?' ':'')+_dictAfter;
+          }else{
+            const preview=_capitalizeSentenceStart(_dictBefore+((_dictBefore&&!_dictBefore.endsWith(' '))?' ':'')+tx);
+            App.dictationTarget.textContent=preview+((_dictAfter&&!tx.endsWith(' '))?' ':'')+_dictAfter;
+          }
+        }catch(err){console.error('[Dictation DG] parse:',err);}
+      };
+
+      _dictSocket.onerror=err=>{console.error('[Dictation DG] error:',err);toast('Dictation connection failed','error');_stopDictation();};
+      _dictSocket.onclose=()=>{clearInterval(_dictKA);_dictKA=null;};
+
+      _dictPcmUnlisten=await tauriListen('audio-pcm',ev=>{
+        if(!_dictSocket||_dictSocket.readyState!==WebSocket.OPEN)return;
+        const b64=ev.payload;
+        const raw=atob(b64);
+        const bytes=new Uint8Array(raw.length);
+        for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+        _dictSocket.send(bytes.buffer);
+      });
+    }catch(e){
+      console.error('[Dictation] start failed:',e);
+      toast('Dictation failed: '+e,'error');
+      _stopDictation();
+    }
+  }else{
+    // Browser fallback: SpeechRecognition
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){toast('Speech recognition not available in this browser','error');_stopDictation();return;}
+    _dictRecognition=new SR();
+    _dictRecognition.continuous=true;
+    _dictRecognition.interimResults=true;
+    _dictRecognition.lang=App.language;
+    _dictRecognition.onresult=ev=>{
+      let interim='',final='';
+      for(let i=ev.resultIndex;i<ev.results.length;i++){
+        if(ev.results[i].isFinal)final+=ev.results[i][0].transcript;
+        else interim+=ev.results[i][0].transcript;
+      }
+      if(final){final=_processDictText(final);_dictBefore=_dictBefore+((_dictBefore&&!_dictBefore.endsWith(' '))?' ':'')+final;_dictBefore=_capitalizeSentenceStart(_dictBefore);App.dictationTarget.textContent=_dictBefore+(_dictAfter?' ':'')+_dictAfter;}
+      else if(interim){interim=_processDictText(interim);const preview=_capitalizeSentenceStart(_dictBefore+(_dictBefore?' ':'')+interim);App.dictationTarget.textContent=preview+(_dictAfter?' ':'')+_dictAfter;}
+    };
+    _dictRecognition.onerror=e=>{console.warn('[Dictation]',e.error);if(e.error!=='no-speech')toast('Dictation error: '+e.error,'error');};
+    _dictRecognition.onend=()=>{if(App.dictationActive)_stopDictation();};
+    _dictRecognition.start();
+    toast('Dictating — click anywhere to reposition','success',2500);
+  }
+}
+
+function _stopDictation(){
+  App.dictationActive=false;
+  App.dictationTarget=null;
+  _dictBefore='';_dictAfter='';
+  if(_dictMicBtn){_dictMicBtn.classList.remove('nl-mic-active');_dictMicBtn=null;}
+  // Remove click-to-reposition handler
+  if(_dictClickHandler){
+    const nc=document.querySelector('.note-content');
+    if(nc)nc.removeEventListener('click',_dictClickHandler,true);
+    _dictClickHandler=null;
+  }
+  // Close Deepgram socket
+  if(_dictSocket){
+    clearInterval(_dictKA);_dictKA=null;
+    if(_dictSocket.readyState===WebSocket.OPEN){try{_dictSocket.send(JSON.stringify({type:'CloseStream'}));}catch(e){}}
+    _dictSocket.close();_dictSocket=null;
+  }
+  if(_dictPcmUnlisten){_dictPcmUnlisten();_dictPcmUnlisten=null;}
+  if(tauriInvoke)tauriInvoke('stop_recording').catch(()=>{});
+  if(_dictRecognition){try{_dictRecognition.stop();}catch(e){}_dictRecognition=null;}
+  // Sync all sections
+  document.querySelectorAll('.note-section-body').forEach(b=>{
+    const k=b.id.replace('section-','');
+    _syncSectionData(k);
+  });
+  toast('Dictation stopped','info',1500);
+}
+
+function _buildLineEl(text,body,key){
+  const row=document.createElement('div');row.className='note-line';
+  const txt=document.createElement('span');txt.className='note-line-text';txt.contentEditable='true';txt.spellcheck=true;txt.textContent=text;
+  const acts=document.createElement('span');acts.className='note-line-actions';
+
+  const mkBtn=(cls,title,label)=>{const b=document.createElement('button');b.className='nl-btn '+cls;b.title=title;b.textContent=label;b.type='button';return b;};
+  const upBtn=mkBtn('nl-up','Move up','\u2191');
+  const downBtn=mkBtn('nl-down','Move down','\u2193');
+  const addBtn=mkBtn('nl-add','Add line below','+');
+  const delBtn=document.createElement('button');delBtn.className='nl-btn nl-del';delBtn.title='Delete line';delBtn.type='button';
+  delBtn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>';
+  const drag=document.createElement('span');drag.className='nl-drag';drag.title='Drag to reorder';drag.textContent='\u2261';
+
+  // Dictation mic button (only shown when setting enabled)
+  const micBtn=document.createElement('button');micBtn.className='nl-btn nl-mic';micBtn.title='Dictate into this line';micBtn.type='button';
+  micBtn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+  if(!App.settings.lineDictation)micBtn.style.display='none';
+  // Save cursor position before mic click steals focus (only for initial start)
+  micBtn.addEventListener('mousedown',e=>{if(!App.dictationActive)_saveCursorPos();});
+  micBtn.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(App.isRecording){toast('Stop recording before using dictation','warning');return;}
+    if(App.dictationActive&&App.dictationTarget===txt){
+      _stopDictation();
+    }else{
+      if(App.dictationActive)_stopDictation();
+      _startDictation(txt,micBtn);
+    }
+  });
+
+  // Direct click handlers (no delegation — works reliably in WKWebView)
+  upBtn.addEventListener('click',e=>{e.stopPropagation();const prev=row.previousElementSibling;if(prev)body.insertBefore(row,prev);_syncSectionData(key);});
+  downBtn.addEventListener('click',e=>{e.stopPropagation();const next=row.nextElementSibling;if(next)body.insertBefore(next,row);_syncSectionData(key);});
+  addBtn.addEventListener('click',e=>{e.stopPropagation();const nl=_buildLineEl('',body,key);row.after(nl);nl.querySelector('.note-line-text').focus();_syncSectionData(key);});
+  delBtn.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(body.querySelectorAll('.note-line').length<=1){toast('Cannot delete the last line','warning');return;}
+    // Phase 1: flash red + slight scale up (60ms)
+    row.style.pointerEvents='none';
+    row.style.overflow='hidden';
+    const h=row.offsetHeight;
+    row.style.maxHeight=h+'px';
+    row.style.transition='transform 0.06s ease-out, background 0.06s ease-out, box-shadow 0.06s ease-out';
+    row.style.transform='scale(1.015)';
+    row.style.background='rgba(239, 68, 68, 0.18)';
+    row.style.boxShadow='0 0 0 1.5px rgba(239, 68, 68, 0.4), 0 0 12px rgba(239, 68, 68, 0.15)';
+    // Phase 2: slide out + fade (after flash)
+    setTimeout(()=>{
+      row.style.transition='transform 0.3s cubic-bezier(0.4, 0, 1, 1), opacity 0.25s ease-out';
+      row.style.transform='translateX(40px) scale(0.92)';
+      row.style.opacity='0';
+    },80);
+    // Phase 3: collapse height smoothly
+    setTimeout(()=>{
+      row.style.transition='max-height 0.2s ease-in-out, margin 0.2s ease-in-out, padding 0.2s ease-in-out';
+      row.style.maxHeight='0';
+      row.style.margin='0';
+      row.style.paddingTop='0';
+      row.style.paddingBottom='0';
+    },280);
+    // Phase 4: remove from DOM
+    setTimeout(()=>{row.remove();_syncSectionData(key);},500);
+  });
+
+  // Pointer-based drag — ghost follows cursor, placeholder marks drop position
+  drag.addEventListener('pointerdown',e=>{
+    e.preventDefault();e.stopPropagation();
+    const origBody=body;
+    const origKey=key;
+    const rect=row.getBoundingClientRect();
+    const offsetY=e.clientY-rect.top;
+
+    // Create ghost that follows cursor
+    const ghost=row.cloneNode(true);
+    ghost.classList.add('nl-ghost');
+    ghost.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:10000;pointer-events:none;opacity:0.85;`;
+    document.body.appendChild(ghost);
+
+    // Create placeholder where the row was
+    const placeholder=document.createElement('div');
+    placeholder.className='nl-placeholder';
+    row.parentElement.insertBefore(placeholder,row);
+    row.style.display='none';
+
+    let _raf=0;
+    const onMove=ev=>{
+      ev.preventDefault();
+      cancelAnimationFrame(_raf);
+      _raf=requestAnimationFrame(()=>{
+        ghost.style.top=(ev.clientY-offsetY)+'px';
+        // Find drop target
+        const elBelow=document.elementFromPoint(ev.clientX,ev.clientY);
+        if(!elBelow)return;
+        const targetLine=elBelow.closest('.note-line');
+        const targetBody=elBelow.closest('.note-section-body');
+        if(targetLine&&targetLine!==row){
+          const tBody=targetLine.parentElement;
+          const r=targetLine.getBoundingClientRect();
+          if(ev.clientY<r.top+r.height/2)tBody.insertBefore(placeholder,targetLine);
+          else tBody.insertBefore(placeholder,targetLine.nextSibling);
+        }else if(targetBody){
+          const lines=[...targetBody.querySelectorAll('.note-line')];
+          if(lines.length===0)targetBody.appendChild(placeholder);
+          else{
+            // Find closest line
+            let closest=null,minDist=Infinity;
+            for(const ln of lines){
+              const lr=ln.getBoundingClientRect();
+              const d=Math.abs(ev.clientY-(lr.top+lr.height/2));
+              if(d<minDist){minDist=d;closest=ln;}
+            }
+            if(closest){
+              const cr=closest.getBoundingClientRect();
+              if(ev.clientY<cr.top+cr.height/2)targetBody.insertBefore(placeholder,closest);
+              else targetBody.insertBefore(placeholder,closest.nextSibling);
+            }
+          }
+        }
+      });
+    };
+    const onUp=()=>{
+      cancelAnimationFrame(_raf);
+      ghost.remove();
+      row.style.display='';
+      placeholder.parentElement.insertBefore(row,placeholder);
+      placeholder.remove();
+      document.removeEventListener('pointermove',onMove);
+      document.removeEventListener('pointerup',onUp);
+      // Sync source and destination sections
+      _syncSectionData(origKey);
+      const newBody=row.closest('.note-section-body');
+      if(newBody&&newBody!==origBody){
+        const newKey=newBody.id.replace('section-','');
+        _syncSectionData(newKey);
+      }
+    };
+    document.addEventListener('pointermove',onMove);
+    document.addEventListener('pointerup',onUp);
+  });
+
+  acts.appendChild(micBtn);acts.appendChild(upBtn);acts.appendChild(downBtn);acts.appendChild(addBtn);acts.appendChild(delBtn);acts.appendChild(drag);
+  row.appendChild(txt);row.appendChild(acts);
+
+  // Sync on text edit
+  txt.addEventListener('input',()=>_syncSectionData(key));
+
+  return row;
+}
+
 export function renderNoteSec(nd){
   D.noteSec.innerHTML='';
   nd.sections.forEach(s=>{
     const el=document.createElement('div');el.className='note-section';el.dataset.section=s.key;
-    el.innerHTML=`<div class="note-section-header"><span class="note-section-title">${esc(s.title)}</span><button class="note-section-edit-btn" data-section="${s.key}">Edit</button></div><div class="note-section-body" id="section-${s.key}">${esc(s.content).replace(/\n/g,'<br>')}</div>`;
-    D.noteSec.appendChild(el);
-  });
-  D.noteSec.querySelectorAll('.note-section-edit-btn').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      const key=e.target.dataset.section;const body=document.getElementById(`section-${key}`);
-      if(body.contentEditable==='true'){
-        body.contentEditable='false';e.target.textContent='Edit';
-        const s=App.noteSections.sections.find(x=>x.key===key);if(s)s.content=body.innerText;toast('Section saved','success');
+    const hdr=document.createElement('div');hdr.className='note-section-header';
+    const editBtn=document.createElement('button');editBtn.className='note-section-edit-btn';editBtn.textContent='Edit';editBtn.dataset.section=s.key;
+    hdr.innerHTML=`<span class="note-section-title">${esc(s.title)}</span>`;
+    hdr.appendChild(editBtn);
+    const body=document.createElement('div');body.className='note-section-body';body.id=`section-${s.key}`;
+    const lines=_splitIntoLines(s.content).filter(ln=>ln.trim());
+    if(lines.length===0)lines.push('');
+    lines.forEach(ln=>{body.appendChild(_buildLineEl(ln,body,s.key));});
+    // Toggle between line-level and full-text editing
+    editBtn.addEventListener('click',()=>{
+      const isEditing=body.classList.contains('nl-full-edit');
+      if(isEditing){
+        // Save full text → rebuild lines
+        const text=body.innerText;
+        const sec=App.noteSections.sections.find(x=>x.key===s.key);
+        if(sec)sec.content=text;
+        body.classList.remove('nl-full-edit');
+        body.contentEditable='false';
+        body.innerHTML='';
+        const newLines=_splitIntoLines(text).filter(ln=>ln.trim());
+        if(newLines.length===0)newLines.push('');
+        newLines.forEach(ln=>{body.appendChild(_buildLineEl(ln,body,s.key));});
+        editBtn.textContent='Edit';
+        toast('Section saved','success');
       }else{
-        body.contentEditable='true';body.focus();e.target.textContent='Save';
-        const range=document.createRange();range.selectNodeContents(body);range.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+        // Switch to full-text editing
+        _syncSectionData(s.key);
+        const sec=App.noteSections.sections.find(x=>x.key===s.key);
+        const text=sec?sec.content:_readSectionText(s.key)||'';
+        body.innerHTML=esc(text).replace(/\n/g,'<br>');
+        body.classList.add('nl-full-edit');
+        body.contentEditable='true';
+        body.focus();
+        editBtn.textContent='Done';
+        // Place cursor at end
+        const range=document.createRange();range.selectNodeContents(body);range.collapse(false);
+        const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
       }
     });
+    el.appendChild(hdr);el.appendChild(body);D.noteSec.appendChild(el);
   });
   /* Auto-populate dental chart from AI-generated findings (AI first → regex fallback) */
   if(isDentalTemplate(App.noteFormat)){
@@ -927,7 +1363,7 @@ export async function exportPDF(){
   const dur=fmt(App.elapsed);const speakers=App.speakers.map(s=>`${s.name} (${ROLES[s.role]?.label})`).join(', ');
   let sectionsHtml='';
   nd.sections.forEach(s=>{
-    const live=document.getElementById(`section-${s.key}`);const content=live?live.innerText:s.content;
+    const content=_readSectionText(s.key)??s.content;
     sectionsHtml+=`<div style="margin-bottom:20px;"><h3 style="font-size:14px;font-weight:700;color:#0891B2;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 8px 0;padding-bottom:6px;border-bottom:1px solid #e2e8f0;">${esc(s.title)}</h3><div style="font-size:13px;line-height:1.7;color:#334155;white-space:pre-wrap;">${esc(content)}</div></div>`;
   });
   /* Dental chart + findings for dental templates */
@@ -958,7 +1394,7 @@ ${sectionsHtml}
 
 export async function copyNote(){
   if(!App.noteSections?.sections)return;
-  let text=App.noteSections.sections.map(s=>{const live=document.getElementById(`section-${s.key}`);return`=== ${s.title.toUpperCase()} ===\n${live?live.innerText:s.content}`;}).join('\n\n');
+  let text=App.noteSections.sections.map(s=>`=== ${s.title.toUpperCase()} ===\n${_readSectionText(s.key)??s.content}`).join('\n\n');
   if(isDentalTemplate(App.noteFormat)&&App.settings.dentalFindingsInExport){
     const chartText=formatDentalChartForPrompt();
     if(chartText) text+='\n\n'+chartText;
@@ -971,8 +1407,7 @@ export async function copyNote(){
 export async function copyForEHR(){
   if(!App.noteSections?.sections)return;
   const sections=App.noteSections.sections.map(s=>{
-    const live=document.getElementById(`section-${s.key}`);
-    return{key:s.key,title:s.title,content:live?live.innerText:s.content};
+    return{key:s.key,title:s.title,content:_readSectionText(s.key)??s.content};
   });
   if(isDentalTemplate(App.noteFormat)&&App.settings.dentalFindingsInExport){
     const chartText=formatDentalChartForPrompt();
@@ -993,7 +1428,7 @@ export async function copyForEHR(){
 
 export async function downloadTextNote(){
   if(!App.noteSections?.sections)return;
-  let text=App.noteSections.sections.map(s=>{const live=document.getElementById(`section-${s.key}`);return`=== ${s.title.toUpperCase()} ===\n${live?live.innerText:s.content}`;}).join('\n\n');
+  let text=App.noteSections.sections.map(s=>`=== ${s.title.toUpperCase()} ===\n${_readSectionText(s.key)??s.content}`).join('\n\n');
   if(isDentalTemplate(App.noteFormat)&&App.settings.dentalFindingsInExport){
     const chartText=formatDentalChartForPrompt();
     if(chartText) text+='\n\n'+chartText;

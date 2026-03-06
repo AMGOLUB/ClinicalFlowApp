@@ -55,6 +55,14 @@
   <!-- SIDEBAR -->
   <aside class="docs-sidebar" id="docsSidebar">
     <div class="docs-sidebar-inner">
+      <div class="docs-search">
+        <div class="docs-search-box">
+          <svg class="docs-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="docs-search-input" id="docsSearch" placeholder="Search docs..." autocomplete="off" spellcheck="false">
+          <kbd class="docs-search-kbd" id="docsSearchKbd">/</kbd>
+        </div>
+        <div class="docs-search-results" id="docsSearchResults"></div>
+      </div>
       <div class="docs-sidebar-group">
         <div class="docs-sidebar-title">Getting Started</div>
         <a href="#installation" class="docs-sidebar-link">Installation</a>
@@ -122,6 +130,7 @@
       <div class="docs-sidebar-group">
         <div class="docs-sidebar-title">Editing &amp; Export</div>
         <a href="#editing" class="docs-sidebar-link">Inline Editing</a>
+        <a href="#line-dictation" class="docs-sidebar-link">Line Dictation</a>
         <a href="#pdf-export" class="docs-sidebar-link">PDF Export</a>
         <a href="#text-export" class="docs-sidebar-link">Text Export</a>
         <a href="#clipboard" class="docs-sidebar-link">Copy to Clipboard</a>
@@ -973,7 +982,37 @@
 
     <article id="editing" class="docs-article">
       <h2>Inline Editing</h2>
-      <p>After note generation, each section is editable directly in the note panel. Click on any section content to make changes. Edits are saved to the active session automatically.</p>
+      <p>After note generation, each section is editable directly in the note panel. Every line has inline controls that appear on hover:</p>
+      <ul>
+        <li><strong>Move up/down</strong> &mdash; reorder lines within a section</li>
+        <li><strong>Add line</strong> &mdash; insert a new blank line below</li>
+        <li><strong>Delete line</strong> &mdash; remove the line with a smooth animation</li>
+        <li><strong>Drag handle</strong> &mdash; drag and drop lines within or across sections (e.g., move a line from Subjective to Objective)</li>
+        <li><strong>Edit button</strong> &mdash; toggle full-section editing mode for bulk changes</li>
+      </ul>
+      <p>Click on any line&rsquo;s text to edit it directly. All edits are saved to the active session automatically.</p>
+    </article>
+
+    <article id="line-dictation" class="docs-article">
+      <h2>Line Dictation</h2>
+      <p>Dictate directly into any line of the generated note using Deepgram&rsquo;s real-time streaming. This is enabled by default and can be toggled in <strong>Settings &rarr; Note Output &rarr; Line Dictation</strong>.</p>
+      <h3>How to use</h3>
+      <ol>
+        <li>Click the <strong>microphone icon</strong> on any line to start dictating</li>
+        <li>Click anywhere in a line to position where text will be inserted</li>
+        <li>While dictating, click a different position or line to move the insertion point on the fly</li>
+        <li>Highlight a word or phrase, then speak to replace the selection</li>
+        <li>Click the microphone icon again to stop</li>
+      </ol>
+      <h3>Spoken punctuation</h3>
+      <p>Say punctuation names out loud and they&rsquo;ll be converted to symbols:</p>
+      <ul>
+        <li>&ldquo;period&rdquo; &rarr; <code>.</code> &nbsp; &ldquo;comma&rdquo; &rarr; <code>,</code> &nbsp; &ldquo;question mark&rdquo; &rarr; <code>?</code></li>
+        <li>&ldquo;colon&rdquo; &rarr; <code>:</code> &nbsp; &ldquo;semicolon&rdquo; &rarr; <code>;</code> &nbsp; &ldquo;hyphen&rdquo; &rarr; <code>-</code></li>
+        <li>&ldquo;open parenthesis&rdquo; / &ldquo;close parenthesis&rdquo; &rarr; <code>( )</code></li>
+      </ul>
+      <p>Text is lowercase by default and auto-capitalized at the start of sentences. The same medical dictionary used during transcription is applied for accurate clinical terminology.</p>
+      <p><strong>Note:</strong> Line dictation requires an active recording to be stopped first &mdash; it cannot run simultaneously with a patient recording session.</p>
     </article>
 
     <article id="pdf-export" class="docs-article">
@@ -1697,6 +1736,144 @@ External Services (online mode only):
       });
     }, { rootMargin: '-20% 0px -75% 0px' });
     articles.forEach(article => observer.observe(article));
+  }
+
+  // ─── Docs Search ───
+  const searchInput = document.getElementById('docsSearch');
+  const searchResults = document.getElementById('docsSearchResults');
+  const searchKbd = document.getElementById('docsSearchKbd');
+  let focusIdx = -1;
+
+  // Build search index from articles
+  const searchIndex = [];
+  articles.forEach(article => {
+    const id = article.getAttribute('id');
+    const h2 = article.querySelector('h2');
+    const title = h2 ? h2.textContent : id;
+    const text = article.textContent;
+    // Find matching sidebar link
+    const sidebarLink = document.querySelector('.docs-sidebar-link[href="#' + id + '"]');
+    const group = sidebarLink ? sidebarLink.closest('.docs-sidebar-group') : null;
+    const category = group ? group.querySelector('.docs-sidebar-title')?.textContent : '';
+    searchIndex.push({ id, title, text, category });
+  });
+
+  function highlightSnippet(text, query) {
+    const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 1);
+    if (!words.length) return '';
+    // Find first match position
+    const lower = text.toLowerCase();
+    let firstIdx = lower.length;
+    words.forEach(w => { const i = lower.indexOf(w); if (i !== -1 && i < firstIdx) firstIdx = i; });
+    // Extract snippet around match
+    const start = Math.max(0, firstIdx - 40);
+    const end = Math.min(text.length, firstIdx + 120);
+    let snippet = (start > 0 ? '...' : '') + text.slice(start, end).replace(/\s+/g, ' ') + (end < text.length ? '...' : '');
+    // Highlight all matching words
+    words.forEach(w => {
+      const re = new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      snippet = snippet.replace(re, '<mark>$1</mark>');
+    });
+    return snippet;
+  }
+
+  function doSearch(query) {
+    focusIdx = -1;
+    if (!query || query.length < 2) {
+      searchResults.classList.remove('active');
+      searchResults.innerHTML = '';
+      return;
+    }
+    const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 1);
+    const results = [];
+    searchIndex.forEach(item => {
+      const lower = item.text.toLowerCase();
+      const titleLower = item.title.toLowerCase();
+      let score = 0;
+      let matched = true;
+      words.forEach(w => {
+        if (titleLower.includes(w)) score += 10;
+        const bodyCount = (lower.match(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+        if (bodyCount > 0) score += bodyCount;
+        else matched = false;
+      });
+      if (matched && score > 0) results.push({ ...item, score });
+    });
+    results.sort((a, b) => b.score - a.score);
+
+    if (results.length === 0) {
+      searchResults.innerHTML = '<div class="docs-search-empty">No results for &ldquo;' + query.replace(/</g, '&lt;') + '&rdquo;</div>';
+      searchResults.classList.add('active');
+      return;
+    }
+
+    let html = '<div class="docs-search-count">' + results.length + ' result' + (results.length !== 1 ? 's' : '') + '</div>';
+    results.slice(0, 15).forEach((r, i) => {
+      const snippet = highlightSnippet(r.text, query);
+      html += '<a class="docs-search-result" href="#' + r.id + '" data-idx="' + i + '">'
+        + '<div class="docs-search-result-title">' + r.title + (r.category ? ' <span style="font-weight:400;color:var(--text-tertiary);font-size:11px">&middot; ' + r.category + '</span>' : '') + '</div>'
+        + '<div class="docs-search-result-snippet">' + snippet + '</div>'
+        + '</a>';
+    });
+    searchResults.innerHTML = html;
+    searchResults.classList.add('active');
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      doSearch(searchInput.value.trim());
+      if (searchKbd) searchKbd.style.opacity = searchInput.value ? '0' : '1';
+    });
+
+    // Keyboard navigation
+    searchInput.addEventListener('keydown', (e) => {
+      const items = searchResults.querySelectorAll('.docs-search-result');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        focusIdx = Math.min(focusIdx + 1, items.length - 1);
+        items.forEach((el, i) => el.classList.toggle('focused', i === focusIdx));
+        if (items[focusIdx]) items[focusIdx].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        focusIdx = Math.max(focusIdx - 1, 0);
+        items.forEach((el, i) => el.classList.toggle('focused', i === focusIdx));
+        if (items[focusIdx]) items[focusIdx].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter' && focusIdx >= 0 && items[focusIdx]) {
+        e.preventDefault();
+        items[focusIdx].click();
+      } else if (e.key === 'Escape') {
+        searchInput.blur();
+        searchResults.classList.remove('active');
+      }
+    });
+
+    // Click result
+    searchResults.addEventListener('click', (e) => {
+      const result = e.target.closest('.docs-search-result');
+      if (result) {
+        searchResults.classList.remove('active');
+        searchInput.value = '';
+        if (searchKbd) searchKbd.style.opacity = '1';
+        sidebar.classList.remove('docs-sidebar--open');
+      }
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.docs-search')) {
+        searchResults.classList.remove('active');
+      }
+    });
+
+    // "/" keyboard shortcut to focus search
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+        e.preventDefault();
+        searchInput.focus();
+      }
+    });
   }
 })();
 </script>
