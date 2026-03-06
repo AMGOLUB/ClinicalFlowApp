@@ -39,44 +39,76 @@
      2. MOBILE MENU
      ═══════════════════════════════════════ */
   let menuOpen = false;
+  let backdrop = null;
 
   if (navToggle && navLinks) {
-    navToggle.addEventListener('click', () => {
-      menuOpen = !menuOpen;
-      navLinks.classList.toggle('nav-links--open', menuOpen);
-      navToggle.setAttribute('aria-expanded', menuOpen);
+    // Replace SVG with animated bars
+    navToggle.innerHTML = `
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>`;
 
-      // Animate hamburger → X
-      if (menuOpen) {
-        navToggle.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>`;
-      } else {
-        navToggle.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>`;
-      }
+    // Create backdrop overlay
+    backdrop = document.createElement('div');
+    backdrop.className = 'nav-mobile-backdrop';
+    document.body.appendChild(backdrop);
+
+    // Inject mobile CTA buttons into the menu
+    const navCta = document.querySelector('.nav-cta');
+    if (navCta && !navLinks.querySelector('.nav-mobile-cta')) {
+      const mobileCta = document.createElement('li');
+      mobileCta.className = 'nav-mobile-cta';
+      // Clone CTA buttons, adapting for mobile
+      const links = navCta.querySelectorAll('a');
+      links.forEach(a => {
+        const clone = a.cloneNode(true);
+        // Make all buttons visible in mobile menu
+        clone.classList.remove('btn--ghost');
+        // Keep primary as primary, make others secondary
+        if (!a.classList.contains('btn--primary')) {
+          clone.classList.add('btn--secondary');
+        }
+        mobileCta.appendChild(clone);
+      });
+      navLinks.appendChild(mobileCta);
+    }
+
+    function openMenu() {
+      menuOpen = true;
+      navLinks.classList.add('nav-links--open');
+      navToggle.classList.add('open');
+      navToggle.setAttribute('aria-expanded', 'true');
+      backdrop.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      menuOpen = false;
+      navLinks.classList.remove('nav-links--open');
+      navToggle.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+      backdrop.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+
+    navToggle.addEventListener('click', () => {
+      if (menuOpen) closeMenu();
+      else openMenu();
     });
+
+    // Close on backdrop tap
+    backdrop.addEventListener('click', closeMenu);
 
     // Close menu when a link is clicked
     navLinks.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
-        if (menuOpen) {
-          menuOpen = false;
-          navLinks.classList.remove('nav-links--open');
-          navToggle.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <line x1="3" y1="6" x2="21" y2="6"/>
-              <line x1="3" y1="12" x2="21" y2="12"/>
-              <line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>`;
-        }
+        if (menuOpen) closeMenu();
       });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menuOpen) closeMenu();
     });
   }
 
