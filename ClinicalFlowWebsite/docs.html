@@ -214,8 +214,24 @@
         <strong>File sizes:</strong> The installer is approximately 50 MB. The bundled Whisper speech recognition model (large-v3-turbo, 574 MB) is included for offline mode and uses Metal GPU acceleration on Apple Silicon.
       </div>
 
-      <h3>Windows &amp; Linux</h3>
-      <p>Windows and Linux builds are in development. Currently, ClinicalFlow is macOS-only. Sign up for notifications on the <a href="index.html#download">download page</a> to be notified when these platforms become available.</p>
+      <h3>Windows</h3>
+      <p>Download the <code>.exe</code> installer from the <a href="index.html#download">download page</a>. Run the installer and follow the setup wizard. ClinicalFlow installs to your user profile (no admin required) and creates a Start Menu shortcut.</p>
+      <p>Supported on Windows 10 (version 1903+) and Windows 11, x86_64.</p>
+
+      <div class="docs-callout docs-callout--info">
+        <strong>First launch:</strong> Windows SmartScreen may show a warning for new applications. Click <strong>More info</strong> &rarr; <strong>Run anyway</strong> to proceed. This warning will be resolved once we obtain a code signing certificate.
+      </div>
+
+      <div class="docs-callout docs-callout--info">
+        <strong>Microphone permissions:</strong> If recording doesn&rsquo;t work, check Windows Settings &rarr; Privacy &rarr; Microphone and ensure microphone access is enabled for ClinicalFlow.
+      </div>
+
+      <div class="docs-callout docs-callout--info">
+        <strong>Offline mode:</strong> The bundled Whisper model works on CPU. For AI note generation in offline mode, install <a href="https://ollama.ai" target="_blank">Ollama for Windows</a> and pull the <code>llama3.1:8b</code> model.
+      </div>
+
+      <h3>Linux</h3>
+      <p>Linux builds are in development. Sign up for notifications on the <a href="index.html#download">download page</a> to be notified when Linux support becomes available.</p>
     </article>
 
     <article id="first-launch" class="docs-article">

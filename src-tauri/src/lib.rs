@@ -3,6 +3,7 @@ mod auth;
 mod crypto;
 mod license;
 mod logging;
+mod pdf;
 mod pms;
 mod storage;
 

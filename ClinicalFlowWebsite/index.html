@@ -1057,13 +1057,13 @@
         <p>Apple Silicon &amp; Intel<br>macOS 11.0 or later</p>
         <a href="signup.html" class="btn btn--primary btn--sm" id="macDownloadBtn">Download for macOS</a>
       </div>
-      <div class="download-card download-card--disabled reveal reveal-delay-2">
+      <div class="download-card reveal reveal-delay-2">
         <div class="download-card-icon">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12V6.75l8-1.25V12H3zm0 .5h8v6.5L3 17.5V12.5zM11.5 5.35l9-1.35v8H11.5V5.35zM11.5 12.5H20.5v7.85l-9-1.35V12.5z"/></svg>
         </div>
         <h4>Windows</h4>
-        <p>Coming soon<br>Join the waitlist</p>
-        <a href="#" class="btn btn--secondary btn--sm">Notify Me</a>
+        <p>Windows 10/11<br>x86_64</p>
+        <a href="signup.html" class="btn btn--primary btn--sm" id="winDownloadBtn">Download for Windows</a>
       </div>
       <div class="download-card download-card--disabled reveal reveal-delay-3">
         <div class="download-card-icon">
@@ -1176,7 +1176,7 @@
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNldWlubW1zbGF6dmlib3RvdXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjM4MjAsImV4cCI6MjA4Nzc5OTgyMH0.YE4e8bf6Q_4zfvu9zLpaMIrfbnsf6Z9ucf2mSebyrqY';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  async function gatedDownload(btn) {
+  async function gatedDownload(btn, os) {
     const origHTML = btn.innerHTML;
     btn.textContent = 'Preparing\u2026';
     btn.style.pointerEvents = 'none';
@@ -1188,7 +1188,10 @@
         return;
       }
 
-      const res = await fetch(SUPABASE_URL + '/functions/v1/download-release', {
+      var dlUrl = SUPABASE_URL + '/functions/v1/download-release';
+      if (os) dlUrl += '?os=' + os;
+
+      const res = await fetch(dlUrl, {
         headers: {
           'Authorization': 'Bearer ' + session.access_token,
           'apikey': SUPABASE_KEY,
@@ -1224,12 +1227,18 @@
   }
 
   // Attach to all download buttons
-  ['macDownloadBtn', 'heroDownloadBtn', 'ctaDownloadBtn'].forEach(function(id) {
+  var dlButtons = {
+    'macDownloadBtn': 'macos',
+    'heroDownloadBtn': null,
+    'ctaDownloadBtn': null,
+    'winDownloadBtn': 'windows'
+  };
+  Object.keys(dlButtons).forEach(function(id) {
     var btn = document.getElementById(id);
     if (btn) {
       btn.addEventListener('click', function(e) {
         e.preventDefault();
-        gatedDownload(btn);
+        gatedDownload(btn, dlButtons[id]);
       });
     }
   });

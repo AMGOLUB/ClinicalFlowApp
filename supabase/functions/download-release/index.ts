@@ -122,12 +122,20 @@ serve(async (req) => {
       return jsonResponse({ error: 'Please select a plan before downloading' }, 403);
     }
 
-    // Generate presigned URL for the .dmg
+    // Generate presigned URL for the installer
     const endpoint = Deno.env.get('R2_ENDPOINT')!;
     const bucket = Deno.env.get('R2_BUCKET') || 'clinicalflow-releases';
     const accessKeyId = Deno.env.get('R2_ACCESS_KEY_ID')!;
     const secretAccessKey = Deno.env.get('R2_SECRET_ACCESS_KEY')!;
-    const fileKey = 'ClinicalFlow_1.0.0_aarch64.dmg';
+
+    // Determine platform from ?os= param or User-Agent header
+    const url_params = new URL(req.url).searchParams;
+    const osParam = url_params.get('os');
+    const userAgent = req.headers.get('user-agent') || '';
+    const isWindows = osParam === 'windows' || (!osParam && userAgent.includes('Windows'));
+    const fileKey = isWindows
+      ? 'ClinicalFlow_1.0.0_x64-setup.exe'
+      : 'ClinicalFlow_1.0.0_aarch64.dmg';
 
     const url = await generatePresignedUrl(
       endpoint,

@@ -1,0 +1,46 @@
+name: Build Whisper Server for Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone whisper.cpp (pinned release)
+        run: |
+          git clone --depth 1 --branch v1.7.4 https://github.com/ggml-org/whisper.cpp.git C:\whisper-cpp
+
+      - name: Verify build tools
+        shell: pwsh
+        run: |
+          cmake --version
+          Write-Host "Visual Studio Build Tools available"
+
+      - name: Build whisper-server (CPU-only)
+        shell: pwsh
+        run: |
+          cd C:\whisper-cpp
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
+          cmake --build build --config Release --target whisper-server -j
+
+      - name: Verify binary
+        shell: pwsh
+        run: |
+          $binary = "C:\whisper-cpp\build\bin\Release\whisper-server.exe"
+          if (Test-Path $binary) {
+            $size = (Get-Item $binary).Length / 1MB
+            Write-Host "whisper-server.exe built successfully ($([math]::Round($size, 1)) MB)"
+          } else {
+            Write-Error "whisper-server.exe not found"
+            exit 1
+          }
+
+      - name: Upload whisper-server.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: whisper-server-windows
+          path: C:\whisper-cpp\build\bin\Release\whisper-server.exe
+          retention-days: 90

@@ -352,61 +352,12 @@ pub async fn generate_pdf(
     let exports_dir = base.join("exports");
     fs::create_dir_all(&exports_dir).map_err(|e| e.to_string())?;
 
-    // Write HTML to a temp file
-    let html_path = exports_dir.join("_temp_note.html");
-    fs::write(&html_path, &html)
-        .map_err(|e| format!("Failed to write HTML: {}", e))?;
-
     let filename = format!("ClinicalFlow_Note_{}.pdf",
         chrono::Local::now().format("%Y-%m-%d_%H-%M"));
     let pdf_path = exports_dir.join(&filename);
 
-    // Resolve the html2pdf sidecar binary path
-    let resource_path = app
-        .path()
-        .resource_dir()
-        .map_err(|e| e.to_string())?
-        .join("binaries")
-        .join("html2pdf-aarch64-apple-darwin");
-
-    let exe_dir = std::env::current_exe()
-        .map_err(|e| e.to_string())?
-        .parent()
-        .ok_or("No parent dir")?
-        .to_path_buf();
-
-    // In bundled app, Tauri strips the target triple — binary is at Contents/MacOS/html2pdf
-    let bundled_path = exe_dir.join("html2pdf");
-    // In dev mode, binary keeps the triple suffix
-    let dev_path = exe_dir.join("html2pdf-aarch64-apple-darwin");
-
-    let sidecar = if resource_path.exists() {
-        resource_path.clone()
-    } else if bundled_path.exists() {
-        bundled_path.clone()
-    } else if dev_path.exists() {
-        dev_path.clone()
-    } else {
-        return Err(format!(
-            "html2pdf binary not found at {:?}, {:?}, or {:?}",
-            resource_path, bundled_path, dev_path
-        ));
-    };
-
-    // Run html2pdf to convert HTML → PDF via WebKit
-    let output = std::process::Command::new(&sidecar)
-        .arg(html_path.to_string_lossy().as_ref())
-        .arg(pdf_path.to_string_lossy().as_ref())
-        .output()
-        .map_err(|e| format!("Failed to run html2pdf: {}", e))?;
-
-    // Clean up temp HTML
-    let _ = fs::remove_file(&html_path);
-
-    if !pdf_path.exists() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("PDF generation failed: {}", stderr));
-    }
+    // Generate PDF using headless Chrome/Edge (cross-platform)
+    crate::pdf::html_to_pdf(&html, &pdf_path)?;
 
     // Open the PDF in the default viewer
     let pdf_str = pdf_path.to_string_lossy().to_string();

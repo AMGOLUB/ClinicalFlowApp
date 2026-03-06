@@ -27,7 +27,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["dmg"],
+    "targets": ["dmg", "nsis"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -41,8 +41,7 @@
     "copyright": "© 2026 ClinicalFlow",
     "externalBin": [
       "binaries/whisper-cli",
-      "binaries/whisper-server",
-      "binaries/html2pdf"
+      "binaries/whisper-server"
     ],
     "resources": [
       "resources/models/*",
@@ -53,6 +52,11 @@
       "signingIdentity": null,
       "hardenedRuntime": true,
       "entitlements": "Entitlements.plist"
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "timestampUrl": "http://timestamp.digicert.com",
+      "webviewInstallMode": { "type": "downloadBootstrapper" }
     }
   },
   "plugins": {

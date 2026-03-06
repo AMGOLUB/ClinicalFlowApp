@@ -619,7 +619,7 @@
         Step 1
       </span>
       <h2>Download ClinicalFlow</h2>
-      <p>macOS available now. Windows and Linux coming soon.</p>
+      <p>Available for macOS and Windows. Linux coming soon.</p>
     </div>
 
     <div class="gs-download-cards">
@@ -634,13 +634,13 @@
       </div>
 
       <!-- Windows -->
-      <div class="gs-dl-card disabled reveal reveal-delay-1">
+      <div class="gs-dl-card reveal reveal-delay-1">
         <div class="gs-dl-icon">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12V6.75l8-1.25V12H3zm0 .5h8v6.5L3 17.5V12.5zM11.5 5.35l9-1.35v8H11.5V5.35zM11.5 12.5H20.5v7.85l-9-1.35V12.5z"/></svg>
         </div>
         <h4>Windows</h4>
-        <p>Coming soon<br>Join the waitlist</p>
-        <a href="#" class="btn btn--secondary btn--sm">Notify Me</a>
+        <p>Windows 10/11<br>x86_64</p>
+        <a href="#" class="btn btn--primary btn--sm" id="winDownloadBtn">Download .exe</a>
       </div>
 
       <!-- Linux -->
@@ -1000,55 +1000,65 @@ document.body.addEventListener('keydown', (e) => {
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const macBtn = document.getElementById('macDownloadBtn');
-  if (macBtn) {
-    macBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const origText = macBtn.textContent;
-      macBtn.textContent = 'Preparing…';
-      macBtn.style.pointerEvents = 'none';
+  async function gatedDownload(btn, os) {
+    const origText = btn.textContent;
+    btn.textContent = 'Preparing…';
+    btn.style.pointerEvents = 'none';
 
-      try {
-        const { data: { session } } = await sb.auth.refreshSession();
-        if (!session) {
-          window.location.href = 'signup.html';
-          return;
-        }
-
-        var res = await fetch(SUPABASE_URL + '/functions/v1/download-release', {
-          headers: {
-            'Authorization': 'Bearer ' + session.access_token,
-            'apikey': SUPABASE_KEY,
-          },
-        });
-
-        var text = await res.text();
-        var body = {};
-        try { body = JSON.parse(text); } catch (_) {}
-
-        if (res.status === 403) {
-          window.location.href = 'signup.html';
-          return;
-        }
-
-        if (!res.ok) {
-          var msg = body.error || body.message || body.msg || text || ('HTTP ' + res.status);
-          throw new Error(msg);
-        }
-
-        if (!body.url) throw new Error('No download URL in response');
-
-        window.location.href = body.url;
-        macBtn.textContent = 'Download started!';
-        setTimeout(() => { macBtn.textContent = origText; macBtn.style.pointerEvents = ''; }, 5000);
-      } catch (err) {
-        console.error('Download error:', err);
-        alert(err.message || 'Could not start download. Please try again.');
-        macBtn.textContent = origText;
-        macBtn.style.pointerEvents = '';
+    try {
+      const { data: { session } } = await sb.auth.refreshSession();
+      if (!session) {
+        window.location.href = 'signup.html';
+        return;
       }
-    });
+
+      var dlUrl = SUPABASE_URL + '/functions/v1/download-release';
+      if (os) dlUrl += '?os=' + os;
+
+      var res = await fetch(dlUrl, {
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'apikey': SUPABASE_KEY,
+        },
+      });
+
+      var text = await res.text();
+      var body = {};
+      try { body = JSON.parse(text); } catch (_) {}
+
+      if (res.status === 403) {
+        window.location.href = 'signup.html';
+        return;
+      }
+
+      if (!res.ok) {
+        var msg = body.error || body.message || body.msg || text || ('HTTP ' + res.status);
+        throw new Error(msg);
+      }
+
+      if (!body.url) throw new Error('No download URL in response');
+
+      window.location.href = body.url;
+      btn.textContent = 'Download started!';
+      setTimeout(() => { btn.textContent = origText; btn.style.pointerEvents = ''; }, 5000);
+    } catch (err) {
+      console.error('Download error:', err);
+      alert(err.message || 'Could not start download. Please try again.');
+      btn.textContent = origText;
+      btn.style.pointerEvents = '';
+    }
   }
+
+  var dlButtons = { 'macDownloadBtn': 'macos', 'winDownloadBtn': 'windows' };
+  Object.keys(dlButtons).forEach(function(id) {
+    var btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        gatedDownload(btn, dlButtons[id]);
+      });
+    }
+  });
 })();
 </script>
 <script>

@@ -205,7 +205,8 @@ fn find_whisper_model(app: &AppHandle) -> Result<PathBuf, String> {
         }
     }
 
-    // Fallback: check /tmp/whisper.cpp/models (dev mode)
+    // Fallback: check dev mode model paths
+    #[cfg(not(target_os = "windows"))]
     let dev_paths = [
         PathBuf::from("/tmp/whisper.cpp/models/ggml-large-v3-turbo.bin"),
         PathBuf::from("/tmp/whisper.cpp/models/ggml-large-v3-turbo-q5_0.bin"),
@@ -215,6 +216,17 @@ fn find_whisper_model(app: &AppHandle) -> Result<PathBuf, String> {
         PathBuf::from("/tmp/whisper.cpp/models/ggml-base.en.bin"),
         PathBuf::from("/tmp/whisper.cpp/models/ggml-tiny.bin"),
         PathBuf::from("/tmp/whisper.cpp/models/ggml-tiny.en.bin"),
+    ];
+    #[cfg(target_os = "windows")]
+    let dev_paths = [
+        PathBuf::from(r"C:\temp\whisper.cpp\models\ggml-large-v3-turbo.bin"),
+        PathBuf::from(r"C:\temp\whisper.cpp\models\ggml-large-v3-turbo-q5_0.bin"),
+        PathBuf::from(r"C:\temp\whisper.cpp\models\ggml-small.bin"),
+        PathBuf::from(r"C:\temp\whisper.cpp\models\ggml-small.en.bin"),
+        PathBuf::from(r"C:\temp\whisper.cpp\models\ggml-base.bin"),
+        PathBuf::from(r"C:\temp\whisper.cpp\models\ggml-base.en.bin"),
+        PathBuf::from(r"C:\temp\whisper.cpp\models\ggml-tiny.bin"),
+        PathBuf::from(r"C:\temp\whisper.cpp\models\ggml-tiny.en.bin"),
     ];
     for path in &dev_paths {
         if path.exists() {
@@ -242,13 +254,15 @@ fn find_whisper_binary(app: &AppHandle) -> Result<PathBuf, String> {
         .ok_or("Cannot get exe directory")?
         .to_path_buf();
 
-    let candidates = [
+    let mut candidates = vec![
         exe_dir.join("whisper-cli"),
         exe_dir.join("whisper-cli.exe"),
         resource_path.join("binaries/whisper-cli"),
-        // Dev mode fallback
-        PathBuf::from("/tmp/whisper.cpp/build/bin/whisper-cli"),
     ];
+    #[cfg(not(target_os = "windows"))]
+    candidates.push(PathBuf::from("/tmp/whisper.cpp/build/bin/whisper-cli"));
+    #[cfg(target_os = "windows")]
+    candidates.push(PathBuf::from(r"C:\temp\whisper.cpp\build\bin\Release\whisper-cli.exe"));
 
     for path in &candidates {
         if path.exists() {
@@ -273,12 +287,15 @@ fn find_whisper_server_binary(app: &AppHandle) -> Result<PathBuf, String> {
         .resource_dir()
         .map_err(|e| e.to_string())?;
 
-    let candidates = [
+    let mut candidates = vec![
         exe_dir.join("whisper-server"),
         exe_dir.join("whisper-server.exe"),
         resource_path.join("binaries/whisper-server"),
-        PathBuf::from("/tmp/whisper.cpp/build/bin/whisper-server"),
     ];
+    #[cfg(not(target_os = "windows"))]
+    candidates.push(PathBuf::from("/tmp/whisper.cpp/build/bin/whisper-server"));
+    #[cfg(target_os = "windows")]
+    candidates.push(PathBuf::from(r"C:\temp\whisper.cpp\build\bin\Release\whisper-server.exe"));
 
     for path in &candidates {
         if path.exists() {
