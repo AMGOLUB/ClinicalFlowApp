@@ -1645,7 +1645,8 @@ supabase secrets set R2_SECRET_ACCESS_KEY=...
 This is a **solo project** with mostly manual build and deployment.
 
 **Active workflows:**
-- `.github/workflows/build-whisper-windows.yml` — Builds `whisper-server.exe` from whisper.cpp v1.7.4 on `windows-latest` (CPU-only, CMake + MSVC). Manual trigger (`workflow_dispatch`). Uploads artifact with 90-day retention.
+- `.github/workflows/build-windows-app.yml` — **Full Windows NSIS installer build.** Runs on `windows-latest`. Clones whisper.cpp v1.7.4, builds `whisper-server.exe` (CPU-only, CMake + MSVC), downloads the 547 MB Whisper model from HuggingFace (cached), runs `npx tauri build --target x86_64-pc-windows-msvc`, and uploads the NSIS installer + whisper-server.exe as artifacts (90-day retention). Manual trigger (`workflow_dispatch`).
+- `.github/workflows/build-whisper-windows.yml` — Builds `whisper-server.exe` only from whisper.cpp v1.7.4 on `windows-latest` (CPU-only, CMake + MSVC). Manual trigger (`workflow_dispatch`). Uploads artifact with 90-day retention.
 
 **Manual workflow:**
 ```
