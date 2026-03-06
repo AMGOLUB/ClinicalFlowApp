@@ -1,0 +1,114 @@
+name: Build ClinicalFlow Windows Installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Node.js ──
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # ── Rust ──
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: windows-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: windows-cargo-
+
+      # ── Build whisper-server.exe ──
+      - name: Clone whisper.cpp (v1.7.4)
+        run: git clone --depth 1 --branch v1.7.4 https://github.com/ggml-org/whisper.cpp.git C:\whisper-cpp
+
+      - name: Build whisper-server (CPU-only)
+        shell: pwsh
+        run: |
+          cd C:\whisper-cpp
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
+          cmake --build build --config Release --target whisper-server -j
+
+      - name: Place whisper-server binary
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path src-tauri/binaries
+          Copy-Item "C:\whisper-cpp\build\bin\Release\whisper-server.exe" `
+            "src-tauri/binaries/whisper-server-x86_64-pc-windows-msvc.exe"
+          # whisper-cli is declared in externalBin but is dead code — create stub
+          Set-Content -Path "src-tauri/binaries/whisper-cli-x86_64-pc-windows-msvc.exe" -Value ""
+
+      # ── Download Whisper model ──
+      - name: Cache Whisper model
+        id: cache-model
+        uses: actions/cache@v4
+        with:
+          path: src-tauri/resources/models/ggml-large-v3-turbo-q5_0.bin
+          key: whisper-model-large-v3-turbo-q5_0
+
+      - name: Download Whisper model
+        if: steps.cache-model.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path src-tauri/resources/models
+          $url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin"
+          Write-Host "Downloading Whisper model (547 MB)..."
+          Invoke-WebRequest -Uri $url -OutFile "src-tauri/resources/models/ggml-large-v3-turbo-q5_0.bin"
+          $size = (Get-Item "src-tauri/resources/models/ggml-large-v3-turbo-q5_0.bin").Length / 1MB
+          Write-Host "Model downloaded: $([math]::Round($size, 1)) MB"
+
+      - name: Ensure model directory exists
+        if: steps.cache-model.outputs.cache-hit == 'true'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path src-tauri/resources/models
+
+      # ── Install & Build ──
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build Tauri Windows app
+        shell: pwsh
+        run: npx tauri build --target x86_64-pc-windows-msvc
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ""
+
+      # ── Upload artifacts ──
+      - name: Find and upload installer
+        shell: pwsh
+        run: |
+          $nsis = Get-ChildItem -Path "src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis" -Filter "*.exe" -ErrorAction SilentlyContinue
+          if ($nsis) {
+            Write-Host "NSIS installer found: $($nsis.FullName) ($([math]::Round($nsis.Length / 1MB, 1)) MB)"
+          } else {
+            Write-Host "No NSIS installer found, checking all bundle output..."
+            Get-ChildItem -Path "src-tauri/target" -Recurse -Filter "*.exe" | Where-Object { $_.DirectoryName -like "*bundle*" } | ForEach-Object { Write-Host $_.FullName }
+          }
+
+      - name: Upload NSIS installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClinicalFlow-Windows-Installer
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Upload whisper-server.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: whisper-server-windows
+          path: src-tauri/binaries/whisper-server-x86_64-pc-windows-msvc.exe
+          retention-days: 90
