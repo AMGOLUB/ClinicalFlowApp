@@ -330,7 +330,8 @@ ClinicalFlowApp/
 | **auth** | `auth.rs` | ~217 | PIN creation/verification via Argon2id, `AppState` (authenticated flag, last_activity), auto-lock, PIN reset |
 | **crypto** | `crypto.rs` | ~84 | AES-256-GCM encrypt/decrypt, PBKDF2-HMAC-SHA256 key derivation (100k iterations), atomic file writes |
 | **license** | `license.rs` | ~245 | Session data encryption (compiled-in SESSION_KEY), license blob decryption (compiled-in LICENSE_KEY), device hash computation (SHA256 of hostname:username) |
-| **storage** | `storage.rs` | ~500+ | File I/O for auth.json, config.json (encrypted), session.json (encrypted), session archives, PDF export via html2pdf sidecar, corrections loading, log cleanup |
+| **storage** | `storage.rs` | ~500+ | File I/O for auth.json, config.json (encrypted), session.json (encrypted), session archives, PDF export (delegates to pdf module), corrections loading, log cleanup |
+| **pdf** | `pdf.rs` | ~61 | Cross-platform PDF generation via `headless_chrome` crate (Chrome DevTools Protocol). Finds Chrome/Edge/Chromium, renders HTML→PDF. US Letter, 0.4in margins. |
 | **pms** | `pms.rs` | ~448 | MySQL async connection to Open Dental, perio sync (perioexam + periomeasure), procedure sync (procedurelog), note sync (commlog) |
 | **logging** | `logging.rs` | ~43 | Daily rolling file logs + stdout, tracing subscriber setup, debug/info filter levels |
 
@@ -362,6 +363,7 @@ ClinicalFlowApp/
 | `sysinfo` | 0.31 | System memory checks |
 | `hostname` / `whoami` | 0.4 / 1 | Device identification |
 | `hex` | 0.4 | Hex encoding |
+| `headless_chrome` | 1 | Chrome DevTools Protocol (PDF generation) |
 
 ### 3.2 Frontend Modules (Vanilla JS)
 
@@ -403,10 +405,12 @@ window.ENV = {
 | Binary | Platform | Size | Purpose |
 |--------|----------|------|---------|
 | `whisper-server` | `aarch64-apple-darwin` | 3.3 MB | HTTP transcription server (Whisper.cpp), Metal GPU-accelerated, flash attention, persistent across recordings (zero cold start), port auto-selected, health-checked before each recording |
-| `whisper-cli` | `aarch64-apple-darwin` | 3.0 MB | CLI fallback (not actively used) |
-| `html2pdf` | `aarch64-apple-darwin` | 62 KB | Swift executable using WebKit `createPDF`, produces paginated PDF from HTML |
+| `whisper-server` | `x86_64-pc-windows-msvc` | TBD | Same as above, CPU-only for v1 (DirectML GPU planned for v1.1). Built via GitHub Actions workflow. |
+| `whisper-cli` | `aarch64-apple-darwin` | 3.0 MB | CLI fallback (not actively used, `#[allow(dead_code)]`) |
 
-All binaries are **platform-specific** and **gitignored**. Compiled separately for each target architecture.
+All binaries are **platform-specific** and **gitignored**. Compiled separately for each target architecture. Tauri resolves the correct binary by platform triple suffix (e.g. `whisper-server-aarch64-apple-darwin` on macOS, `whisper-server-x86_64-pc-windows-msvc.exe` on Windows).
+
+**PDF Generation:** Replaced the macOS-only `html2pdf` Swift sidecar with the `headless_chrome` Rust crate (v1). Uses Chrome DevTools Protocol to render HTML→PDF via any installed Chromium browser (Chrome, Edge, Chromium). Edge ships with Windows 10/11. Cross-platform (macOS, Windows, Linux).
 
 ### 3.4 Bundled Resources
 
@@ -428,10 +432,11 @@ Version:          1.0.0
 Identifier:       com.clinicalflow.ai
 Frontend Dist:    ../src
 Window:           1400×900 (min 1024×700), centered, dark bg (#0B0F14)
-Bundle Target:    dmg (macOS only)
+Bundle Targets:   dmg (macOS), nsis (Windows)
 Category:         Medical
 Min macOS:        11.0
 Hardened Runtime: true
+Windows:          WebView2 downloadBootstrapper, no code signing yet
 withGlobalTauri:  true (REQUIRED for vanilla JS)
 ```
 
@@ -711,10 +716,12 @@ Authorization: Bearer <access_token>
 
 **Request:**
 ```
-GET /functions/v1/download-release
+GET /functions/v1/download-release?os=macos|windows
 Authorization: Bearer <access_token>
 apikey: <supabase_anon_key>
 ```
+
+OS detection: explicit `?os=` param, or falls back to User-Agent header (`Windows` → exe, else → dmg).
 
 **Response:**
 ```json
@@ -1132,7 +1139,7 @@ For the v1.0.0 early release, a "Free Demo" plan tile is available on the websit
 | Setting | Value |
 |---------|-------|
 | **Bucket** | `clinicalflow-releases` (default, configurable via `R2_BUCKET`) |
-| **File** | `ClinicalFlow_1.0.0_aarch64.dmg` |
+| **Files** | `ClinicalFlow_1.0.0_aarch64.dmg` (macOS), `ClinicalFlow_1.0.0_x64-setup.exe` (Windows) |
 | **Endpoint** | `R2_ENDPOINT` env var |
 | **Auth** | `R2_ACCESS_KEY_ID` + `R2_SECRET_ACCESS_KEY` |
 
@@ -1635,15 +1642,18 @@ supabase secrets set R2_SECRET_ACCESS_KEY=...
 
 ### Current State
 
-This is a **solo project** with manual build and deployment. No CI/CD pipeline exists yet.
+This is a **solo project** with mostly manual build and deployment.
 
-**Current workflow:**
+**Active workflows:**
+- `.github/workflows/build-whisper-windows.yml` — Builds `whisper-server.exe` from whisper.cpp v1.7.4 on `windows-latest` (CPU-only, CMake + MSVC). Manual trigger (`workflow_dispatch`). Uploads artifact with 90-day retention.
+
+**Manual workflow:**
 ```
 Developer machine
   → Manual code changes
-  → Manual: npm run build (local macOS .dmg build)
+  → Manual: npx tauri build (local macOS .dmg / Windows .exe build)
   → Manual: supabase functions deploy <name> (each function individually)
-  → Manual: upload .dmg to Cloudflare R2
+  → Manual: upload .dmg/.exe to Cloudflare R2
   → Manual: deploy website files to hosting
 ```
 
@@ -1936,8 +1946,8 @@ Tests are run locally before committing. No automated test runner in CI (solo pr
 | Directory | Files | Purpose |
 |-----------|-------|---------|
 | `src/` | ~25 | Desktop app frontend (vanilla JS modules) |
-| `src-tauri/src/` | 8 | Rust backend modules (lib, audio, auth, crypto, license, storage, pms, logging) |
-| `src-tauri/binaries/` | 3 | Sidecar executables (whisper-cli, whisper-server, html2pdf) |
+| `src-tauri/src/` | 9 | Rust backend modules (lib, audio, auth, crypto, license, storage, pdf, pms, logging) |
+| `src-tauri/binaries/` | 2–3 | Sidecar executables (whisper-server per platform, whisper-cli macOS only) |
 | `src-tauri/resources/` | ~8 | Models, corrections dictionaries, fonts |
 | `src-tauri/icons/` | 5 | App icons (png, icns, ico) |
 | `ClinicalFlowWebsite/` | ~22 | Marketing website (11 HTML pages + CSS + JS + SEO) |
