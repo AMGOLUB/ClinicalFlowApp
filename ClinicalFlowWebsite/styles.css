@@ -309,14 +309,14 @@ h4 { font-size: 20px; }
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   list-style: none;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
 .nav-links a {
-  padding: 8px 12px;
+  padding: 8px 14px;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
