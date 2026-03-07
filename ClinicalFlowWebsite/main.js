@@ -446,6 +446,8 @@
      11. IMAGE LIGHTBOX
      ═══════════════════════════════════════ */
   (function initLightbox() {
+    var isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
     // Create lightbox overlay
     var overlay = document.createElement('div');
     overlay.className = 'lightbox';
@@ -455,6 +457,17 @@
       + '</div>';
     document.body.appendChild(overlay);
 
+    // Magnifying glass (desktop only)
+    var glass = null;
+    var GLASS_SIZE = 180;
+    var ZOOM = 2.5;
+
+    if (!isMobile) {
+      glass = document.createElement('div');
+      glass.className = 'lightbox-glass';
+      overlay.appendChild(glass);
+    }
+
     var lbImg = overlay.querySelector('.lightbox-img');
     var lbClose = overlay.querySelector('.lightbox-close');
 
@@ -463,11 +476,47 @@
       lbImg.alt = alt || '';
       overlay.classList.add('active');
       document.body.style.overflow = 'hidden';
+      if (glass) {
+        glass.style.backgroundImage = 'url(' + src + ')';
+        glass.classList.remove('visible');
+      }
     }
 
     function closeLightbox() {
       overlay.classList.remove('active');
       document.body.style.overflow = '';
+      if (glass) glass.classList.remove('visible');
+    }
+
+    // Magnifier mouse tracking on the lightbox image
+    if (glass) {
+      lbImg.addEventListener('mouseenter', function () {
+        glass.classList.add('visible');
+        lbImg.style.cursor = 'none';
+      });
+
+      lbImg.addEventListener('mouseleave', function () {
+        glass.classList.remove('visible');
+        lbImg.style.cursor = '';
+      });
+
+      lbImg.addEventListener('mousemove', function (e) {
+        var rect = lbImg.getBoundingClientRect();
+        // Cursor position relative to the image element
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        // Position glass centered on cursor
+        glass.style.left = (e.clientX - GLASS_SIZE / 2) + 'px';
+        glass.style.top = (e.clientY - GLASS_SIZE / 2) + 'px';
+        // Background size = image size * zoom
+        var bgW = rect.width * ZOOM;
+        var bgH = rect.height * ZOOM;
+        glass.style.backgroundSize = bgW + 'px ' + bgH + 'px';
+        // Background position: center the zoomed area under the glass
+        var bgX = -(x * ZOOM - GLASS_SIZE / 2);
+        var bgY = -(y * ZOOM - GLASS_SIZE / 2);
+        glass.style.backgroundPosition = bgX + 'px ' + bgY + 'px';
+      });
     }
 
     // Click content images (skip logos, icons, tiny images)
