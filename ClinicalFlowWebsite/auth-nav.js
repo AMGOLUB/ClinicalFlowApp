@@ -143,7 +143,9 @@
   }
 
   function renderLoggedOutNav() {
+    var themeToggle = navCta.querySelector('.theme-toggle');
     navCta.innerHTML = originalNavHtml;
+    if (themeToggle) navCta.prepend(themeToggle);
     navCta.classList.remove('nav-cta--loading');
   }
 
@@ -209,7 +211,10 @@
       var firstName = fullName ? fullName.split(' ')[0] : email.split('@')[0];
       var initial = ((firstName || email)[0] || '?').toUpperCase();
 
+      // Preserve theme toggle if it exists before replacing nav HTML
+      var themeToggle = navCta.querySelector('.theme-toggle');
       navCta.innerHTML = buildLoggedInHtml(firstName, initial, fullName, email);
+      if (themeToggle) navCta.prepend(themeToggle);
       navCta.classList.remove('nav-cta--loading');
       attachDropdownHandlers();
 
