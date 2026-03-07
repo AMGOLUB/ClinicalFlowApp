@@ -171,6 +171,27 @@
       navLinks.appendChild(mobileCta);
     }
 
+    // Inject theme toggle into mobile menu
+    if (!navLinks.querySelector('.nav-mobile-theme')) {
+      const themeLi = document.createElement('li');
+      themeLi.className = 'nav-mobile-theme';
+      const label = document.createElement('span');
+      label.className = 'nav-mobile-theme-label';
+      label.textContent = 'Theme';
+      themeLi.appendChild(label);
+      // Move the existing toggle into this row on mobile (CSS hides the desktop one)
+      const existingToggle = document.querySelector('.nav-cta .theme-toggle');
+      if (existingToggle) {
+        const mobileToggle = existingToggle.cloneNode(true);
+        mobileToggle.className = 'theme-toggle theme-toggle--mobile';
+        mobileToggle.addEventListener('click', () => {
+          existingToggle.click(); // delegate to the original
+        });
+        themeLi.appendChild(mobileToggle);
+      }
+      navLinks.appendChild(themeLi);
+    }
+
     function openMenu() {
       menuOpen = true;
       navLinks.classList.add('nav-links--open');

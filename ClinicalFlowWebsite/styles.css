@@ -214,6 +214,21 @@
   border-bottom-color: rgba(255, 255, 255, 0.06);
 }
 
+/* Dark theme — nav links contrast */
+[data-theme="dark"] .nav-links a {
+  color: #CBD5E1;
+}
+[data-theme="dark"] .nav-links a:hover {
+  color: #F1F5F9;
+  background: rgba(10, 205, 207, 0.1);
+}
+[data-theme="dark"] .nav-links a.active {
+  color: var(--accent);
+}
+[data-theme="dark"] .hamburger-bar {
+  background: #E2E8F0;
+}
+
 /* Dark theme — comparison table */
 [data-theme="dark"] .comparison-table th,
 [data-theme="dark"] .comparison-table td {
@@ -885,6 +900,7 @@ button.nav-plan-badge--pending:hover {
 /* Mobile menu backdrop overlay */
 /* Hidden on desktop — shown only in mobile menu */
 .nav-mobile-cta { display: none; list-style: none; }
+.nav-mobile-theme { display: none; list-style: none; }
 
 .nav-mobile-backdrop {
   display: none;
@@ -1924,6 +1940,50 @@ body.using-mouse *:focus { outline: none; }
   }
   .nav-mobile-toggle svg { display: none; }
   .nav-cta { display: none; }
+
+  /* Mobile theme toggle row inside menu */
+  .nav-mobile-theme {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    margin-top: 2px;
+    border-top: 1px solid rgba(8, 145, 178, 0.08);
+    list-style: none;
+  }
+  .nav-mobile-theme-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  /* Dark mode — mobile menu panel */
+  [data-theme="dark"] .nav-links {
+    background: rgba(17, 24, 32, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(10, 205, 207, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  /* Dark mode — mobile nav links high contrast */
+  [data-theme="dark"] .nav-links a {
+    color: #E2E8F0;
+  }
+  [data-theme="dark"] .nav-links a:hover,
+  [data-theme="dark"] .nav-links a.active {
+    color: #67E8F9;
+    background: rgba(10, 205, 207, 0.12);
+  }
+  [data-theme="dark"] .nav-mobile-cta {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+  [data-theme="dark"] .nav-mobile-theme {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+  [data-theme="dark"] .nav-mobile-theme-label {
+    color: #E2E8F0;
+  }
 
   /* Hero */
   .hero { padding-top: calc(var(--nav-height) + 48px); padding-bottom: 60px; }
