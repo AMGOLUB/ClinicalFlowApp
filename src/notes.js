@@ -6,6 +6,7 @@ import { D, toast, updConn, updStatus, esc, fmt, fmtDate, fmtDT, wc, wait } from
 import { applyLiveCorrections, MED_RX, MED_TERMS } from './transcript.js';
 import { buildKeyterms } from './audio.js';
 import { ROLES } from './speakers.js';
+import { addToothTooltips } from './dictionary-features.js';
 import { estimateTokens as _estimateTokens, formatNoteMarkdown as _formatNoteMarkdown,
          extractCorrectedNote, postProcessNote as _postProcessNote,
          parseOllamaResponse as _parseOllamaResponse } from './pure.js';
@@ -1338,6 +1339,8 @@ export function renderNoteSec(nd){
     });
     el.appendChild(hdr);el.appendChild(body);D.noteSec.appendChild(el);
   });
+  /* Add tooth number tooltips for dental templates */
+  if(isDentalTemplate(App.noteFormat)) addToothTooltips(D.noteSec);
   /* Auto-populate dental chart from AI-generated findings (AI first → regex fallback) */
   if(isDentalTemplate(App.noteFormat)){
     const fullText=nd.sections.map(s=>s.content).join('\n');

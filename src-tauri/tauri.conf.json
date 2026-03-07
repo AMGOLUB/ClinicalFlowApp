@@ -45,7 +45,8 @@
     ],
     "resources": [
       "resources/models/*",
-      "resources/corrections*.json"
+      "resources/corrections*.json",
+      "resources/*-dictionary.json"
     ],
     "macOS": {
       "minimumSystemVersion": "11.0",

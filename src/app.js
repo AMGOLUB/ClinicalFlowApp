@@ -25,6 +25,7 @@ import { checkAuthAndInit, _resetAutoLock, setAutoLockMs, clearAutoLockTimer } f
 import { resetDentalChart, renderDentalChart, renderDentalPreview, updateDentalSummary, parseDentalFindingsFromNote, applyParsedFindings, setViewMode, setPerioDepths, setPerioMobility, setPerioRecession } from './dental-chart.js';
 import { LANGUAGES } from './languages.js';
 import { renderPmsSettings, syncToPms } from './pms-bridge.js';
+import { initDictionaryFeatures, togglePalette, addToothTooltips } from './dictionary-features.js';
 
 /* ── Keyboard Shortcuts ── */
 function initKeys(){
@@ -34,6 +35,7 @@ function initKeys(){
         case 'r':e.preventDefault();toggleRec();return;
         case ',':e.preventDefault();toggleSettings();return;
         case 'f':e.preventDefault();toggleSearch();return;
+        case 'j':e.preventDefault();togglePalette();return;
       }
     }
     const tag=e.target.tagName.toLowerCase();if(tag==='input'||tag==='textarea'||e.target.contentEditable==='true')return;
@@ -384,6 +386,8 @@ function initEvents(){
   D.copyBtn.addEventListener('click',copyNote);if(D.copyEhrBtn)D.copyEhrBtn.addEventListener('click',copyForEHR);if(D.expHl7Btn)D.expHl7Btn.addEventListener('click',exportHL7);D.regenBtn.addEventListener('click',generateNote);
   /* Insurance narrative button */
   if(D.genNarrBtn)D.genNarrBtn.addEventListener('click',()=>{import('./dental-extras.js').then(m=>m.generateInsuranceNarrative()).catch(e=>toast('Narrative failed: '+e.message,'error'));});
+  /* Phrase Palette button */
+  document.getElementById('phrasePaletteBtn')?.addEventListener('click',togglePalette);
   /* PMS Sync button */
   document.getElementById('syncPmsBtn')?.addEventListener('click',()=>syncToPms('all'));
   if(D.dlTxBtn)D.dlTxBtn.addEventListener('click',downloadTranscript);
@@ -593,6 +597,7 @@ async function initApp(){
   _populateLanguageSelect();
   hideDownloadBtns();
   loadCorrectionsDictionary();
+  initDictionaryFeatures();
   ollamaCheckWithRetry(3,2000).then(connected=>{
     if(connected){
       console.debug('[ClinicalFlow] Ollama connected:',App.ollamaModels.length,'models');

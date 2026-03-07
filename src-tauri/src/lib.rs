@@ -17,8 +17,8 @@ struct PendingDeepLink(Arc<Mutex<Option<String>>>);
 
 /// Returns (and consumes) any deep-link URL that arrived before the JS listener was set up.
 #[tauri::command]
-fn get_pending_deep_link(state: tauri::State<PendingDeepLink>) -> Option<String> {
-    state.0.lock().unwrap().take()
+fn get_pending_deep_link(state: tauri::State<PendingDeepLink>) -> Result<Option<String>, String> {
+    Ok(state.0.lock().map_err(|e| format!("Lock poisoned: {}", e))?.take())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -52,6 +52,7 @@ pub fn run() {
             storage::load_archived_session,
             storage::delete_archived_session,
             storage::load_corrections,
+            storage::load_dictionary,
             storage::get_export_path,
             storage::export_and_open_html,
             storage::save_text_file,
@@ -105,7 +106,9 @@ pub fn run() {
                 if let Some(url) = event.urls().first() {
                     let s = url.to_string();
                     tracing::info!("Deep link received: {}", s);
-                    *dl_pending.0.lock().unwrap() = Some(s.clone());
+                    if let Ok(mut guard) = dl_pending.0.lock() {
+                        *guard = Some(s.clone());
+                    }
                     let _ = dl_handle.emit("deep-link-received", &s);
                 }
             });
@@ -144,7 +147,7 @@ pub fn run() {
             if let tauri::RunEvent::Exit = event {
                 // Clean up persistent whisper server on app exit
                 let state = app.state::<audio::RecordingState>();
-                let child = state.whisper_server_process.lock().unwrap().take();
+                let child = state.whisper_server_process.lock().ok().and_then(|mut g| g.take());
                 if let Some(mut child) = child {
                     tracing::info!("[app] Shutting down whisper-server on exit");
                     let _ = child.kill();

@@ -10,6 +10,20 @@ fn app_data_dir(app: &AppHandle) -> Result<PathBuf, String> {
     app.path().app_data_dir().map_err(|e| e.to_string())
 }
 
+/// Sanitize a filename to prevent path traversal attacks.
+/// Strips directory separators, "..", and null bytes. Returns error if result is empty.
+fn sanitize_filename(name: &str) -> Result<String, String> {
+    let sanitized: String = name
+        .replace(['/', '\\', '\0'], "")
+        .replace("..", "")
+        .trim()
+        .to_string();
+    if sanitized.is_empty() {
+        return Err("Invalid filename".to_string());
+    }
+    Ok(sanitized)
+}
+
 #[tauri::command]
 pub async fn init_storage(app: AppHandle) -> Result<(), String> {
     let base = app_data_dir(&app)?;
@@ -217,20 +231,22 @@ pub async fn list_archived_sessions(app: AppHandle) -> Result<Vec<ArchivedSessio
 
 #[tauri::command]
 pub async fn load_archived_session(app: AppHandle, filename: String) -> Result<String, String> {
+    let safe_name = sanitize_filename(&filename)?;
     let path = app_data_dir(&app)?
         .join("sessions")
         .join("archive")
-        .join(format!("{}.json", filename));
+        .join(format!("{}.json", safe_name));
     fs::read_to_string(&path).map_err(|e| format!("Failed to load archive: {}", e))
 }
 
 #[tauri::command]
 pub async fn delete_archived_session(app: AppHandle, filename: String) -> Result<(), String> {
+    let safe_name = sanitize_filename(&filename)?;
     let archive_dir = app_data_dir(&app)?
         .join("sessions")
         .join("archive");
-    let json_path = archive_dir.join(format!("{}.json", filename));
-    let wav_path = archive_dir.join(format!("{}.wav", filename));
+    let json_path = archive_dir.join(format!("{}.json", safe_name));
+    let wav_path = archive_dir.join(format!("{}.wav", safe_name));
 
     if json_path.exists() {
         fs::remove_file(&json_path).map_err(|e| format!("Failed to delete: {}", e))?;
@@ -295,12 +311,33 @@ pub async fn load_corrections(app: AppHandle, language: Option<String>) -> Resul
 }
 
 // ============================================================
+// DICTIONARY FILES
+// ============================================================
+
+#[tauri::command]
+pub async fn load_dictionary(app: AppHandle, name: String) -> Result<String, String> {
+    let filename = format!("{}.json", name);
+    let resource_path = app
+        .path()
+        .resource_dir()
+        .map_err(|e| e.to_string())?
+        .join("resources")
+        .join(&filename);
+    if resource_path.exists() {
+        return fs::read_to_string(&resource_path)
+            .map_err(|e| format!("Failed to load dictionary: {}", e));
+    }
+    Err(format!("Dictionary '{}' not found", name))
+}
+
+// ============================================================
 // PDF / HTML EXPORT
 // ============================================================
 
 #[tauri::command]
 pub async fn get_export_path(app: AppHandle, filename: String) -> Result<String, String> {
-    let path = app_data_dir(&app)?.join("exports").join(filename);
+    let safe_name = sanitize_filename(&filename)?;
+    let path = app_data_dir(&app)?.join("exports").join(safe_name);
     Ok(path.to_string_lossy().to_string())
 }
 
@@ -310,7 +347,8 @@ pub async fn export_and_open_html(
     html: String,
     filename: String,
 ) -> Result<String, String> {
-    let path = app_data_dir(&app)?.join("exports").join(&filename);
+    let safe_name = sanitize_filename(&filename)?;
+    let path = app_data_dir(&app)?.join("exports").join(&safe_name);
     fs::write(&path, &html)
         .map_err(|e| format!("Failed to write export: {}", e))?;
 
@@ -571,10 +609,11 @@ pub async fn load_archived_session_encrypted(
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
     let pin = get_pin(&state)?;
+    let safe_name = sanitize_filename(&filename)?;
     let path = app_data_dir(&app)?
         .join("sessions")
         .join("archive")
-        .join(format!("{}.json", filename));
+        .join(format!("{}.json", safe_name));
 
     match crypto::decrypt_file(&path, pin.as_bytes()) {
         Ok(bytes) => String::from_utf8(bytes)
