@@ -8,20 +8,20 @@
   background: var(--bg-white);
 }
 
-/* ─── NAV OVERRIDE (logo + home + search, centered) ─── */
-.docs-body .nav-inner {
+/* ─── NAV: logo far-left, home+search centered, profile far-right ─── */
+.docs-nav-center {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
   justify-content: center;
-  gap: 24px;
 }
-.docs-body .nav-logo {
-  margin-right: 0;
-}
-.docs-body .nav-links {
+.docs-nav-center .nav-links {
   margin: 0;
   gap: 0;
 }
-.docs-body .docs-search {
-  flex: 0 1 400px;
+.docs-nav-center .docs-search {
+  flex: 0 1 360px;
 }
 
 /* ─── LAYOUT ─── */
