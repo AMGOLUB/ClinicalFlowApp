@@ -93,11 +93,12 @@
         <a href="#clinical-prompt" class="docs-sidebar-link">Clinical Prompt System</a>
       </div>
       <div class="docs-sidebar-group">
-        <div class="docs-sidebar-title">Note Templates (20)</div>
+        <div class="docs-sidebar-title">Note Templates (22)</div>
         <a href="#templates-overview" class="docs-sidebar-link">Overview</a>
         <a href="#templates-general" class="docs-sidebar-link">General (3)</a>
         <a href="#templates-behavioral" class="docs-sidebar-link">Behavioral Health (2)</a>
         <a href="#templates-specialty" class="docs-sidebar-link">Specialty (10)</a>
+        <a href="#templates-radiology" class="docs-sidebar-link">Radiology (2)</a>
         <a href="#templates-dental" class="docs-sidebar-link">Dental (5)</a>
         <a href="#templates-custom" class="docs-sidebar-link">Custom Templates</a>
       </div>
@@ -644,7 +645,7 @@
       <h2>Clinical Prompt System</h2>
       <p>ClinicalFlow uses a carefully engineered prompt to guide AI note generation. The prompt includes:</p>
       <ul>
-        <li><strong>Template specification</strong> &mdash; Exact section headers and structure for the selected template (from all 20 built-in templates)</li>
+        <li><strong>Template specification</strong> &mdash; Exact section headers and structure for the selected template (from all 22 built-in templates)</li>
         <li><strong>Evidence-extraction rules</strong> &mdash; Every line must trace back to something explicitly stated in the transcript</li>
         <li><strong>Omission logic</strong> &mdash; If a system or exam component was not discussed, it is omitted (not listed as &ldquo;not assessed&rdquo;)</li>
         <li><strong>Pertinent negatives</strong> &mdash; Only negatives the patient explicitly denied are included</li>
@@ -657,7 +658,7 @@
 
 
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-         NOTE TEMPLATES (20)
+         NOTE TEMPLATES (22)
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <div class="docs-section-header">
       <span class="badge">Note Templates</span>
@@ -665,7 +666,7 @@
 
     <article id="templates-overview" class="docs-article">
       <h2>Template Overview</h2>
-      <p>ClinicalFlow includes <strong>20 built-in note templates</strong> across 5 categories, plus the ability to create custom templates. Select a template from the dropdown (<code>#formatSelector</code>) in the sidebar, or change your default in Settings.</p>
+      <p>ClinicalFlow includes <strong>22 built-in note templates</strong> across 6 categories, plus the ability to create custom templates. Select a template from the dropdown (<code>#formatSelector</code>) in the sidebar, or change your default in Settings.</p>
     </article>
 
     <article id="templates-general" class="docs-article">
@@ -706,6 +707,17 @@
           <tr><td><strong>Ophthalmology</strong></td><td><code>ophthalmology</code></td><td>Ophthalmic History, Examination, Assessment, Plan</td></tr>
           <tr><td><strong>Preventive / Wellness</strong></td><td><code>wellness</code></td><td>Preventive Health, Health Screening, Physical Examination, Counseling &amp; Education, Plan</td></tr>
           <tr><td><strong>Procedure Note</strong></td><td><code>procedure</code></td><td>Pre-Procedure, Procedure, Findings, Post-Procedure</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="templates-radiology" class="docs-article">
+      <h2>Radiology Templates (2)</h2>
+      <table class="docs-table">
+        <thead><tr><th>Template</th><th>Key</th><th>Sections</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Diagnostic Radiology</strong></td><td><code>diagnostic_radiology</code></td><td>Clinical History, Technique, Comparison, Findings, Impression, Classification (BI-RADS/LI-RADS/PI-RADS), Recommendations</td></tr>
+          <tr><td><strong>Interventional Radiology</strong></td><td><code>interventional_radiology</code></td><td>Clinical History, Pre-Procedure Assessment, Procedure Details, Technique, Fluoroscopy/Dose Report, Findings, Post-Procedure Care, Impression</td></tr>
         </tbody>
       </table>
     </article>
@@ -1513,7 +1525,7 @@
 │  │ Transcript   │  │ Note Panel   │  │ Sidebar   │ │
 │  │ Panel        │  │ (editable)   │  │           │ │
 │  │              │  │              │  │ Speakers  │ │
-│  │ Real-time    │  │ 20 templates │  │ Templates │ │
+│  │ Real-time    │  │ 22 templates │  │ Templates │ │
 │  │ entries      │  │ Dental chart │  │ Settings  │ │
 │  │ 1,300+ terms │  │ Coding panel │  │ Archive   │ │
 │  └──────────────┘  └──────────────┘  └───────────┘ │
@@ -1601,7 +1613,7 @@ External Services (online mode only):
       <h3>ClinicalFlow&rsquo;s Strengths</h3>
       <ul>
         <li><strong>Offline mode.</strong> Most AI scribes are cloud-only. ClinicalFlow runs with zero internet.</li>
-        <li><strong>20 specialty templates + dental &amp; perio charting.</strong> Covers general, behavioral health, 10 specialties, 5 dental templates, full periodontal charting, and custom templates.</li>
+        <li><strong>22 specialty templates + dental &amp; perio charting.</strong> Covers general, behavioral health, 10 specialties, 2 radiology templates, 5 dental templates, full periodontal charting, and custom templates.</li>
         <li><strong>Automatic billing codes with audit flags.</strong> ICD-10, CPT, E&amp;M, and CDT coding with audit flags and clinical warnings.</li>
         <li><strong>EHR &amp; PMS integrations.</strong> HL7 v2 export to EHR systems, PMS Bridge for Dentrix/Eaglesoft/Open Dental, and insurance narrative generation.</li>
         <li><strong>Transparent pricing.</strong> $25/month with 14-day free trial. Cloud API costs separate and pay-as-you-go.</li>
@@ -1624,7 +1636,7 @@ External Services (online mode only):
         <thead><tr><th>Feature</th><th>ClinicalFlow</th><th>Typical Cloud Scribe</th></tr></thead>
         <tbody>
           <tr><td>Offline mode</td><td>&#10003; Full offline available</td><td>&#10007; Cloud-only</td></tr>
-          <tr><td>Note templates</td><td>20 built-in + custom</td><td>Varies</td></tr>
+          <tr><td>Note templates</td><td>22 built-in + custom</td><td>Varies</td></tr>
           <tr><td>Dental charting</td><td>&#10003; Interactive 32+20 teeth</td><td>&#10007; Rarely available</td></tr>
           <tr><td>Periodontal charting</td><td>&#10003; 6-point probing, voice entry</td><td>&#10007; Not available</td></tr>
           <tr><td>Billing codes</td><td>&#10003; ICD-10, CPT, E&amp;M, CDT</td><td>Varies</td></tr>
@@ -1661,7 +1673,7 @@ External Services (online mode only):
       <ul>
         <li>Dual-mode transcription: Deepgram Nova-3 Medical (online) and Whisper large-v3-turbo (offline, Metal GPU-accelerated, 574 MB)</li>
         <li>AI note generation: Claude Haiku 4.5 (cloud), Ollama (local), and rule-based fallback</li>
-        <li>20 built-in note templates across 5 categories (General, Behavioral Health, Specialty, Dental, Preventive) plus custom templates</li>
+        <li>22 built-in note templates across 6 categories (General, Behavioral Health, Specialty, Radiology, Dental, Preventive) plus custom templates</li>
         <li>Two-pass verification system for hallucination, contradiction, and omission detection</li>
         <li>Interactive dental chart: 32-tooth adult + 20-tooth primary, 8 states, 5-surface marking</li>
         <li>Periodontal charting: 6-point probing depths, BOP, recession, mobility, furcation, voice-driven entry</li>

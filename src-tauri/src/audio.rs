@@ -456,8 +456,8 @@ async fn ensure_whisper_server(
     state: &State<'_, RecordingState>,
     language: &str,
 ) -> Result<u16, String> {
-    let current_port = *state.whisper_server_port.lock().unwrap();
-    let current_lang = state.whisper_language.lock().unwrap().clone();
+    let current_port = *state.whisper_server_port.lock().map_err(|e| format!("Lock poisoned: {}", e))?;
+    let current_lang = state.whisper_language.lock().map_err(|e| format!("Lock poisoned: {}", e))?.clone();
 
     // If we have a server, check if it's alive and correct language
     if current_port > 0 {
@@ -483,10 +483,10 @@ async fn ensure_whisper_server(
         }
 
         // Kill the old server
-        if let Some(mut child) = state.whisper_server_process.lock().unwrap().take() {
+        if let Some(mut child) = state.whisper_server_process.lock().map_err(|e| format!("Lock poisoned: {}", e))?.take() {
             kill_whisper_server(&mut child);
         }
-        *state.whisper_server_port.lock().unwrap() = 0;
+        *state.whisper_server_port.lock().map_err(|e| format!("Lock poisoned: {}", e))? = 0;
     }
 
     // Start a new server
@@ -522,9 +522,9 @@ async fn ensure_whisper_server(
         }
     }
 
-    *state.whisper_server_process.lock().unwrap() = Some(child);
-    *state.whisper_server_port.lock().unwrap() = port;
-    *state.whisper_language.lock().unwrap() = language.to_string();
+    *state.whisper_server_process.lock().map_err(|e| format!("Lock poisoned: {}", e))? = Some(child);
+    *state.whisper_server_port.lock().map_err(|e| format!("Lock poisoned: {}", e))? = port;
+    *state.whisper_language.lock().map_err(|e| format!("Lock poisoned: {}", e))? = language.to_string();
 
     Ok(port)
 }
@@ -562,7 +562,29 @@ composite restoration, amalgam, porcelain, ceramic crown, implant, abutment, pon
 impacted, extraction, alveolar, furcation, edentulous, malocclusion, bruxism, \
 temporomandibular, mandibular, maxillary, premolar, molar, bicuspid, canine, incisor, \
 radiograph, periapical abscess, bone loss, pocket depth, clinical attachment loss, \
-fixed partial denture, removable partial denture, silver diamine fluoride.";
+fixed partial denture, removable partial denture, silver diamine fluoride. \
+Radiology: CT, CTA, CTV, CTP, CTPA, HRCT, MRI, MRA, MRCP, FLAIR, STIR, DWI, ADC, SWI, GRE, \
+diffusion-weighted imaging, T1-weighted, T2-weighted, contrast-enhanced, non-contrast, \
+arterial phase, portal venous phase, delayed phase, PET/CT, SPECT, fluoroscopy, DSA, \
+tomosynthesis, mammography, ultrasound, Doppler, FAST, POCUS, \
+Omnipaque, Isovue, Visipaque, Gadavist, Dotarem, ProHance, Eovist, Primovist, MultiHance, \
+Gastrografin, Feraheme, gadolinium, iohexol, iopamidol, iodixanol, \
+FDG, DOTATATE, PSMA, sestamibi, technetium, Lexiscan, regadenoson, Lutathera, Xofigo, \
+ground-glass opacity, honeycombing, tree-in-bud, consolidation, atelectasis, \
+pneumoperitoneum, pneumomediastinum, pneumothorax, pneumatosis intestinalis, \
+hypodense, hyperdense, hyperintense, hypointense, enhancing, calcified, \
+spiculated, lobulated, infiltrative, mass effect, midline shift, restricted diffusion, \
+lymphadenopathy, hepatomegaly, splenomegaly, effusion, hemorrhage, hematoma, extravasation, \
+stenosis, occlusion, thrombosis, dissection, aneurysm, pseudoaneurysm, SUVmax, FDG-avid, \
+BI-RADS, LI-RADS, PI-RADS, TI-RADS, Lung-RADS, Fleischner, Bosniak, RECIST, NASCET, \
+embolization, TACE, DEB-TACE, TARE, TIPS, radiofrequency ablation, RFA, microwave ablation, MWA, \
+cryoablation, vertebroplasty, kyphoplasty, PMMA, EVAR, TEVAR, \
+Gelfoam, Onyx, Embosphere, SIR-Spheres, TheraSphere, NanoKnife, \
+pigtail catheter, Glidewire, Seldinger, micropuncture, PICC, Port-a-Cath, IVC filter, \
+celiac trunk, superior mesenteric artery, SMA, circle of Willis, basilar, popliteal, \
+brachiocephalic, innominate, azygos, dorsalis pedis, great saphenous, \
+nephrostomy, cholecystostomy, percutaneous biopsy, core needle biopsy, fine needle aspiration, \
+Hounsfield, multiplanar reconstruction, maximum intensity projection.";
 
 // --- Helper: detect whisper hallucinations on silence/low-energy audio ---
 
@@ -675,7 +697,7 @@ pub async fn start_recording(
     }
 
     // Store language for use in processing loop
-    *state.whisper_language.lock().unwrap() = lang.clone();
+    *state.whisper_language.lock().map_err(|e| format!("Lock poisoned: {}", e))? = lang.clone();
 
     // Ensure whisper server is running (for any mode except stream/Deepgram)
     let whisper_port: u16 = if mode != "stream" {
@@ -686,7 +708,7 @@ pub async fn start_recording(
 
     // Reset adaptive chunk size for new recording
     state.current_chunk_samples.store(DEFAULT_CHUNK_SAMPLES as u64, Ordering::SeqCst);
-    state.inference_times.lock().unwrap().clear();
+    state.inference_times.lock().map_err(|e| format!("Lock poisoned: {}", e))?.clear();
 
     // Get the default input device
     let host = cpal::default_host();
@@ -701,12 +723,12 @@ pub async fn start_recording(
     let source_rate = config.sample_rate().0;
     let channels = config.channels();
 
-    *state.sample_rate.lock().unwrap() = source_rate;
+    *state.sample_rate.lock().map_err(|e| format!("Lock poisoned: {}", e))? = source_rate;
 
     // Clear buffers
-    state.chunk_buffer.lock().unwrap().clear();
-    state.session_samples.lock().unwrap().clear();
-    *state.total_samples.lock().unwrap() = 0;
+    state.chunk_buffer.lock().map_err(|e| format!("Lock poisoned: {}", e))?.clear();
+    state.session_samples.lock().map_err(|e| format!("Lock poisoned: {}", e))?.clear();
+    *state.total_samples.lock().map_err(|e| format!("Lock poisoned: {}", e))? = 0;
 
     // Start continuous WAV writer for crash safety
     let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
@@ -717,8 +739,8 @@ pub async fn start_recording(
     let wav_path_str = sessions_dir.join(&wav_filename).to_string_lossy().to_string();
 
     let writer = start_continuous_wav(&wav_path_str, 16000)?;
-    *state.wav_writer.lock().unwrap() = Some(writer);
-    *state.wav_path.lock().unwrap() = Some(wav_path_str.clone());
+    *state.wav_writer.lock().map_err(|e| format!("Lock poisoned: {}", e))? = Some(writer);
+    *state.wav_path.lock().map_err(|e| format!("Lock poisoned: {}", e))? = Some(wav_path_str.clone());
 
     tracing::info!("Recording started, continuous WAV: {}", wav_path_str);
 
@@ -845,7 +867,7 @@ pub async fn start_recording(
     // NOW set is_recording — only after stream is successfully built and playing
     state.is_recording.store(true, Ordering::SeqCst);
 
-    *state.stream_handle.lock().unwrap() = Some(StreamWrapper(stream));
+    *state.stream_handle.lock().map_err(|e| format!("Lock poisoned: {}", e))? = Some(StreamWrapper(stream));
 
     // Spawn the processing loop — mode determines behavior
     let is_recording = state.is_recording.clone();
@@ -1027,7 +1049,7 @@ pub async fn start_recording(
         })
     };
 
-    *state.whisper_task.lock().unwrap() = Some(task);
+    *state.whisper_task.lock().map_err(|e| format!("Lock poisoned: {}", e))? = Some(task);
 
     Ok(())
 }
@@ -1046,25 +1068,25 @@ pub async fn stop_recording(
 
     // Stop the audio stream
     {
-        let mut handle = state.stream_handle.lock().unwrap();
+        let mut handle = state.stream_handle.lock().map_err(|e| format!("Lock poisoned: {}", e))?;
         *handle = None; // dropping the stream stops it
     }
 
     // Finalize the continuous WAV writer (writes correct header length)
-    let total_samples = *state.total_samples.lock().unwrap();
+    let total_samples = *state.total_samples.lock().map_err(|e| format!("Lock poisoned: {}", e))?;
     {
-        if let Some(writer) = state.wav_writer.lock().unwrap().take() {
+        if let Some(writer) = state.wav_writer.lock().map_err(|e| format!("Lock poisoned: {}", e))?.take() {
             writer.finalize().map_err(|e| format!("Failed to finalize WAV: {}", e))?;
         }
     }
-    let wav_path_result = state.wav_path.lock().unwrap().take().unwrap_or_default();
+    let wav_path_result = state.wav_path.lock().map_err(|e| format!("Lock poisoned: {}", e))?.take().unwrap_or_default();
 
     tracing::info!("Recording stopped. Total samples: {}, duration: {:.1}s, file: {}",
         total_samples, total_samples as f64 / 16000.0, wav_path_result);
 
     // Wait for whisper task to finish
     let task_handle = {
-        state.whisper_task.lock().unwrap().take()
+        state.whisper_task.lock().map_err(|e| format!("Lock poisoned: {}", e))?.take()
     };
     if let Some(t) = task_handle {
         let _ = tokio::time::timeout(tokio::time::Duration::from_secs(5), t).await;
@@ -1072,14 +1094,14 @@ pub async fn stop_recording(
 
     // Process any remaining audio in the chunk buffer
     let remaining: Vec<i16> = {
-        let mut buf = state.chunk_buffer.lock().unwrap();
+        let mut buf = state.chunk_buffer.lock().map_err(|e| format!("Lock poisoned: {}", e))?;
         let data = buf.clone();
         buf.clear();
         data
     };
 
-    let server_port = *state.whisper_server_port.lock().unwrap();
-    let final_lang = state.whisper_language.lock().unwrap().clone();
+    let server_port = *state.whisper_server_port.lock().map_err(|e| format!("Lock poisoned: {}", e))?;
+    let final_lang = state.whisper_language.lock().map_err(|e| format!("Lock poisoned: {}", e))?.clone();
 
     if remaining.len() > 8000 && server_port > 0 {
         let tmp_dir = std::env::temp_dir();
@@ -1110,7 +1132,7 @@ pub async fn stop_recording(
     // It will be shut down on app quit or via the shutdown_whisper_server command.
 
     // Clear session_samples buffer (continuous WAV writer already saved everything)
-    state.session_samples.lock().unwrap().clear();
+    if let Ok(mut buf) = state.session_samples.lock() { buf.clear(); }
 
     if wav_path_result.is_empty() {
         return Ok(String::new());
@@ -1160,10 +1182,10 @@ pub async fn get_audio_devices() -> Result<Vec<AudioDevice>, String> {
 /// Shut down the persistent whisper server. Called on app quit or mode switch to online.
 #[tauri::command]
 pub async fn shutdown_whisper_server(state: State<'_, RecordingState>) -> Result<(), String> {
-    if let Some(mut child) = state.whisper_server_process.lock().unwrap().take() {
+    if let Some(mut child) = state.whisper_server_process.lock().map_err(|e| format!("Lock poisoned: {}", e))?.take() {
         kill_whisper_server(&mut child);
     }
-    *state.whisper_server_port.lock().unwrap() = 0;
+    *state.whisper_server_port.lock().map_err(|e| format!("Lock poisoned: {}", e))? = 0;
     tracing::info!("[whisper-server] Shut down via command");
     Ok(())
 }

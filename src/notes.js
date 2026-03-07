@@ -8,7 +8,7 @@ import { ROLES } from './speakers.js';
 import { estimateTokens as _estimateTokens, formatNoteMarkdown as _formatNoteMarkdown,
          extractCorrectedNote, postProcessNote as _postProcessNote,
          parseOllamaResponse as _parseOllamaResponse } from './pure.js';
-import { getTemplateRegistry, CODING_PROMPT, DENTAL_CODING_PROMPT } from './templates.js';
+import { getTemplateRegistry, CODING_PROMPT, DENTAL_CODING_PROMPT, RADIOLOGY_CODING_PROMPT } from './templates.js';
 import { formatDentalChartForPrompt, isDentalTemplate, parseDentalFindingsFromNote, applyParsedFindings, buildDentalChartExportSVG, buildDentalFindingsExportHTML } from './dental-chart.js';
 import { getLanguageLabel, isEnglish, getWhisperCode } from './languages.js';
 import { tauriListen } from './state.js';
@@ -614,8 +614,11 @@ export async function generateCoding(){
     return`=== ${s.title} ===\n${live?live.innerText:s.content}`;
   }).join('\n\n');
   const dental=isDentalTemplate(App.noteFormat);
+  const radiology=App.noteFormat==='radiology_diagnostic'||App.noteFormat==='radiology_interventional';
   const prompt=dental
     ?DENTAL_CODING_PROMPT.replace('{{NOTE_TEXT}}',noteText).replace('{{DENTAL_CHART}}',formatDentalChartForPrompt()||'(No chart findings)')
+    :radiology
+    ?RADIOLOGY_CODING_PROMPT.replace('{{NOTE_TEXT}}',noteText)
     :CODING_PROMPT.replace('{{NOTE_TEXT}}',noteText);
   showCodingLoading(dental);
   try{

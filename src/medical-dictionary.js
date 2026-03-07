@@ -335,6 +335,102 @@ const DENTAL_ANATOMY = [
   'porcelain','dental cement'
 ];
 
+/* ── Radiology Terminology ── */
+
+const RADIOLOGY_MODALITIES = [
+  'CT','CTA','CTV','CTP','CTPA','CCTA','HRCT','LDCT','DECT','CTU',
+  'MRI','MRA','MRV','MRCP','MRE','MRS','fMRI','CMR',
+  'ultrasound','TVUS','TRUS','EUS','EBUS','IVUS','CEUS','POCUS','FAST',
+  'PET','PET/CT','PET/MRI','SPECT','SPECT/CT',
+  'mammography','tomosynthesis','digital breast tomosynthesis',
+  'fluoroscopy','DSA','angiography',
+  'T1-weighted','T2-weighted','FLAIR','STIR','DWI','ADC','SWI','GRE',
+  'diffusion-weighted imaging','FIESTA','TrueFISP','TOF',
+  'contrast-enhanced','non-contrast','multiphase',
+  'arterial phase','portal venous phase','delayed phase',
+  'maximum intensity projection','multiplanar reconstruction',
+  'volume rendering','3D reconstruction'
+];
+
+const RADIOLOGY_CONTRAST = [
+  'Omnipaque','Isovue','Visipaque','Optiray','Ultravist',
+  'Gadavist','Dotarem','ProHance','Magnevist','Eovist','Primovist','MultiHance','Omniscan',
+  'Definity','Lumason','Gastrografin','Readi-Cat','Volumen','Feraheme',
+  'gadolinium','iohexol','iopamidol','iodixanol','gadobutrol','gadoterate',
+  'iodinated contrast','gadolinium-based contrast agent',
+  'FDG','DOTATATE','PSMA','sestamibi','technetium-99m','Tc-99m',
+  'Lexiscan','regadenoson','Lutathera','Xofigo','Amyvid','Tauvid'
+];
+
+const RADIOLOGY_FINDINGS = [
+  'hypodense','hyperdense','isodense',
+  'hyperintense','hypointense','isointense',
+  'hypoechoic','hyperechoic','isoechoic','anechoic',
+  'ground-glass opacity','consolidation','atelectasis','honeycombing',
+  'tree-in-bud','crazy paving pattern','air bronchogram',
+  'pneumoperitoneum','pneumomediastinum','pneumothorax','hydropneumothorax',
+  'pneumatosis intestinalis','Hounsfield',
+  'enhancing','non-enhancing','rim-enhancing','homogeneously enhancing',
+  'calcified','non-calcified','partially calcified',
+  'cystic','solid','mixed cystic and solid','septated',
+  'lobulated','spiculated','irregular margin','well-circumscribed',
+  'infiltrative','mass effect','midline shift',
+  'hydrocephalus','herniation','edema','vasogenic edema','cytotoxic edema',
+  'restricted diffusion','diffusion restriction',
+  'effusion','pleural effusion','pericardial effusion','ascites',
+  'lymphadenopathy','hepatomegaly','splenomegaly',
+  'stenosis','occlusion','thrombosis','dissection','aneurysm','pseudoaneurysm',
+  'hemorrhage','hematoma','extravasation','active bleeding',
+  'SUVmax','standardized uptake value','metabolically active','FDG-avid'
+];
+
+const RADIOLOGY_PROCEDURES = [
+  'embolization','chemoembolization','radioembolization',
+  'TACE','DEB-TACE','TARE','TAE',
+  'radiofrequency ablation','RFA','microwave ablation','MWA',
+  'cryoablation','irreversible electroporation','HIFU',
+  'TIPS','percutaneous nephrostomy','cholecystostomy',
+  'vertebroplasty','kyphoplasty','PMMA',
+  'PICC line','Port-a-Cath','central venous catheter',
+  'IVC filter','EVAR','TEVAR',
+  'catheter-directed thrombolysis','mechanical thrombectomy',
+  'percutaneous biopsy','core needle biopsy','fine needle aspiration',
+  'Seldinger technique','micropuncture',
+  'angioplasty','stent placement','stent-graft'
+];
+
+const RADIOLOGY_SCORING = [
+  'BI-RADS','LI-RADS','PI-RADS','TI-RADS','Lung-RADS',
+  'Fleischner','Bosniak','RECIST','NASCET'
+];
+
+const RADIOLOGY_ANATOMY = [
+  'celiac trunk','superior mesenteric artery','SMA',
+  'inferior mesenteric artery','IMA',
+  'internal carotid artery','ICA','external carotid artery',
+  'middle cerebral artery','MCA','anterior cerebral artery','ACA',
+  'posterior cerebral artery','PCA',
+  'circle of Willis','basilar artery','vertebral artery',
+  'PICA','AICA','SCA',
+  'azygos','hemiazygos','portal vein','hepatic veins',
+  'gastroduodenal artery','splenic artery','renal artery',
+  'superficial femoral artery','SFA','popliteal artery',
+  'dorsalis pedis','great saphenous vein','small saphenous vein',
+  'brachiocephalic','innominate','subclavian artery',
+  'pulmonary artery','pulmonary vein',
+  'inferior vena cava','IVC','superior vena cava','SVC'
+];
+
+const RADIOLOGY_DEVICES = [
+  'Gelfoam','Onyx','Embosphere','SIR-Spheres','TheraSphere',
+  'NanoKnife','pigtail catheter','Glidewire',
+  'Cobra catheter','Simmons catheter','microcatheter',
+  'Amplatz wire','Bentson wire',
+  'Wallstent','Viatorr','coils',
+  'drug-eluting beads','microspheres',
+  'closure device','Angio-Seal','Perclose'
+];
+
 /* ── Regex Utility ── */
 
 function _escRegex(s) {
@@ -362,6 +458,13 @@ _addTerms(MED_ANATOMY, 'anatomy-term');
 _addTerms(DENTAL_CONDITIONS, 'dental-term');
 _addTerms(DENTAL_PROCEDURES, 'dental-term');
 _addTerms(DENTAL_ANATOMY, 'dental-term');
+_addTerms(RADIOLOGY_MODALITIES, 'procedure-term');
+_addTerms(RADIOLOGY_CONTRAST, 'medication-term');
+_addTerms(RADIOLOGY_FINDINGS, 'medical-term');
+_addTerms(RADIOLOGY_PROCEDURES, 'procedure-term');
+_addTerms(RADIOLOGY_SCORING, 'medical-term');
+_addTerms(RADIOLOGY_ANATOMY, 'anatomy-term');
+_addTerms(RADIOLOGY_DEVICES, 'procedure-term');
 
 // Build single regex: sort by length (longest first) to prevent partial matches
 const _allTermsSorted = [..._termMap.keys()].sort((a, b) => b.length - a.length);

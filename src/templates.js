@@ -8,6 +8,7 @@ export const TEMPLATE_CATEGORIES=[
   {id:'general',label:'General'},
   {id:'behavioral',label:'Behavioral Health'},
   {id:'specialty',label:'Specialty'},
+  {id:'radiology',label:'Radiology'},
   {id:'dental',label:'Dental'},
   {id:'custom',label:'My Templates'}
 ];
@@ -824,6 +825,170 @@ Provisional Restoration: [Temporary prosthesis — only if discussed]
 Laboratory Steps: [Impressions, bite registration, try-in, delivery schedule — only if discussed]
 Referrals: [Oral surgery for implant placement, periodontics, orthodontics — only if discussed]
 Follow-Up: [Next appointment, adjustment visits, recall schedule]`
+  },
+
+  /* ─── Radiology ─── */
+
+  radiology_diagnostic:{
+    id:'radiology_diagnostic',
+    label:'Diagnostic Radiology',
+    description:'Structured diagnostic imaging report with standardized scoring',
+    category:'radiology',
+    sections:['Examination','Clinical Indication','Comparison','Technique','Findings','Impression'],
+    noteTitle:'Diagnostic Radiology Report',
+    prompt:`Use EXACTLY these section headers. OMIT any section that has no evidence in the transcript.
+
+**EXAMINATION**
+Type: [imaging modality and body region, e.g., "CT Abdomen and Pelvis with IV Contrast"]
+Date: [use date below]
+Referring Physician: [if mentioned in transcript]
+Accession Number: [if mentioned]
+
+**CLINICAL INDICATION**
+[Reason for exam, relevant clinical history, specific clinical question to be answered. Include ICD-10 codes if dictated.]
+
+**COMPARISON**
+[Prior studies referenced for comparison, with dates. If none: "No prior studies available for comparison."]
+
+**TECHNIQUE**
+[Imaging protocol, contrast type/volume/route, sequences (MRI), phases (CT), scanner parameters if dictated. For CT: note if with/without contrast, single or multiphase. For MRI: list sequences obtained. For US: note transducer type if mentioned. For nuclear medicine: note radiopharmaceutical, dose, timing.]
+
+**FINDINGS**
+[Organized by anatomical region or organ system. Each finding on its own line. Use precise radiology descriptors (hypodense, hyperintense, enhancing, etc.). Include measurements in cm or mm. Reference comparison studies where applicable ("unchanged compared to [date]", "new since [date]", "interval increase/decrease"). Document normal structures explicitly when relevant to the clinical question.]
+
+[For CT/MRI abdomen, organize by: Liver, Gallbladder/Biliary, Pancreas, Spleen, Adrenals, Kidneys/Ureters, Bladder, Reproductive organs, GI tract, Vasculature, Lymph nodes, Musculoskeletal, Other]
+[For CT/MRI chest, organize by: Lungs/Airways, Pleura, Heart/Pericardium, Mediastinum/Hila, Vasculature, Chest wall/Spine, Upper abdomen (if included)]
+[For CT/MRI brain, organize by: Brain parenchyma, Ventricles/CSF spaces, Extra-axial spaces, Calvarium, Orbits/Sinuses/Mastoids, Vascular (if CTA)]
+[For ultrasound, organize by the specific organ(s) examined]
+[For nuclear medicine/PET, organize by: Primary site of interest, Regional findings, Distant sites, Physiologic uptake]
+
+**IMPRESSION**
+[Numbered list of key findings in order of clinical significance. Each impression item should be concise and actionable. Include standardized classification scores when applicable: BI-RADS for breast imaging, LI-RADS for liver lesions in at-risk patients, PI-RADS for prostate MRI, TI-RADS for thyroid nodules, Lung-RADS for lung cancer screening, Bosniak for renal cysts, Fleischner Society recommendation for incidental pulmonary nodules.]
+[Include follow-up recommendations when appropriate. State if findings were communicated as critical/emergent and to whom.]
+
+RADIOLOGY-SPECIFIC RULES:
+1. Use standardized radiology descriptors from the findings. Never use vague terms like "abnormality" when a specific descriptor applies (e.g., "hypodense," "hyperintense," "ground-glass opacity").
+2. Always include measurements for masses, nodules, collections, and aneurysms.
+3. Reference comparison studies by modality and date when available.
+4. For incidental findings, include the appropriate management recommendation (Fleischner, ACR, etc.).
+5. Organize findings anatomically, not by clinical importance — save prioritization for the Impression.
+6. The Impression should be a numbered list, most clinically significant finding first.
+7. If the radiologist dictates a standardized score (BI-RADS, LI-RADS, PI-RADS, TI-RADS, Lung-RADS, Bosniak), always include it in the Impression.
+8. Never fabricate measurements, comparison dates, or classification scores not stated in the transcript.
+9. If the radiologist dictates critical findings communication (e.g., "results communicated to Dr. Smith by phone at 2:15 PM"), include this at the end of the Impression.
+10. Document technique details exactly as dictated — do not infer contrast type, dose, or sequences.`
+  },
+
+  radiology_interventional:{
+    id:'radiology_interventional',
+    label:'Interventional Radiology',
+    description:'IR procedure report with consent, sedation, technique, and dose tracking',
+    category:'radiology',
+    sections:['Procedure','Clinical Indication','Consent','Sedation / Anesthesia','Technique','Findings','Specimens','Drains / Devices','Estimated Blood Loss','Complications','Fluoroscopy / Radiation Dose','Impression','Post-Procedure Orders'],
+    noteTitle:'Interventional Radiology Procedure Report',
+    prompt:`Use EXACTLY these section headers. OMIT any section that has no evidence in the transcript.
+
+**PROCEDURE**
+Name: [exact procedure name, e.g., "CT-guided percutaneous core needle biopsy of right hepatic lobe lesion"]
+Date: [use date below]
+Operators: [attending, fellow, resident if mentioned]
+Referring Physician: [if mentioned]
+
+**CLINICAL INDICATION**
+[Reason for procedure, relevant clinical history, prior imaging findings that prompted the intervention. Include diagnosis codes if dictated.]
+
+**CONSENT**
+[Documentation of informed consent: risks discussed, alternatives offered, patient understanding confirmed. Include specific risks mentioned (bleeding, infection, pneumothorax, contrast reaction, etc.). Note if consent was obtained by a specific provider.]
+
+**SEDATION / ANESTHESIA**
+Type: [conscious sedation / moderate sedation / MAC / general anesthesia / local only]
+Medications: [medications administered with doses and route, e.g., "Midazolam 2 mg IV, Fentanyl 100 mcg IV, Lidocaine 1% 10 mL local"]
+Monitoring: [continuous pulse oximetry, cardiac monitoring, BP monitoring]
+Sedation Provider: [if different from operator]
+
+**TECHNIQUE**
+[Step-by-step procedural description as dictated. Include:]
+[- Patient positioning and prep (prone, supine, lateral decubitus)]
+[- Skin prep and drape (sterile technique, chlorhexidine/betadine)]
+[- Access method (Seldinger technique, direct puncture, micropuncture)]
+[- Imaging guidance used (CT, ultrasound, fluoroscopy, cone-beam CT)]
+[- Needle/catheter/wire specifics if dictated (gauge, type, brand)]
+[- Route of access (e.g., right common femoral artery, right internal jugular vein)]
+[- Key procedural steps in sequence]
+[- Embolic agents / devices / stents used with sizes and quantities]
+[- Contrast type and volume administered]
+[- Specimens obtained (number of cores, specimen handling — formalin, CytoLyt)]
+[- Completion imaging / angiography findings]
+[- Hemostasis method (manual compression, closure device, tract embolization)]
+[- Catheter/drain placement details (size, type, position, secured with suture/StatLock)]
+
+**FINDINGS**
+[Intraprocedural imaging findings:]
+[- Pre-procedure imaging (target lesion appearance, measurements, access route planning)]
+[- Intraprocedural findings (e.g., angiographic findings, biopsy target confirmation)]
+[- Post-procedure imaging (completion angiogram, post-ablation imaging, drain positioning)]
+[- Unexpected findings]
+
+**SPECIMENS**
+[If biopsy/aspiration was performed:]
+[- Number and type of specimens (e.g., "4 core biopsies obtained using 18-gauge coaxial technique")]
+[- Specimen destination (surgical pathology in formalin, cytology in CytoLyt)]
+[- Rapid on-site evaluation (ROSE) results if performed]
+[- Adequacy assessment]
+
+**DRAINS / DEVICES**
+[If a drain or device was placed:]
+[- Type and size (e.g., "10 French pigtail drainage catheter")]
+[- Position (e.g., "tip in the right hepatic abscess cavity")]
+[- Secured with (suture, StatLock, adhesive)]
+[- Immediate output (volume, character — e.g., "20 mL of purulent fluid aspirated")]
+[- Connected to (gravity drainage bag, bulb suction)]
+
+**ESTIMATED BLOOD LOSS**
+[Minimal / amount in mL / as dictated]
+
+**COMPLICATIONS**
+[None / description of any intraprocedural complications]
+[If pneumothorax: size, management (observation vs chest tube)]
+[If bleeding: management steps taken]
+
+**FLUOROSCOPY / RADIATION DOSE**
+[Fluoroscopy time: X minutes Y seconds]
+[Dose: reference air kerma / DAP / CTDIvol / DLP as applicable]
+[Number of DSA runs if applicable]
+
+**IMPRESSION**
+[Numbered summary:]
+[1. Procedure performed and outcome (successful/unsuccessful/partially successful)]
+[2. Key findings]
+[3. Specimens sent]
+[4. Drain/device details]
+[5. Any complications]
+[6. Recommendations and follow-up plan]
+
+**POST-PROCEDURE ORDERS**
+[Dictated post-procedure care instructions:]
+[- Activity restrictions (bed rest duration, weight-bearing status)]
+[- Monitoring (vital sign frequency, access site checks, drain output)]
+[- Medications (antibiotics, pain management, anticoagulation hold/resume)]
+[- Diet (NPO duration, advance as tolerated)]
+[- Follow-up imaging (timing, modality)]
+[- Drain care instructions]
+[- When to call / return to ED]
+
+IR-SPECIFIC RULES:
+1. Document the procedure technique in chronological order as dictated — this is the medicolegal record.
+2. Always capture consent documentation including specific risks discussed.
+3. Record exact medication doses for sedation (drug name, dose in mg/mcg, route).
+4. Record exact device specifications if dictated (needle gauge, catheter French size, wire diameter, stent dimensions).
+5. For embolization: document the embolic agent(s), sizes/quantities, and completion angiogram results.
+6. For ablation: document the ablation modality, number/position of probes, ablation time, and post-ablation imaging findings.
+7. For biopsy: document number of specimens, specimen handling, and ROSE results if performed.
+8. Always include fluoroscopy time and radiation dose if dictated.
+9. Capture estimated blood loss.
+10. Document complications explicitly — if none, state "No immediate complications."
+11. If the radiologist dictates post-procedure orders, capture them in full.
+12. Never fabricate device specifications, medication doses, radiation doses, or specimen counts.`
   }
 };
 
@@ -874,6 +1039,53 @@ Return ONLY a JSON object with this exact structure (no other text, no markdown 
 }
 
 CLINICAL NOTE:
+{{NOTE_TEXT}}
+
+Return the JSON object now.`;
+
+/* ── Radiology Coding Prompt ── */
+
+export const RADIOLOGY_CODING_PROMPT=`You are a radiology coding specialist. Analyze this radiology report and suggest appropriate CPT and ICD-10 codes.
+
+RULES:
+1. Only suggest codes supported by documentation in the report.
+2. Use the most specific ICD-10-CM code possible from the clinical indication and findings.
+3. Assign a confidence level to each code: "high", "medium", or "low".
+4. Do NOT fabricate codes. Use real, valid ICD-10-CM and CPT codes.
+
+DIAGNOSTIC RADIOLOGY CODING CONTEXT:
+- CPT codes for imaging studies fall in the 70000-79999 range (Radiology section).
+- Apply modifier -26 (Professional Component) when the radiologist provides interpretation only.
+- Apply modifier -TC (Technical Component) when only the technical/facility portion is billed.
+- Without a modifier, the code represents the global service (both professional + technical).
+- Common CPT categories: Head/Neck (70000-70559), Chest (71000-71555), Spine/Pelvis (72000-72295), Upper Extremity (73000-73225), Lower Extremity (73500-73725), Abdomen (74000-74190), GI (74210-74363), Urinary (74400-74485), GYN/OB (74710-74775), Vascular (75557-75989), CT (70450-74178), MRI (70336-74185), US (76506-76886), Nuclear (78000-78999), Mammography (77065-77067).
+
+INTERVENTIONAL RADIOLOGY CODING CONTEXT:
+- IR procedure CPT codes: Vascular (36000-37799), Hepatobiliary (47000-47999), Abdomen (49000-49999), Integumentary biopsies (10000-10999).
+- Imaging guidance codes: Fluoroscopic (77001-77003), CT (77011-77014), US (76937, 76942), MRI (77021-77022).
+- Moderate sedation codes: 99151-99157 (based on time and provider).
+- Modifier -59 or -XE/-XS/-XP/-XU for distinct procedural services.
+- Code supervision & interpretation (S&I) pairs when both catheter placement and imaging are performed.
+- For embolization: code the embolization procedure + imaging guidance + catheter placement separately.
+- For biopsy: code the biopsy procedure + imaging guidance separately.
+
+Return ONLY a JSON object with this exact structure (no other text, no markdown fences):
+{
+  "icd10": [
+    {"code": "R91.1", "description": "Solitary pulmonary nodule", "confidence": "high"}
+  ],
+  "cpt": [
+    {"code": "71260", "description": "CT chest with contrast", "confidence": "high", "modifier": "-26"}
+  ],
+  "guidance": [
+    {"code": "77012", "description": "CT guidance for needle placement", "confidence": "high"}
+  ],
+  "sedation": [
+    {"code": "99152", "description": "Moderate sedation, initial 15 min", "confidence": "medium"}
+  ]
+}
+
+RADIOLOGY REPORT:
 {{NOTE_TEXT}}
 
 Return the JSON object now.`;
