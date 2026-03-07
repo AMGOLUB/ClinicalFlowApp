@@ -441,4 +441,55 @@
     yearSpan.textContent = yearSpan.textContent.replace(/\d{4}/, year);
   }
 
+
+  /* ═══════════════════════════════════════
+     11. IMAGE LIGHTBOX
+     ═══════════════════════════════════════ */
+  (function initLightbox() {
+    // Create lightbox overlay
+    var overlay = document.createElement('div');
+    overlay.className = 'lightbox';
+    overlay.innerHTML = '<div class="lightbox-wrap">'
+      + '<img class="lightbox-img" alt="">'
+      + '<button class="lightbox-close" aria-label="Close">&times;</button>'
+      + '</div>';
+    document.body.appendChild(overlay);
+
+    var lbImg = overlay.querySelector('.lightbox-img');
+    var lbClose = overlay.querySelector('.lightbox-close');
+
+    function openLightbox(src, alt) {
+      lbImg.src = src;
+      lbImg.alt = alt || '';
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Click content images (skip logos, icons, tiny images)
+    document.addEventListener('click', function (e) {
+      var img = e.target.closest('img');
+      if (!img) return;
+      // Skip nav logos and very small images
+      if (img.closest('.nav-logo-icon') || img.closest('.footer')) return;
+      if (img.naturalWidth < 200 && img.width < 200) return;
+      e.preventDefault();
+      openLightbox(img.src, img.alt);
+    });
+
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay || e.target === lbClose || e.target.closest('.lightbox-close')) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('active')) closeLightbox();
+    });
+  })();
+
 })();
