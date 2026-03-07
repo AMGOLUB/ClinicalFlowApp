@@ -76,7 +76,10 @@
       +   '</div>'
       + '</div>';
 
-    if (mobileToggle) navInner.insertBefore(btn, mobileToggle);
+    // Place toggle next to the CTA buttons (right side of nav)
+    const navCta = navInner.querySelector('.nav-cta');
+    if (navCta) navCta.prepend(btn);
+    else if (mobileToggle) navInner.insertBefore(btn, mobileToggle);
     else navInner.appendChild(btn);
 
     // Flash overlay element
