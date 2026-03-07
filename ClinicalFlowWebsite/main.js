@@ -7,6 +7,109 @@
 (function () {
   'use strict';
 
+  /* ═══════════════════════════════════════
+     0. THEME — Dark / Light mode
+     ═══════════════════════════════════════ */
+  const THEME_KEY = 'cf-theme';
+
+  // Apply saved theme immediately (before paint) — also set in <head> inline script
+  function getPreferredTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme, animate) {
+    if (animate) {
+      document.documentElement.setAttribute('data-theme-transition', '');
+      requestAnimationFrame(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        setTimeout(() => {
+          document.documentElement.removeAttribute('data-theme-transition');
+        }, 550);
+      });
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+    localStorage.setItem(THEME_KEY, theme);
+  }
+
+  // Apply immediately
+  const currentTheme = getPreferredTheme();
+  if (currentTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+
+  // Inject toggle button into nav
+  function injectThemeToggle() {
+    const navInner = document.querySelector('.nav-inner');
+    if (!navInner) return;
+
+    // Insert before mobile toggle or at end
+    const mobileToggle = navInner.querySelector('.nav-mobile-toggle');
+    const btn = document.createElement('button');
+    btn.className = 'theme-toggle';
+    btn.setAttribute('aria-label', 'Toggle dark mode');
+    btn.setAttribute('title', 'Toggle dark mode');
+    btn.innerHTML = ''
+      + '<div class="theme-toggle-track">'
+      +   '<div class="theme-toggle-stars">'
+      +     '<span class="theme-toggle-star"></span>'
+      +     '<span class="theme-toggle-star"></span>'
+      +     '<span class="theme-toggle-star"></span>'
+      +     '<span class="theme-toggle-star"></span>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="theme-toggle-orb">'
+      +   '<span class="theme-toggle-crater"></span>'
+      +   '<span class="theme-toggle-crater"></span>'
+      +   '<span class="theme-toggle-crater"></span>'
+      +   '<div class="theme-toggle-rays">'
+      +     '<span class="theme-toggle-ray"></span>'
+      +     '<span class="theme-toggle-ray"></span>'
+      +     '<span class="theme-toggle-ray"></span>'
+      +     '<span class="theme-toggle-ray"></span>'
+      +     '<span class="theme-toggle-ray"></span>'
+      +     '<span class="theme-toggle-ray"></span>'
+      +     '<span class="theme-toggle-ray"></span>'
+      +     '<span class="theme-toggle-ray"></span>'
+      +   '</div>'
+      + '</div>';
+
+    if (mobileToggle) navInner.insertBefore(btn, mobileToggle);
+    else navInner.appendChild(btn);
+
+    // Flash overlay element
+    const flash = document.createElement('div');
+    flash.className = 'theme-flash';
+    document.body.appendChild(flash);
+
+    btn.addEventListener('click', (e) => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+
+      // Position flash from button
+      const rect = btn.getBoundingClientRect();
+      flash.style.setProperty('--flash-x', rect.left + rect.width / 2 + 'px');
+      flash.style.setProperty('--flash-y', rect.top + rect.height / 2 + 'px');
+      flash.classList.remove('active');
+      void flash.offsetWidth;
+      flash.classList.add('active');
+
+      applyTheme(newTheme, true);
+    });
+  }
+
+  injectThemeToggle();
+
+  // Respect system preference changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (!localStorage.getItem(THEME_KEY)) {
+      applyTheme(e.matches ? 'dark' : 'light', true);
+    }
+  });
+
+
   /* ─── DOM REFS ─── */
   const nav = document.getElementById('nav');
   const navToggle = document.getElementById('navToggle');
