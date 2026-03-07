@@ -459,8 +459,8 @@
 
     // Magnifying glass (desktop only)
     var glass = null;
-    var GLASS_SIZE = 180;
-    var ZOOM = 2.5;
+    var GLASS_SIZE = 260;
+    var ZOOM = 1.6;
 
     if (!isMobile) {
       glass = document.createElement('div');
