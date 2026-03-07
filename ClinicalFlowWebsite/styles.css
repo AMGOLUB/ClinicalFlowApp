@@ -557,7 +557,6 @@ h4 { font-size: 20px; }
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   font-size: 20px;
   font-weight: 700;
   color: var(--text-primary);
@@ -569,6 +568,7 @@ h4 { font-size: 20px; }
   border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
+  margin-right: 10px;
 }
 .nav-logo-icon img {
   width: 100%;
