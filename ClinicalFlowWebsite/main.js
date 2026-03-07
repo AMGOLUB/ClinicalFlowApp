@@ -16,7 +16,7 @@
   function getPreferredTheme() {
     const saved = localStorage.getItem(THEME_KEY);
     if (saved) return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return 'light';
   }
 
   function applyTheme(theme, animate) {
@@ -104,13 +104,6 @@
   }
 
   injectThemeToggle();
-
-  // Respect system preference changes
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    if (!localStorage.getItem(THEME_KEY)) {
-      applyTheme(e.matches ? 'dark' : 'light', true);
-    }
-  });
 
 
   /* ─── DOM REFS ─── */

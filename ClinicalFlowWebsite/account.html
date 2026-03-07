@@ -402,7 +402,7 @@
       .account-btn { width: 100%; text-align: center; justify-content: center; }
     }
   </style>
-<script>/* Theme FOUC prevention */(function(){var t=localStorage.getItem("cf-theme")||(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");if(t==="dark")document.documentElement.setAttribute("data-theme","dark")})()</script>
+<script>/* Theme FOUC prevention */(function(){var t=localStorage.getItem("cf-theme")||"light";if(t==="dark")document.documentElement.setAttribute("data-theme","dark")})()</script>
 </head>
 <body>
 <div class="auth-page">
