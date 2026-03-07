@@ -78,7 +78,6 @@
 
   function buildLoggedInHtml(firstName, initial, fullName, email) {
     return ''
-      + '<a href="docs.html" class="btn btn--ghost btn--sm">Docs</a>'
       + '<div class="nav-user" id="navUser">'
       +   '<button class="nav-user-btn" id="navUserBtn" aria-expanded="false" aria-haspopup="true">'
       +     '<div class="nav-avatar" aria-hidden="true">' + initial + '</div>'
