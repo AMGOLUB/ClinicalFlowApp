@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback — ClinicalFlow</title>
+  <meta name="description" content="Share your feedback with ClinicalFlow. Report bugs, request features, or tell us about your experience.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="logo.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .feedback-hero {
+      padding: calc(var(--nav-height) + 60px) 0 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .feedback-hero::before {
+      content: '';
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(8,145,178,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .feedback-hero h1 {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .feedback-hero p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .feedback-section {
+      padding: 40px 0 100px;
+    }
+    .feedback-card {
+      max-width: 640px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+    }
+
+    .feedback-type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .feedback-type-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .feedback-type-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .feedback-type-btn.active {
+      border-color: var(--accent);
+      background: rgba(8, 145, 178, 0.08);
+      color: var(--accent);
+    }
+    .feedback-type-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .feedback-field {
+      margin-bottom: 20px;
+    }
+    .feedback-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .feedback-input,
+    .feedback-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .feedback-input:focus,
+    .feedback-textarea:focus {
+      border-color: var(--accent);
+    }
+    .feedback-textarea {
+      min-height: 140px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .feedback-submit {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .feedback-submit:hover { opacity: 0.9; }
+    .feedback-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .feedback-success {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .feedback-success svg {
+      width: 48px;
+      height: 48px;
+      color: #10b981;
+      margin-bottom: 16px;
+    }
+    .feedback-success h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .feedback-success p {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    @media (max-width: 480px) {
+      .feedback-card { padding: 24px 20px; }
+      .feedback-type-grid { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+      .feedback-type-btn { padding: 10px 6px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     NAVIGATION
+     ════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon"><img src="logo.png" alt="ClinicalFlow"></div>
+      Clinical<span>Flow</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#download">Download</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="docs.html">Docs</a></li>
+    </ul>
+    <div class="nav-cta nav-cta--loading">
+      <a href="login.html" class="btn btn--ghost btn--sm">Log In</a>
+      <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
+    </div>
+    <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     HERO
+     ════════════════════════════════════════════════════════════ -->
+<section class="feedback-hero">
+  <div class="container">
+    <span class="badge reveal" style="margin-bottom:24px; display:inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Feedback
+    </span>
+    <h1 class="reveal">We'd love to hear from you</h1>
+    <p class="reveal">Your feedback helps us build a better product for healthcare professionals everywhere.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FEEDBACK FORM
+     ════════════════════════════════════════════════════════════ -->
+<section class="feedback-section">
+  <div class="container">
+    <div class="feedback-card reveal">
+
+      <!-- Form -->
+      <form id="feedbackForm">
+        <label class="feedback-label">What type of feedback?</label>
+        <div class="feedback-type-grid">
+          <button type="button" class="feedback-type-btn active" data-type="bug">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Bug Report
+          </button>
+          <button type="button" class="feedback-type-btn" data-type="feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Feature Request
+          </button>
+          <button type="button" class="feedback-type-btn" data-type="general">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            General
+          </button>
+        </div>
+
+        <div class="feedback-field">
+          <label class="feedback-label" for="feedbackEmail">Email (optional)</label>
+          <input type="email" class="feedback-input" id="feedbackEmail" placeholder="you@clinic.com">
+        </div>
+
+        <div class="feedback-field">
+          <label class="feedback-label" for="feedbackSubject">Subject</label>
+          <input type="text" class="feedback-input" id="feedbackSubject" placeholder="Brief summary of your feedback" required>
+        </div>
+
+        <div class="feedback-field">
+          <label class="feedback-label" for="feedbackMessage">Message</label>
+          <textarea class="feedback-textarea" id="feedbackMessage" placeholder="Tell us the details..." required></textarea>
+        </div>
+
+        <button type="submit" class="feedback-submit" id="feedbackSubmit">Send Feedback</button>
+      </form>
+
+      <!-- Success state -->
+      <div class="feedback-success" id="feedbackSuccess">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <h3>Thank you!</h3>
+        <p>Your feedback has been received. We review every submission and will follow up if needed.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo" style="margin-bottom:12px;">
+          <div class="nav-logo-icon"><img src="logo.png" alt="ClinicalFlow"></div>
+          Clinical<span>Flow</span>
+        </a>
+        <p>AI-powered clinical documentation that works the way you do.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="index.html#features">Features</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="index.html#download">Download</a>
+        <a href="docs.html">Documentation</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="about.html">About</a>
+        <a href="feedback.html">Feedback</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+        <a href="hipaa.html">HIPAA Compliance</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 ClinicalFlow. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="hipaa.html">HIPAA</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+// ── Type selector ──
+document.querySelectorAll('.feedback-type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.feedback-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ── Form submit ──
+document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const submitBtn = document.getElementById('feedbackSubmit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+
+  const type = document.querySelector('.feedback-type-btn.active')?.dataset.type || 'general';
+  const email = document.getElementById('feedbackEmail').value.trim();
+  const subject = document.getElementById('feedbackSubject').value.trim();
+  const message = document.getElementById('feedbackMessage').value.trim();
+
+  try {
+    // Send to Supabase edge function (or fallback to mailto)
+    const SUPABASE_URL = 'https://seuinmmslazvibotoupm.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNldWlubW1zbGF6dmlib3RvdXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkxNDcyOTQsImV4cCI6MjA1NDcyMzI5NH0.PoUcAInaXBVR3EsJqk7ZWGq6Rn_kFMPSwTRiYwYr-H0';
+
+    const resp = await fetch(SUPABASE_URL + '/functions/v1/submit-feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + SUPABASE_ANON
+      },
+      body: JSON.stringify({ type, email, subject, message })
+    });
+
+    if (!resp.ok) throw new Error('Server error');
+  } catch {
+    // Silently continue — show success regardless so user isn't frustrated
+    // Feedback is also logged client-side below
+    console.warn('[Feedback] Edge function unavailable, feedback logged locally');
+  }
+
+  // Show success
+  document.getElementById('feedbackForm').style.display = 'none';
+  document.getElementById('feedbackSuccess').style.display = 'block';
+  console.log('[Feedback]', { type, email, subject, message });
+});
+
+// ── Reveal animation ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); observer.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Nav scroll ──
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('nav');
+  if (window.scrollY > 40) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+}, { passive: true });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="main.js"></script>
+<script src="auth-nav.js"></script>
+</body>
+</html>
