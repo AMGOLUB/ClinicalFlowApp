@@ -1707,15 +1707,35 @@ External Services (online mode only):
   const links = document.querySelectorAll('.docs-sidebar-link');
   const articles = document.querySelectorAll('.docs-article[id]');
 
-  // Mobile sidebar toggle
+  // Mobile sidebar toggle with backdrop
   if (toggle && sidebar) {
+    const sidebarBackdrop = document.createElement('div');
+    sidebarBackdrop.className = 'docs-sidebar-backdrop';
+    document.body.appendChild(sidebarBackdrop);
+
+    function openSidebar() {
+      sidebar.classList.add('docs-sidebar--open');
+      toggle.classList.add('active');
+      sidebarBackdrop.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('docs-sidebar--open');
+      toggle.classList.remove('active');
+      sidebarBackdrop.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+
     toggle.addEventListener('click', () => {
-      sidebar.classList.toggle('docs-sidebar--open');
+      if (sidebar.classList.contains('docs-sidebar--open')) closeSidebar();
+      else openSidebar();
     });
+    sidebarBackdrop.addEventListener('click', closeSidebar);
     links.forEach(link => {
-      link.addEventListener('click', () => {
-        sidebar.classList.remove('docs-sidebar--open');
-      });
+      link.addEventListener('click', () => closeSidebar());
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sidebar.classList.contains('docs-sidebar--open')) closeSidebar();
     });
   }
 
@@ -1851,6 +1871,10 @@ External Services (online mode only):
         searchInput.value = '';
         if (searchKbd) searchKbd.style.opacity = '1';
         sidebar.classList.remove('docs-sidebar--open');
+        toggle.classList.remove('active');
+        var bd = document.querySelector('.docs-sidebar-backdrop');
+        if (bd) bd.classList.remove('visible');
+        document.body.style.overflow = '';
       }
     });
 
