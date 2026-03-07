@@ -5,6 +5,12 @@ import { App, tauriInvoke, tauriListen, CORRECTIONS_DICT } from './state.js';
 import { D, toast, updConn, showDownloadBtns } from './ui.js';
 import { detectSpkChange, addSpeaker, setActiveSpk, getActiveSpk } from './speakers.js';
 import { addEntry, updatePartial, removePartial, applyLiveCorrections, MED_RX } from './transcript.js';
+import {
+  DENTAL_CONDITIONS, DENTAL_PROCEDURES, DENTAL_ANATOMY,
+  RADIOLOGY_MODALITIES, RADIOLOGY_CONTRAST, RADIOLOGY_FINDINGS,
+  RADIOLOGY_PROCEDURES, RADIOLOGY_SCORING, RADIOLOGY_ANATOMY, RADIOLOGY_DEVICES,
+  MED_CONDITIONS, MED_PROCEDURES, MED_ANATOMY
+} from './medical-dictionary.js';
 import { getWhisperCode } from './languages.js';
 
 let whisperUnlisten = null;
@@ -83,15 +89,38 @@ export async function checkMemory() {
   }
 }
 
+/* Template-aware keyterm boosting for Deepgram (max 100 terms) */
+export function buildKeyterms(templateId){
+  const fmt=templateId||'soap';
+  let priority=[];
+  // Radiology templates: boost radiology-specific terms first
+  if(fmt.startsWith('radiology')){
+    priority=[...RADIOLOGY_MODALITIES,...RADIOLOGY_CONTRAST,...RADIOLOGY_FINDINGS,
+      ...RADIOLOGY_PROCEDURES,...RADIOLOGY_SCORING,...RADIOLOGY_ANATOMY,...RADIOLOGY_DEVICES];
+  // Dental templates: boost dental-specific terms first
+  }else if(fmt.startsWith('dental')){
+    priority=[...DENTAL_CONDITIONS,...DENTAL_PROCEDURES,...DENTAL_ANATOMY];
+  // All other templates: boost conditions, procedures, anatomy
+  }else{
+    priority=[...MED_CONDITIONS.slice(0,30),...MED_PROCEDURES.slice(0,20),...MED_ANATOMY.slice(0,15)];
+  }
+  // Common clinical terms always useful
+  const clinical=['crepitus','effusion','erythematous','tympanic','bilateral','syncope','dyspnea',
+    'pneumonia','hypertension','diabetes','atrial fibrillation','pulmonary embolism','anaphylaxis'];
+  // Correction targets from ASR dictionary
+  const correctionTerms=CORRECTIONS_DICT.map(c=>c[1]).filter(t=>typeof t==='string');
+  // Top medications (useful across all templates)
+  const meds=MED_RX.slice(0,40);
+  // Deduplicate, priority terms first, then general, capped at 100
+  const all=[...new Set([...priority,...clinical,...correctionTerms,...meds])];
+  return all.slice(0,100);
+}
+
 /* Deepgram Real-Time ASR */
 export function startDeepgram(){
   const key=App.dgKey;if(!key){toast('No API key — switching to offline.','warning');if(tauriInvoke){startWhisper();}else{App.engine='webspeech';startWebSpeech();}return;}
   const p=new URLSearchParams({model:'nova-3-medical',language:App.language,smart_format:'true',punctuate:'true',interim_results:'true',utterance_end_ms:'1500',vad_events:'true',diarize:'true',encoding:'linear16',sample_rate:'16000',channels:'1'});
-  const topMeds=MED_RX.slice(0,80);
-  const clinicalTerms=['crepitus','effusion','erythematous','tympanic','bilateral','McMurray','ligamentous laxity','monofilament','syncope','dyspnea','pneumonia','hypertension','diabetes','atrial fibrillation','pulmonary embolism','anaphylaxis','pneumothorax'];
-  const correctionTerms=CORRECTIONS_DICT.map(c=>c[1]).filter(t=>typeof t==='string');
-  const allKeyterms=[...new Set([...topMeds,...clinicalTerms,...correctionTerms])];
-  allKeyterms.slice(0,100).forEach(t=>p.append('keyterm',t));
+  buildKeyterms(App.noteFormat).forEach(t=>p.append('keyterm',t));
   const url='wss://api.deepgram.com/v1/listen?'+p.toString();
   try{
     App.dgSocket=new WebSocket(url,['token',key]);

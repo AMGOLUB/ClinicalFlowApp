@@ -4,6 +4,7 @@
 import { App, cfg, tauriInvoke, __TAURI_READY__, getAbortCtrl, setAbortCtrl, GENERATION_TIMEOUT_MS, CORRECTIONS_DICT } from './state.js';
 import { D, toast, updConn, updStatus, esc, fmt, fmtDate, fmtDT, wc, wait } from './ui.js';
 import { applyLiveCorrections, MED_RX, MED_TERMS } from './transcript.js';
+import { buildKeyterms } from './audio.js';
 import { ROLES } from './speakers.js';
 import { estimateTokens as _estimateTokens, formatNoteMarkdown as _formatNoteMarkdown,
          extractCorrectedNote, postProcessNote as _postProcessNote,
@@ -1045,12 +1046,7 @@ async function _startDictation(txtSpan,micBtn){
       await tauriInvoke('start_recording',{mode:'stream',language:App.language});
 
       const p=new URLSearchParams({model:'nova-3-medical',language:App.language,smart_format:'false',punctuate:'false',interim_results:'true',utterance_end_ms:'1500',encoding:'linear16',sample_rate:'16000',channels:'1'});
-      // Add medical keyterms (same dictionary as main transcription)
-      const topMeds=MED_RX.slice(0,80);
-      const clinicalTerms=['crepitus','effusion','erythematous','tympanic','bilateral','McMurray','ligamentous laxity','monofilament','syncope','dyspnea','pneumonia','hypertension','diabetes','atrial fibrillation','pulmonary embolism','anaphylaxis','pneumothorax'];
-      const correctionTerms=CORRECTIONS_DICT.map(c=>c[1]).filter(t=>typeof t==='string');
-      const allKeyterms=[...new Set([...topMeds,...clinicalTerms,...correctionTerms])];
-      allKeyterms.slice(0,100).forEach(t=>p.append('keyterm',t));
+      buildKeyterms(App.noteFormat).forEach(t=>p.append('keyterm',t));
       const url='wss://api.deepgram.com/v1/listen?'+p.toString();
       _dictSocket=new WebSocket(url,['token',key]);
 

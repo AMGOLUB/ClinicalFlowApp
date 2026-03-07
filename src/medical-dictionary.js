@@ -237,7 +237,7 @@ export const MED_ANATOMY = [
 
 /* ── Dental Terminology ── */
 
-const DENTAL_CONDITIONS = [
+export const DENTAL_CONDITIONS = [
   /* Caries & Tooth Pathology */
   'dental caries','incipient caries','recurrent caries','rampant caries','root caries',
   'cracked tooth syndrome','tooth erosion','tooth abrasion','tooth attrition','abfraction',
@@ -268,7 +268,7 @@ const DENTAL_CONDITIONS = [
   'exostosis','xerostomia','sialolithiasis','sialadenitis','dental ankylosis'
 ];
 
-const DENTAL_PROCEDURES = [
+export const DENTAL_PROCEDURES = [
   /* Diagnostic */
   'comprehensive oral evaluation','periodic oral evaluation','oral cancer screening',
   'caries risk assessment','pulp vitality testing',
@@ -304,7 +304,7 @@ const DENTAL_PROCEDURES = [
   'tooth whitening','dental bleaching'
 ];
 
-const DENTAL_ANATOMY = [
+export const DENTAL_ANATOMY = [
   /* Tooth Surfaces */
   'mesial','distal','buccal','labial','facial','lingual','palatal',
   'occlusal','incisal','proximal','interproximal',
@@ -337,7 +337,7 @@ const DENTAL_ANATOMY = [
 
 /* ── Radiology Terminology ── */
 
-const RADIOLOGY_MODALITIES = [
+export const RADIOLOGY_MODALITIES = [
   'CT','CTA','CTV','CTP','CTPA','CCTA','HRCT','LDCT','DECT','CTU',
   'MRI','MRA','MRV','MRCP','MRE','MRS','fMRI','CMR',
   'ultrasound','TVUS','TRUS','EUS','EBUS','IVUS','CEUS','POCUS','FAST',
@@ -352,7 +352,7 @@ const RADIOLOGY_MODALITIES = [
   'volume rendering','3D reconstruction'
 ];
 
-const RADIOLOGY_CONTRAST = [
+export const RADIOLOGY_CONTRAST = [
   'Omnipaque','Isovue','Visipaque','Optiray','Ultravist',
   'Gadavist','Dotarem','ProHance','Magnevist','Eovist','Primovist','MultiHance','Omniscan',
   'Definity','Lumason','Gastrografin','Readi-Cat','Volumen','Feraheme',
@@ -362,7 +362,7 @@ const RADIOLOGY_CONTRAST = [
   'Lexiscan','regadenoson','Lutathera','Xofigo','Amyvid','Tauvid'
 ];
 
-const RADIOLOGY_FINDINGS = [
+export const RADIOLOGY_FINDINGS = [
   'hypodense','hyperdense','isodense',
   'hyperintense','hypointense','isointense',
   'hypoechoic','hyperechoic','isoechoic','anechoic',
@@ -384,7 +384,7 @@ const RADIOLOGY_FINDINGS = [
   'SUVmax','standardized uptake value','metabolically active','FDG-avid'
 ];
 
-const RADIOLOGY_PROCEDURES = [
+export const RADIOLOGY_PROCEDURES = [
   'embolization','chemoembolization','radioembolization',
   'TACE','DEB-TACE','TARE','TAE',
   'radiofrequency ablation','RFA','microwave ablation','MWA',
@@ -399,12 +399,12 @@ const RADIOLOGY_PROCEDURES = [
   'angioplasty','stent placement','stent-graft'
 ];
 
-const RADIOLOGY_SCORING = [
+export const RADIOLOGY_SCORING = [
   'BI-RADS','LI-RADS','PI-RADS','TI-RADS','Lung-RADS',
   'Fleischner','Bosniak','RECIST','NASCET'
 ];
 
-const RADIOLOGY_ANATOMY = [
+export const RADIOLOGY_ANATOMY = [
   'celiac trunk','superior mesenteric artery','SMA',
   'inferior mesenteric artery','IMA',
   'internal carotid artery','ICA','external carotid artery',
@@ -421,7 +421,7 @@ const RADIOLOGY_ANATOMY = [
   'inferior vena cava','IVC','superior vena cava','SVC'
 ];
 
-const RADIOLOGY_DEVICES = [
+export const RADIOLOGY_DEVICES = [
   'Gelfoam','Onyx','Embosphere','SIR-Spheres','TheraSphere',
   'NanoKnife','pigtail catheter','Glidewire',
   'Cobra catheter','Simmons catheter','microcatheter',
