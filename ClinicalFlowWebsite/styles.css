@@ -154,6 +154,75 @@
   color: var(--text-primary);
 }
 
+/* Dark theme — card borders (more visible against dark bg) */
+[data-theme="dark"] .step-card,
+[data-theme="dark"] .mode-card,
+[data-theme="dark"] .format-card,
+[data-theme="dark"] .download-card,
+[data-theme="dark"] .dental-card,
+[data-theme="dark"] .problem-stat {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .step-card:hover,
+[data-theme="dark"] .mode-card:hover,
+[data-theme="dark"] .format-card:hover,
+[data-theme="dark"] .download-card:hover,
+[data-theme="dark"] .dental-card:hover,
+[data-theme="dark"] .problem-stat:hover {
+  border-color: rgba(10, 205, 207, 0.25);
+}
+
+/* Dark theme — dark sections need subtle glow borders */
+[data-theme="dark"] .section--dark {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+[data-theme="dark"] .security-card {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .security-card:hover {
+  border-color: rgba(10, 205, 207, 0.3);
+  box-shadow: 0 0 30px rgba(10, 205, 207, 0.1);
+}
+
+/* Dark theme — enterprise banner highlight border */
+[data-theme="dark"] .enterprise-banner {
+  border: 1px solid rgba(10, 205, 207, 0.15);
+  box-shadow: var(--shadow-xl), 0 0 40px rgba(10, 205, 207, 0.06);
+}
+
+/* Dark theme — pricing cards */
+[data-theme="dark"] .pricing-card {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .pricing-card--popular {
+  border-color: rgba(10, 205, 207, 0.3);
+  box-shadow: 0 0 40px rgba(10, 205, 207, 0.1);
+}
+
+/* Dark theme — trust logos and footer */
+[data-theme="dark"] .trust-logo-item {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: var(--bg-surface);
+}
+[data-theme="dark"] .footer {
+  border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Dark theme — nav glass */
+[data-theme="dark"] .nav.scrolled {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Dark theme — comparison table */
+[data-theme="dark"] .comparison-table th,
+[data-theme="dark"] .comparison-table td {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] .comparison-table thead {
+  background: var(--bg-surface);
+}
+
 /* ─── THEME TOGGLE ─── */
 .theme-toggle {
   position: relative;
@@ -215,8 +284,8 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FDB813, #F59E0B);
-  box-shadow: 0 0 8px rgba(253, 184, 19, 0.4);
+  background: #FDB813;
+  box-shadow: 0 0 6px rgba(253, 184, 19, 0.5), 0 0 14px rgba(253, 184, 19, 0.2);
   transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
               background 0.4s,
               box-shadow 0.4s;
@@ -224,14 +293,14 @@
 }
 [data-theme="dark"] .theme-toggle-orb {
   transform: translateX(20px);
-  background: linear-gradient(135deg, #E2E8F0, #CBD5E1);
-  box-shadow: 0 0 8px rgba(226, 232, 240, 0.3);
+  background: #E2E8F0;
+  box-shadow: 0 0 6px rgba(226, 232, 240, 0.4), 0 0 14px rgba(226, 232, 240, 0.15);
 }
-/* Moon craters */
+/* Moon craters (hidden in light mode, visible in dark) */
 .theme-toggle-crater {
   position: absolute;
   border-radius: 50%;
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.35);
   opacity: 0;
   transition: opacity 0.4s 0.15s;
 }
@@ -241,32 +310,8 @@
 .theme-toggle-crater:nth-child(1) { width: 4px; height: 4px; top: 4px; left: 8px; }
 .theme-toggle-crater:nth-child(2) { width: 3px; height: 3px; top: 9px; left: 5px; }
 .theme-toggle-crater:nth-child(3) { width: 2px; height: 2px; top: 11px; left: 10px; }
-
-/* Sun rays */
-.theme-toggle-rays {
-  position: absolute;
-  inset: -3px;
-  transition: opacity 0.3s, transform 0.5s;
-}
-[data-theme="dark"] .theme-toggle-rays {
-  opacity: 0;
-  transform: rotate(45deg) scale(0);
-}
-.theme-toggle-ray {
-  position: absolute;
-  width: 2px;
-  height: 4px;
-  background: #FDB813;
-  border-radius: 1px;
-}
-.theme-toggle-ray:nth-child(1) { top: -1px; left: 50%; transform: translateX(-50%); }
-.theme-toggle-ray:nth-child(2) { bottom: -1px; left: 50%; transform: translateX(-50%); }
-.theme-toggle-ray:nth-child(3) { left: -1px; top: 50%; transform: translateY(-50%) rotate(90deg); }
-.theme-toggle-ray:nth-child(4) { right: -1px; top: 50%; transform: translateY(-50%) rotate(90deg); }
-.theme-toggle-ray:nth-child(5) { top: 1px; left: 1px; transform: rotate(45deg); }
-.theme-toggle-ray:nth-child(6) { top: 1px; right: 1px; transform: rotate(-45deg); }
-.theme-toggle-ray:nth-child(7) { bottom: 1px; left: 1px; transform: rotate(-45deg); }
-.theme-toggle-ray:nth-child(8) { bottom: 1px; right: 1px; transform: rotate(45deg); }
+/* Sun rays and ray container are unused — sun uses glow only */
+.theme-toggle-rays, .theme-toggle-ray { display: none; }
 
 /* Theme flash overlay */
 .theme-flash {
