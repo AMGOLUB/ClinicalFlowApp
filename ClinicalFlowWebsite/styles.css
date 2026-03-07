@@ -1920,28 +1920,15 @@ body.using-mouse *:focus { outline: none; }
   opacity: 1;
   transform: scale(1);
 }
-/* Specular highlight — top-left shine */
-.lightbox-glass::before {
-  content: '';
-  position: absolute;
-  top: 6%;
-  left: 10%;
-  width: 40%;
-  height: 25%;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at 40% 40%,
-    rgba(255, 255, 255, 0.25) 0%,
-    rgba(255, 255, 255, 0.06) 50%,
-    transparent 80%);
-  z-index: 1;
-}
-/* Subtle edge vignette for glass depth */
+/* Edge vignette for 3D glass depth */
 .lightbox-glass::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.25),
+    inset 0 0 20px rgba(0, 0, 0, 0.1);
   z-index: 1;
 }
 
