@@ -26,6 +26,7 @@ function _showNoteActions(){
   if(D.expHl7Btn)D.expHl7Btn.style.display=App.settings.showExportHl7?'flex':'none';
   if(D.genNarrBtn)D.genNarrBtn.style.display=(App.settings.showNarrative&&isDentalTemplate(App.noteFormat))?'flex':'none';
   if(D.syncPmsBtn)D.syncPmsBtn.style.display=App.settings.showSyncPms?'flex':'none';
+  if(D.phrasePaletteBtn)D.phrasePaletteBtn.style.display=App.settings.dictionaryFeatures?'flex':'none';
 }
 
 /* Build the clinical prompt for note generation */
@@ -1161,7 +1162,7 @@ function _buildLineEl(text,body,key){
   // Dictation mic button (only shown when setting enabled)
   const micBtn=document.createElement('button');micBtn.className='nl-btn nl-mic';micBtn.title='Dictate into this line';micBtn.type='button';
   micBtn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
-  if(!App.settings.lineDictation)micBtn.style.display='none';
+  if(!App.settings.noteLineActions)micBtn.style.display='none';
   // Save cursor position before mic click steals focus (only for initial start)
   micBtn.addEventListener('mousedown',e=>{if(!App.dictationActive)_saveCursorPos();});
   micBtn.addEventListener('click',e=>{
@@ -1286,6 +1287,7 @@ function _buildLineEl(text,body,key){
   });
 
   acts.appendChild(micBtn);acts.appendChild(upBtn);acts.appendChild(downBtn);acts.appendChild(addBtn);acts.appendChild(delBtn);acts.appendChild(drag);
+  if(!App.settings.noteLineActions)acts.style.display='none';
   row.appendChild(txt);row.appendChild(acts);
 
   // Sync on text edit

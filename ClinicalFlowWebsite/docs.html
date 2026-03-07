@@ -128,6 +128,7 @@
         <div class="docs-sidebar-title">Editing &amp; Export</div>
         <a href="#editing" class="docs-sidebar-link">Inline Editing</a>
         <a href="#line-dictation" class="docs-sidebar-link">Line Dictation</a>
+        <a href="#dictionary-features" class="docs-sidebar-link">Dictionary Features</a>
         <a href="#pdf-export" class="docs-sidebar-link">PDF Export</a>
         <a href="#text-export" class="docs-sidebar-link">Text Export</a>
         <a href="#clipboard" class="docs-sidebar-link">Copy to Clipboard</a>
@@ -146,7 +147,9 @@
         <a href="#settings-appearance" class="docs-sidebar-link">Appearance</a>
         <a href="#settings-transcription" class="docs-sidebar-link">Transcription</a>
         <a href="#settings-ai" class="docs-sidebar-link">AI Engine</a>
-        <a href="#settings-recording" class="docs-sidebar-link">Recording</a>
+        <a href="#settings-notes" class="docs-sidebar-link">Notes (Advanced)</a>
+        <a href="#settings-recording" class="docs-sidebar-link">Recording (Advanced)</a>
+        <a href="#settings-dental" class="docs-sidebar-link">Dental</a>
         <a href="#settings-ehr" class="docs-sidebar-link">EHR Integration</a>
         <a href="#settings-pms" class="docs-sidebar-link">PMS Bridge</a>
         <a href="#settings-language" class="docs-sidebar-link">Language</a>
@@ -277,16 +280,22 @@
 
     <article id="demo-mode" class="docs-article">
       <h2>Demo Mode</h2>
-      <p>ClinicalFlow includes two built-in demo encounters to help you explore the app without a real patient visit.</p>
+      <p>ClinicalFlow includes four built-in demo encounters to help you explore the app without a real patient visit. Each demo covers a different specialty to showcase the full range of templates and features.</p>
 
       <h3>Accessing Demo Mode</h3>
-      <p>Triple-click the <strong>Help</strong> button (3 clicks within 400ms). A picker modal appears with two demo scenarios.</p>
+      <p>Triple-click the <strong>Help</strong> button (3 clicks within 400ms). A picker modal appears with four demo scenarios.</p>
 
-      <h3>Medical Demo</h3>
+      <h3>General Medical Visit (Animated)</h3>
       <p>A multi-problem internal medicine encounter with <strong>James Robinson</strong> (patient), <strong>Dr. Patel</strong> (physician), and <strong>Maria</strong> (medical assistant). Covers Type 2 diabetes, hypertension, peripheral neuropathy, and left knee osteoarthritis. The transcript plays back word-by-word with waveform animation (~24 entries).</p>
 
-      <h3>Dental Demo</h3>
+      <h3>Dental Examination (Instant)</h3>
       <p>A comprehensive dental encounter with <strong>Ms. Ramirez</strong> (patient) and <strong>Dr. Chen</strong> (dentist). Covers MOD caries, endodontic failure, impacted wisdom tooth, and a 4-phase treatment plan. The transcript loads instantly (15 entries), the dental chart auto-populates with findings, and the <code>dental_general</code> template is auto-selected.</p>
+
+      <h3>Radiology Report (Instant)</h3>
+      <p>A CT abdomen/pelvis with contrast demonstrating appendicitis findings. The transcript loads instantly and the <code>radiology_diagnostic</code> template is auto-selected, generating a structured radiology report with technique, findings, and impression sections.</p>
+
+      <h3>Behavioral Health Session (Instant)</h3>
+      <p>A psychiatry follow-up encounter covering panic disorder, medication adjustment, and CBT therapy progress. The transcript loads instantly and the <code>DAP</code> (Data, Assessment, Plan) template is auto-selected, showcasing behavioral health documentation with mental status exam and treatment planning.</p>
 
       <p>Demo mode is a great way to test different note templates, dental charting, medical coding, and the verification system before using ClinicalFlow in a real encounter.</p>
     </article>
@@ -425,7 +434,7 @@
       </table>
 
       <h3>Correction Dictionaries</h3>
-      <p>Medical term corrections are available for 6 languages, totaling 204 patterns:</p>
+      <p>Medical term corrections are available for 6 languages, totaling 325+ patterns:</p>
       <table class="docs-table">
         <thead><tr><th>Language</th><th>Patterns</th></tr></thead>
         <tbody>
@@ -442,7 +451,7 @@
 
     <article id="medical-corrections" class="docs-article">
       <h2>Medical Term Corrections</h2>
-      <p>Speech-to-text engines frequently garble medical terminology. ClinicalFlow applies a post-processing step after transcription that fixes common errors using 204 regex patterns across 6 languages.</p>
+      <p>Speech-to-text engines frequently garble medical terminology. ClinicalFlow applies a post-processing step after transcription that fixes common errors using 325+ regex patterns across 6 languages.</p>
 
       <h3>What Gets Corrected</h3>
       <table class="docs-table">
@@ -716,8 +725,8 @@
       <table class="docs-table">
         <thead><tr><th>Template</th><th>Key</th><th>Sections</th></tr></thead>
         <tbody>
-          <tr><td><strong>Diagnostic Radiology</strong></td><td><code>diagnostic_radiology</code></td><td>Clinical History, Technique, Comparison, Findings, Impression, Classification (BI-RADS/LI-RADS/PI-RADS), Recommendations</td></tr>
-          <tr><td><strong>Interventional Radiology</strong></td><td><code>interventional_radiology</code></td><td>Clinical History, Pre-Procedure Assessment, Procedure Details, Technique, Fluoroscopy/Dose Report, Findings, Post-Procedure Care, Impression</td></tr>
+          <tr><td><strong>Diagnostic Radiology</strong></td><td><code>radiology_diagnostic</code></td><td>Clinical History, Technique, Comparison, Findings, Impression, Classification (BI-RADS/LI-RADS/PI-RADS), Recommendations</td></tr>
+          <tr><td><strong>Interventional Radiology</strong></td><td><code>radiology_interventional</code></td><td>Clinical History, Pre-Procedure Assessment, Procedure Details, Technique, Fluoroscopy/Dose Report, Findings, Post-Procedure Care, Impression</td></tr>
         </tbody>
       </table>
     </article>
@@ -1001,9 +1010,13 @@
         <li><strong>Add line</strong> &mdash; insert a new blank line below</li>
         <li><strong>Delete line</strong> &mdash; remove the line with a smooth animation</li>
         <li><strong>Drag handle</strong> &mdash; drag and drop lines within or across sections (e.g., move a line from Subjective to Objective)</li>
+        <li><strong>Line dictation mic</strong> &mdash; dictate directly into any line (see <a href="#line-dictation">Line Dictation</a>)</li>
         <li><strong>Edit button</strong> &mdash; toggle full-section editing mode for bulk changes</li>
       </ul>
       <p>Click on any line&rsquo;s text to edit it directly. All edits are saved to the active session automatically.</p>
+
+      <h3>Note Line Editing Toggle</h3>
+      <p>All inline editing controls &mdash; move up/down, add line, delete line, drag reorder, and line dictation mic &mdash; are bundled under a single <strong>Note Line Editing</strong> toggle in <strong>Settings &rarr; Advanced &rarr; Notes</strong>. This toggle is on by default. Turning it off hides all line-level controls for a cleaner read-only view of your notes.</p>
     </article>
 
     <article id="line-dictation" class="docs-article">
@@ -1028,9 +1041,35 @@
       <p><strong>Note:</strong> Line dictation requires an active recording to be stopped first &mdash; it cannot run simultaneously with a patient recording session.</p>
     </article>
 
+    <article id="dictionary-features" class="docs-article">
+      <h2>Dictionary-Powered Features</h2>
+      <p>ClinicalFlow includes a suite of dictionary-driven tools that enrich your generated notes with contextual information. All dictionary features are individually toggleable in <strong>Settings &rarr; Advanced &rarr; Notes</strong>.</p>
+
+      <h3>Abbreviation Expansion Tooltips</h3>
+      <p>Hover over abbreviated medical terms in a generated note to see their full expansion in a tooltip. Common abbreviations like &ldquo;BID,&rdquo; &ldquo;PRN,&rdquo; &ldquo;HTN,&rdquo; and &ldquo;BMP&rdquo; are recognized and explained on hover.</p>
+
+      <h3>Medication Cross-Reference Tooltips</h3>
+      <p>Hover over a medication name to see a tooltip with generic/brand name mapping, drug class, and related information. Works for both brand and generic names.</p>
+
+      <h3>Scoring System Quick-Reference Tooltips</h3>
+      <p>When clinical scoring systems appear in notes (e.g., PHQ-9, GAD-7, NIHSS, GCS), hover over the reference to see a quick-reference tooltip with score ranges and interpretation.</p>
+
+      <h3>Dental Tooth Number Labels</h3>
+      <p>In dental notes, tooth number references like &ldquo;#14&rdquo; or &ldquo;#30&rdquo; display blue badge tooltips showing the tooth name and location (e.g., &ldquo;#14 &mdash; Upper Left First Premolar&rdquo;).</p>
+
+      <h3>Quick-Insert Phrase Palette (<kbd>Ctrl+J</kbd>)</h3>
+      <p>Press <kbd>Ctrl+J</kbd> while editing a note to open a template-aware phrase palette. The palette presents commonly used phrases appropriate for the current note template &mdash; for example, SOAP-specific phrases when editing a SOAP note, or dental-specific phrases when working with a dental template. Click a phrase to insert it at the cursor position.</p>
+
+      <h3>Note Autocomplete</h3>
+      <p>While editing a note line, type 3 or more characters to trigger medical term suggestions. An autocomplete dropdown appears with matching terms from the medical dictionary. Select a suggestion to insert the complete term.</p>
+
+      <h3>Enhanced ASR Corrections</h3>
+      <p>The automatic speech recognition post-processor now includes 325+ correction patterns (up from 204), providing broader coverage of misrecognized drug names, conditions, procedures, and medical terminology across 6 languages.</p>
+    </article>
+
     <article id="pdf-export" class="docs-article">
       <h2>PDF Export</h2>
-      <p>Press <kbd>E</kbd> or click the <strong>Export PDF</strong> button. ClinicalFlow uses a native Swift html2pdf sidecar (WebKit <code>createPDF</code>) to generate a professional PDF with header, formatted sections, disclaimer footer, and optional dental chart.</p>
+      <p>Press <kbd>E</kbd> or click the <strong>Export PDF</strong> button. ClinicalFlow uses the <code>headless_chrome</code> Rust crate (Chromium DevTools Protocol) to generate a professional PDF with header, formatted sections, disclaimer footer, and optional dental chart.</p>
       <p>PDFs are saved to the app&rsquo;s exports directory with the filename <code>ClinicalFlow_Note_YYYY-MM-DD_HH-MM.pdf</code>.</p>
     </article>
 
@@ -1051,20 +1090,23 @@
       <table class="docs-table">
         <thead><tr><th>Action</th><th>Description</th><th>Default</th></tr></thead>
         <tbody>
-          <tr><td><strong>Export PDF</strong></td><td>Generate a formatted PDF with header, note sections, dental chart, and disclaimer</td><td>Enabled</td></tr>
-          <tr><td><strong>Copy to Clipboard</strong></td><td>Copy the entire note as plain text for pasting into an EHR</td><td>Enabled</td></tr>
-          <tr><td><strong>Download Transcript</strong></td><td>Save the raw transcript as a <code>.txt</code> file</td><td>Enabled</td></tr>
-          <tr><td><strong>Send to EHR</strong></td><td>Push the note to a connected EHR system via HL7 (requires EHR integration setup)</td><td>Hidden until configured</td></tr>
-          <tr><td><strong>Generate Narrative</strong></td><td>Create an insurance-ready narrative from the note and coding data</td><td>Enabled</td></tr>
+          <tr><td><strong>Export PDF</strong></td><td>Generate a formatted PDF with header, note sections, dental chart, and disclaimer</td><td>Always visible</td></tr>
+          <tr><td><strong>Copy to Clipboard</strong></td><td>Copy the entire note as plain text for pasting into an EHR</td><td>Always visible</td></tr>
+          <tr><td><strong>Download Transcript</strong></td><td>Save the raw transcript as a <code>.txt</code> file</td><td>Always visible</td></tr>
+          <tr><td><strong>Copy for EHR</strong></td><td>Copy the note formatted for EHR paste (keyboard shortcut <kbd>H</kbd>)</td><td>Off</td></tr>
+          <tr><td><strong>Export HL7</strong></td><td>Export an HL7 v2 message for EHR integration (keyboard shortcut <kbd>L</kbd>)</td><td>Off</td></tr>
+          <tr><td><strong>Insurance Narrative</strong></td><td>Create an insurance-ready narrative from the note and coding data (dental only)</td><td>Off</td></tr>
+          <tr><td><strong>Sync to PMS</strong></td><td>Push findings and codes to a connected Practice Management System</td><td>Off</td></tr>
         </tbody>
       </table>
-      <p>Action visibility is managed in Settings. Disabled actions are hidden from the toolbar entirely, keeping the interface clean.</p>
+      <p>PDF, Copy, and Download Transcript are always visible. The remaining actions (Copy for EHR, Export HL7, Insurance Narrative, Sync to PMS) are toggleable in Settings &rarr; Advanced &rarr; Export Actions, and hidden from the toolbar when disabled.</p>
     </article>
 
     <article id="archiving" class="docs-article">
       <h2>Session Archiving</h2>
       <p>When you click <strong>New Session</strong> (or press <kbd>N</kbd>), ClinicalFlow archives the current encounter. The archive includes the full transcript, generated note, audio recording, dental chart data, coding results, and all session metadata.</p>
       <p>Archives are named <code>YYYY-MM-DD_HH-MM_PatientName</code>, encrypted with AES-256-GCM, and sorted newest-first in the archive browser. Audio is stored as a separate unencrypted WAV file.</p>
+      <p>The <strong>Past Sessions</strong> archive browser is accessible from the sidebar. It displays all archived encounters with date, patient name, and template used. Click any session to restore its transcript, note, dental chart, and coding data.</p>
     </article>
 
 
@@ -1162,8 +1204,8 @@
       <table class="docs-table">
         <thead><tr><th>Tab</th><th>Contains</th><th>Purpose</th></tr></thead>
         <tbody>
-          <tr><td><strong>General</strong></td><td>Account, Appearance, AI &amp; Transcription, Recording, Dental</td><td>Day-to-day settings you may adjust frequently</td></tr>
-          <tr><td><strong>Advanced</strong></td><td>EHR Integration, PMS Bridge, Language, Security</td><td>Configure-once integrations and system settings</td></tr>
+          <tr><td><strong>General</strong></td><td>Account, Appearance, AI &amp; Transcription</td><td>Essentials you may adjust frequently</td></tr>
+          <tr><td><strong>Advanced</strong></td><td>Notes, Recording, Export Actions, Dental, EHR Integration, PMS Bridge, Language, Security</td><td>Detailed note editing controls, dictionary-powered features, recording behavior, integrations, and system settings</td></tr>
         </tbody>
       </table>
       <p>Click a tab to switch views. Your selected tab is remembered for the duration of the session.</p>
@@ -1206,8 +1248,22 @@
       </table>
     </article>
 
+    <article id="settings-notes" class="docs-article">
+      <h2>Notes Settings</h2>
+      <p>Found in Settings &rarr; <strong>Advanced</strong> tab &rarr; Notes card.</p>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Auto-suggest codes</td><td>On</td><td>Automatically suggest ICD-10, CPT, and CDT billing codes after note generation.</td></tr>
+          <tr><td>Note line editing</td><td>On</td><td>Enables all inline note controls: move up/down, add line, delete line, drag reorder, and line dictation mic. Turn off for a cleaner read-only view.</td></tr>
+          <tr><td>Dictionary features</td><td>Off</td><td>Abbreviation tooltips, medication info, phrase palette, and autocomplete.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
     <article id="settings-recording" class="docs-article">
       <h2>Recording Settings</h2>
+      <p>Found in Settings &rarr; <strong>Advanced</strong> tab &rarr; Recording card.</p>
       <table class="docs-table">
         <thead><tr><th>Setting</th><th>Default</th><th>Description</th></tr></thead>
         <tbody>
@@ -1215,8 +1271,22 @@
           <tr><td>Show timestamps</td><td>On</td><td>Displays MM:SS markers on each transcript entry.</td></tr>
           <tr><td>Auto-detect speakers</td><td>On</td><td>Automatically switches speakers based on diarization or silence.</td></tr>
           <tr><td>Highlight medical terms</td><td>Off</td><td>Color-codes 1,300+ recognized conditions, medications, procedures, and anatomy terms.</td></tr>
-          <tr><td>Include dental chart in export</td><td>On</td><td>Adds dental chart SVG to PDF exports.</td></tr>
-          <tr><td>Include dental findings in export</td><td>On</td><td>Adds dental findings table to exports.</td></tr>
+        </tbody>
+      </table>
+      <div class="docs-callout docs-callout--info">
+        <strong>Quick-access toggles:</strong> Auto-scroll, Timestamps, Auto-detect speakers, and Highlight terms are also available as quick-access toggles in the sidebar for fast adjustment during a session.
+      </div>
+    </article>
+
+    <article id="settings-dental" class="docs-article">
+      <h2>Dental Settings</h2>
+      <p>Found in Settings &rarr; <strong>Advanced</strong> tab &rarr; Dental card.</p>
+      <table class="docs-table">
+        <thead><tr><th>Setting</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Dental chart in export</td><td>On</td><td>Include the dental chart SVG in PDF and text exports.</td></tr>
+          <tr><td>Dental findings in export</td><td>On</td><td>Include the dental findings table in PDF and text exports.</td></tr>
+          <tr><td>Documentation completeness</td><td>Off</td><td>Show scoring checklist after note generation (<code>showDocScore</code>).</td></tr>
         </tbody>
       </table>
     </article>
@@ -1286,6 +1356,8 @@
           <tr><td><kbd>E</kbd></td><td>Export note as PDF</td><td>When note generated</td></tr>
           <tr><td><kbd>N</kbd></td><td>New session</td><td>Always (confirm if data exists)</td></tr>
           <tr><td><kbd>T</kbd></td><td>Download transcript</td><td>When entries exist</td></tr>
+          <tr><td><kbd>H</kbd></td><td>Copy note for EHR</td><td>When note generated</td></tr>
+          <tr><td><kbd>L</kbd></td><td>Export HL7 message</td><td>When note generated</td></tr>
           <tr><td><kbd>Cmd/Ctrl+R</kbd></td><td>Toggle recording</td><td>Always</td></tr>
           <tr><td><kbd>Cmd/Ctrl+F</kbd></td><td>Search transcript</td><td>Always</td></tr>
           <tr><td><kbd>Cmd/Ctrl+,</kbd></td><td>Open Settings</td><td>Always</td></tr>
@@ -1514,7 +1586,7 @@
 
     <article id="architecture" class="docs-article">
       <h2>System Architecture</h2>
-      <p>ClinicalFlow is a desktop application built with <a href="https://v2.tauri.app" target="_blank" rel="noopener">Tauri v2</a>. The frontend is vanilla HTML/CSS/JavaScript (17 modules, ~6,065 lines) running in a native webview. The backend is Rust (6 modules, ~2,200 lines), handling audio capture, file encryption, and system integration. No JavaScript frameworks are used.</p>
+      <p>ClinicalFlow is a desktop application built with <a href="https://v2.tauri.app" target="_blank" rel="noopener">Tauri v2</a>. The frontend is vanilla HTML/CSS/JavaScript (21 modules) running in a native webview. The backend is Rust (9 modules), handling audio capture, file encryption, PDF export, PMS integration, and system integration. No JavaScript frameworks are used.</p>
 
       <h3>Component Overview</h3>
       <div class="docs-code">
@@ -1530,7 +1602,7 @@
 │  │ 1,300+ terms │  │ Coding panel │  │ Archive   │ │
 │  └──────────────┘  └──────────────┘  └───────────┘ │
 │                                                     │
-│  17 JS modules — UI, prompts, templates, dental,   │
+│  21 JS modules — UI, prompts, templates, dental,   │
 │  notes, coding, subscription, audio, settings       │
 └─────────────────────┬───────────────────────────────┘
                       │  invoke() / listen()
@@ -1541,25 +1613,28 @@
 │  audio.rs     — cpal capture, whisper-server,       │
 │                  hallucination filter, vocab prompt  │
 │  storage.rs   — Encrypted sessions, config,         │
-│                  archives, PDF export, logging       │
+│                  archives, logging                   │
+│  pdf.rs       — PDF export (headless_chrome)        │
+│  pms.rs       — PMS Bridge (Dentrix/Eaglesoft/OD)   │
 │  crypto.rs    — AES-256-GCM, PBKDF2 key derivation │
 │  auth.rs      — Argon2id PIN, auto-lock, AppState   │
+│  license.rs   — License validation, subscription    │
 │  logging.rs   — Tracing, daily rotation             │
 │  lib.rs       — App setup, command registration     │
 └─────────────────────┬───────────────────────────────┘
                       │
           ┌───────────┼───────────┐
           ▼           ▼           ▼
-┌──────────────┐ ┌─────────┐ ┌──────────────────┐
-│whisper-server│ │html2pdf │ │  Local Storage    │
-│ (3.44 GB)    │ │ (62 KB) │ │                  │
-│              │ │ Swift   │ │ auth.json        │
-│ ggml-small   │ │ WebKit  │ │ config.json  🔒  │
-│ 574 MB model │ │ PDF gen │ │ active.json  🔒  │
-│ HTTP sidecar │ │         │ │ archive/*.json🔒 │
-│ 127.0.0.1    │ │         │ │ archive/*.wav    │
-└──────────────┘ └─────────┘ │ logs/*.log       │
-                             └──────────────────┘
+┌──────────────┐ ┌───────────────┐ ┌──────────────────┐
+│whisper-server│ │headless_chrome│ │  Local Storage    │
+│ (3.44 GB)    │ │ Rust crate    │ │                  │
+│              │ │ Chromium      │ │ auth.json        │
+│ ggml-small   │ │ DevTools      │ │ config.json  🔒  │
+│ 574 MB model │ │ Protocol      │ │ active.json  🔒  │
+│ HTTP sidecar │ │ PDF gen       │ │ archive/*.json🔒 │
+│ 127.0.0.1    │ │               │ │ archive/*.wav    │
+└──────────────┘ └───────────────┘ │ logs/*.log       │
+                                   └──────────────────┘
 
 External Services (online mode only):
 ┌───────────────┐ ┌───────────────┐ ┌──────────────┐
@@ -1627,8 +1702,8 @@ External Services (online mode only):
         <li><strong>Deep EHR integration.</strong> Products like Nuance DAX, Abridge, and Suki offer embedded EHR integration. ClinicalFlow supports HL7 v2 export but does not embed directly inside EHR interfaces.</li>
         <li><strong>Ambient listening.</strong> Some products run continuously without pressing a button. ClinicalFlow requires explicit start/stop.</li>
         <li><strong>Multi-user and team features.</strong> Enterprise products offer multi-provider support, shared templates, and admin dashboards. ClinicalFlow is single-user.</li>
-        <li><strong>Mobile apps.</strong> Some competitors have iOS/Android apps. ClinicalFlow is macOS desktop-only.</li>
-        <li><strong>Cross-platform.</strong> ClinicalFlow currently runs only on macOS (Apple Silicon). Windows and Linux are planned.</li>
+        <li><strong>Mobile apps.</strong> Some competitors have iOS/Android apps. ClinicalFlow is a desktop application (macOS and Windows).</li>
+        <li><strong>Cross-platform.</strong> ClinicalFlow runs on macOS (Apple Silicon) and Windows. Linux is planned.</li>
       </ul>
 
       <h3>Summary Table</h3>
@@ -1647,7 +1722,7 @@ External Services (online mode only):
           <tr><td>EHR integration</td><td>&#10003; HL7 v2 export, copy/paste, PDF</td><td>Direct Epic/Cerner</td></tr>
           <tr><td>PMS Bridge</td><td>&#10003; Dentrix, Eaglesoft, Open Dental</td><td>Varies</td></tr>
           <tr><td>Insurance narrative</td><td>&#10003; AI-generated</td><td>&#10007; Rarely available</td></tr>
-          <tr><td>Mobile app</td><td>&#10007; macOS desktop only</td><td>Often &#10003;</td></tr>
+          <tr><td>Mobile app</td><td>&#10007; Desktop only (macOS + Windows)</td><td>Often &#10003;</td></tr>
           <tr><td>Languages</td><td>37</td><td>Varies (often fewer)</td></tr>
         </tbody>
       </table>
@@ -1682,25 +1757,27 @@ External Services (online mode only):
         <li>Dental coding: CDT D-codes + dental ICD-10 with 4 guardrails</li>
         <li>Audit flags and clinical warnings for coding review</li>
         <li>Multi-speaker management with 3 roles (Physician, Patient, Other) and 1.5s silence detection</li>
-        <li>Medical term post-processor with 204 correction patterns across 6 languages</li>
+        <li>Medical term post-processor with 325+ correction patterns across 6 languages</li>
         <li>Whisper hallucination filtering and medical vocabulary conditioning (55+ terms)</li>
         <li>PIN-based authentication with AES-256-GCM encryption at rest (PBKDF2 100k iterations, Argon2id)</li>
         <li>Auto-lock after configurable inactivity (default: 5 minutes)</li>
         <li>EHR integration via HL7 v2 export</li>
         <li>PMS Bridge for Dentrix, Eaglesoft, and Open Dental</li>
         <li>Insurance narrative generation from notes and billing codes</li>
-        <li>PDF export (Swift WebKit sidecar), text export, clipboard copy, configurable export actions</li>
+        <li>PDF export (headless_chrome Rust crate, Chromium DevTools Protocol), text export, clipboard copy, configurable export actions</li>
         <li>Session archiving with transcript, note, audio, dental chart, and coding data</li>
         <li>Continuous WAV save (~10s intervals) for crash recovery</li>
         <li>Structured logging with PHI sanitization (30-day retention)</li>
-        <li>Settings drawer with General/Advanced tabs and squircle card layout</li>
+        <li>Settings drawer with General/Advanced tabs &mdash; General: Account, Appearance, AI &amp; Transcription; Advanced: Notes, Recording, Export Actions, Dental, EHR Integration, PMS Bridge, Language, Security</li>
         <li>Dark and light themes</li>
         <li>37-language support (full pipeline: transcription + corrections + notes + UI)</li>
         <li>1,300+ medical term highlighting in transcript</li>
-        <li>Welcome wizard (5-screen setup) and 2 demo scenarios (medical + dental)</li>
+        <li>Welcome wizard (5-screen setup) and 4 demo scenarios (medical, dental, radiology, behavioral health)</li>
+        <li>Dictionary-powered features: abbreviation tooltips, medication cross-reference, scoring quick-reference, dental tooth labels, quick-insert palette (Ctrl+J), note autocomplete</li>
+        <li>Note line editing toggle (Settings &rarr; Advanced &rarr; Notes) combining move, add, delete, drag, and dictation controls</li>
         <li>Subscription/licensing via Supabase + Stripe (14-day trial)</li>
-        <li>10 keyboard shortcuts</li>
-        <li>Built with Tauri v2 for macOS (Apple Silicon)</li>
+        <li>12 keyboard shortcuts</li>
+        <li>Built with Tauri v2 for macOS (Apple Silicon) and Windows</li>
       </ul>
     </article>
 

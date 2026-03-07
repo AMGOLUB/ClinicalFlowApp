@@ -118,7 +118,7 @@ export const App = {
   speakers:[], nextSpkId:1, activeSpkId:null, lastSpkChange:0, silStart:null, silThresh:1500,
   entries:[], nextEntryId:1,
   noteGenerated:false, noteFormat:'soap', noteSections:{}, codingResults:null,
-  settings:{autoScroll:true, timestamps:true, autoDetect:true, highlightTerms:false, autoCoding:true, dentalChartInExport:true, dentalFindingsInExport:true, showCopyEhr:false, showExportHl7:false, showNarrative:false, showSyncPms:false, showDocScore:false, lineDictation:true},
+  settings:{autoScroll:true, timestamps:true, autoDetect:true, highlightTerms:false, autoCoding:true, dentalChartInExport:true, dentalFindingsInExport:true, showCopyEhr:false, showExportHl7:false, showNarrative:false, showSyncPms:false, showDocScore:false, dictionaryFeatures:false, noteLineActions:true},
   dictationTarget:null, dictationActive:false,
   theme:'light', language:'en-US', demoRunning:false,
   aiEngine:'cloud',

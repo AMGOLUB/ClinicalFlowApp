@@ -736,7 +736,7 @@
               <polyline points="10 9 9 9 8 9"/>
             </svg>
           </button>
-          <button class="icon-btn" id="phrasePaletteBtn" data-tooltip="Quick Phrases (Ctrl+J)" aria-label="Quick phrase palette">
+          <button class="icon-btn" id="phrasePaletteBtn" data-tooltip="Quick Phrases (Ctrl+J)" aria-label="Quick phrase palette" style="display:none;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
               <line x1="9" y1="9" x2="15" y2="9"/>
@@ -1159,7 +1159,7 @@
 
   <!-- Demo Picker Modal -->
   <div class="modal-overlay" id="demoPickerModal">
-    <div class="modal" role="dialog" aria-labelledby="demoPickerTitle" style="max-width:420px;">
+    <div class="modal" role="dialog" aria-labelledby="demoPickerTitle" style="max-width:460px;">
       <div class="modal-title" id="demoPickerTitle">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px;">
           <polygon points="5 3 19 12 5 21 5 3"/>
@@ -1188,6 +1188,33 @@
           <div class="demo-picker-info">
             <div class="demo-picker-name">Dental Examination</div>
             <div class="demo-picker-desc">Comprehensive exam with caries, RCT failure, impaction, periodontal findings</div>
+          </div>
+        </button>
+        <button class="demo-picker-card" data-demo="radiology">
+          <div class="demo-picker-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="2"/>
+              <circle cx="12" cy="12" r="4"/>
+              <line x1="2" y1="12" x2="8" y2="12"/>
+              <line x1="16" y1="12" x2="22" y2="12"/>
+              <line x1="12" y1="2" x2="12" y2="8"/>
+              <line x1="12" y1="16" x2="12" y2="22"/>
+            </svg>
+          </div>
+          <div class="demo-picker-info">
+            <div class="demo-picker-name">Radiology Report</div>
+            <div class="demo-picker-desc">CT abdomen with contrast — appendicitis, renal cyst, incidental findings</div>
+          </div>
+        </button>
+        <button class="demo-picker-card" data-demo="behavioral">
+          <div class="demo-picker-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </div>
+          <div class="demo-picker-info">
+            <div class="demo-picker-name">Behavioral Health Session</div>
+            <div class="demo-picker-desc">Psychiatry follow-up — panic disorder, medication adjustment, CBT intervention</div>
           </div>
         </button>
       </div>
@@ -1456,8 +1483,18 @@
             </div>
           </div>
 
-          <!-- Auto-suggest codes -->
-          <div class="settings-row" style="margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--border-subtle);">
+        </div>
+
+      </div>
+
+      <!-- ═══════════════ ADVANCED TAB ═══════════════ -->
+      <div class="settings-tab-content" id="settingsTabAdvanced" style="display:none;">
+
+        <!-- Notes Card -->
+        <div class="settings-card">
+          <div class="settings-card-title">Notes</div>
+
+          <div class="settings-row">
             <div class="settings-row-info">
               <div class="settings-row-label">Auto-suggest medical codes</div>
               <div class="settings-row-desc">Suggest ICD-10, CPT, and E&M codes after note generation</div>
@@ -1469,10 +1506,20 @@
 
           <div class="settings-row">
             <div class="settings-row-info">
-              <div class="settings-row-label">Line dictation</div>
-              <div class="settings-row-desc">Add a microphone button to each note line for voice editing</div>
+              <div class="settings-row-label">Note line editing</div>
+              <div class="settings-row-desc">Show move, add, delete, and dictation buttons on each note line</div>
             </div>
-            <div class="toggle" id="settingLineDictation" data-setting="lineDictation" role="switch" aria-checked="false" tabindex="0">
+            <div class="toggle active" id="settingNoteLineActions" data-setting="noteLineActions" role="switch" aria-checked="true" tabindex="0">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Dictionary features</div>
+              <div class="settings-row-desc">Abbreviation tooltips, medication info, phrase palette, and autocomplete</div>
+            </div>
+            <div class="toggle" id="settingDictionaryFeatures" data-setting="dictionaryFeatures" role="switch" aria-checked="false" tabindex="0">
               <div class="toggle-knob"></div>
             </div>
           </div>
@@ -1602,11 +1649,6 @@
             </div>
           </div>
         </div>
-
-      </div>
-
-      <!-- ═══════════════ ADVANCED TAB ═══════════════ -->
-      <div class="settings-tab-content" id="settingsTabAdvanced" style="display:none;">
 
         <!-- EHR Integration Card -->
         <div class="settings-card" id="settingsEhrGroup">

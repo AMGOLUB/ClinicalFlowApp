@@ -15,7 +15,7 @@ export function cacheDOM(){
   D.liveDot=g('liveDot');D.searchBar=g('searchBar');D.searchInput=g('searchInput');
   D.dlTxBtn=g('downloadTranscriptBtn');
   D.noteContent=g('noteContent');D.noteEmpty=g('noteEmpty');D.noteGen=g('noteGenerating');D.noteSec=g('noteSections');D.codingPanel=g('codingPanel');
-  D.regenBtn=g('regenerateNoteBtn');D.copyBtn=g('copyNoteBtn');D.expPdfBtn=g('exportPdfBtn');D.copyEhrBtn=g('copyEhrBtn');D.expHl7Btn=g('exportHl7Btn');D.genNarrBtn=g('genNarrativeBtn');D.syncPmsBtn=g('syncPmsBtn');
+  D.regenBtn=g('regenerateNoteBtn');D.copyBtn=g('copyNoteBtn');D.expPdfBtn=g('exportPdfBtn');D.copyEhrBtn=g('copyEhrBtn');D.expHl7Btn=g('exportHl7Btn');D.genNarrBtn=g('genNarrativeBtn');D.syncPmsBtn=g('syncPmsBtn');D.phrasePaletteBtn=g('phrasePaletteBtn');
   D.recBtn=g('recordBtn');D.pauseBtn=g('pauseBtn');D.genBtn=g('generateNoteBtn');D.expBtn=g('exportBtn');
   D.dlAudioBtn=g('downloadAudioBtn');
   D.waveform=g('waveform');D.waveBars=D.waveform.querySelectorAll('.waveform-bar');

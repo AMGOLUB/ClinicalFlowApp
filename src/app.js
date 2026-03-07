@@ -101,6 +101,40 @@ const DEMO_DENTAL=[
   {s:'doctor',t:"Patient consented to treatment plan and was advised of all risks and alternatives."}
 ];
 
+const DEMO_RADIOLOGY=[
+  {s:'doctor',d:2000,t:"This is Dr. Morrison, attending radiologist. Dictating CT abdomen and pelvis with IV contrast for patient Sarah Chen, date of birth March 15th 1968. Clinical indication: right lower quadrant pain, rule out appendicitis. Comparison: no prior imaging available."},
+  {s:'doctor',d:3000,t:"Technique: CT of the abdomen and pelvis was performed following administration of 100 milliliters of Omnipaque 350 intravenous contrast. Multiplanar reformats were generated."},
+  {s:'doctor',d:4000,t:"Findings: Liver is normal in size and attenuation. No focal hepatic lesions. Gallbladder is unremarkable without cholelithiasis. Common bile duct measures 4 millimeters, within normal limits. Pancreas, spleen, and adrenal glands are unremarkable."},
+  {s:'doctor',d:3000,t:"Kidneys enhance symmetrically without hydronephrosis or calculi. A 1.2 centimeter simple cyst is noted in the lower pole of the right kidney, Bosniak category 1. No suspicious renal masses."},
+  {s:'doctor',d:4000,t:"The appendix is visualized in the right lower quadrant measuring 11 millimeters in diameter. There is periappendiceal fat stranding and mild wall thickening with enhancement. An appendicolith measuring 5 millimeters is identified at the base of the appendix. No extraluminal air. No organized fluid collection or abscess."},
+  {s:'doctor',d:2500,t:"Remaining small and large bowel loops are unremarkable. No bowel obstruction or free fluid. Mesenteric and retroperitoneal lymph nodes are within normal limits. No free air."},
+  {s:'doctor',d:2000,t:"Osseous structures demonstrate mild degenerative changes of the lumbar spine without acute fracture. Incidental note is made of a 6 millimeter left adnexal simple cyst."},
+  {s:'doctor',d:3000,t:"Impression: Number one, acute uncomplicated appendicitis with appendicolith. The appendix measures 11 millimeters with periappendiceal inflammation. No abscess or perforation. Recommend surgical consultation. Number two, 1.2 centimeter simple right renal cyst, Bosniak 1, no follow-up needed. Number three, incidental 6 millimeter left adnexal cyst, likely physiologic. Correlation with clinical history recommended."},
+  {s:'doctor',d:1500,t:"Report was communicated to Dr. Williams in the emergency department by phone at 14:32 hours. Dr. Morrison, end dictation."}
+];
+
+const DEMO_BEHAVIORAL=[
+  {s:'doctor',d:2000,t:"Good afternoon, Jessica. It's good to see you again. How have the last two weeks been since our last session?"},
+  {s:'patient',d:3000,t:"Honestly, it's been rough. I had a panic attack at work last Tuesday in front of my whole team during a presentation. I had to leave the room. My heart was racing, I couldn't breathe, and I felt like I was going to pass out. It lasted about 15 minutes."},
+  {s:'doctor',d:2000,t:"That sounds very distressing. How did you handle it in the moment?"},
+  {s:'patient',d:2500,t:"I tried the grounding technique we practiced, the 5-4-3-2-1 thing. It helped a little but I was too far into it by that point. My coworker Sarah walked me to a quiet room and stayed with me."},
+  {s:'doctor',d:2000,t:"I'm glad you had support. Were there any other panic attacks this week?"},
+  {s:'patient',d:3000,t:"No full attacks, but I've had that constant anxious feeling almost every day. I wake up with my chest tight and this sense of dread. I've been avoiding meetings at work because I'm terrified it'll happen again. I called in sick twice."},
+  {s:'doctor',d:2000,t:"How has your sleep been?"},
+  {s:'patient',d:2500,t:"Terrible. I'm only getting about 4 to 5 hours a night. I fall asleep okay but wake up around 3 AM with racing thoughts and can't get back to sleep. I keep replaying that panic attack. My appetite is also down, I've lost about 5 pounds."},
+  {s:'doctor',d:1500,t:"And I need to ask — any thoughts of harming yourself or not wanting to be here?"},
+  {s:'patient',d:2000,t:"No, nothing like that. I'm frustrated and exhausted but I don't have thoughts of hurting myself. I do feel hopeless sometimes, like this will never get better."},
+  {s:'doctor',d:2500,t:"I appreciate your honesty. Let's talk about your current medications. You're still taking sertraline 100 milligrams daily?"},
+  {s:'patient',d:2000,t:"Yes, I've been taking it every morning. I haven't missed any doses. But I don't feel like it's doing enough anymore. I was stable for a while but these past few months have been getting worse."},
+  {s:'doctor',d:3500,t:"Based on what you're telling me, I think we should increase the sertraline to 150 milligrams. That's still within the therapeutic range and may give us better coverage for both the panic and generalized anxiety. I'd also like to prescribe hydroxyzine 25 milligrams as needed for acute anxiety, up to three times daily."},
+  {s:'patient',d:1000,t:"Okay, will the increase have any side effects?"},
+  {s:'doctor',d:2500,t:"You may notice some temporary increase in anxiety or mild nausea for the first week or two as your body adjusts. If it's intolerable, call us right away. The hydroxyzine can cause drowsiness, so be careful driving until you know how it affects you."},
+  {s:'doctor',d:4000,t:"I'd also like us to work on some cognitive restructuring around the avoidance pattern that's developing. The avoidance of meetings is maintaining the anxiety cycle. We'll use gradual exposure — starting small. For homework, I'd like you to attend at least one short meeting this week, even just for 10 minutes, and practice the breathing technique before you go in."},
+  {s:'patient',d:1500,t:"That feels scary but I know you're right. Avoiding it is making it worse."},
+  {s:'doctor',d:3000,t:"That's great insight. I'm also going to refer you to our mindfulness-based stress reduction group that starts next month. It's an 8-week program and research shows it's very effective for anxiety disorders. Let's plan to meet again in one week given the medication change, and we'll reassess how you're doing."},
+  {s:'patient',d:1000,t:"Thank you, Dr. Kim. I feel a little better having a plan."}
+];
+
 function _populateLanguageSelect(){
   const sel=D.langSel;if(!sel)return;
   sel.innerHTML='';
@@ -135,6 +169,8 @@ function _showDemoPicker(){
       closeModal(modal);
       const type=card.dataset.demo;
       if(type==='dental') runDemoInstant(DEMO_DENTAL,'dental');
+      else if(type==='radiology') runDemoInstant(DEMO_RADIOLOGY,'radiology');
+      else if(type==='behavioral') runDemoInstant(DEMO_BEHAVIORAL,'behavioral');
       else runDemoAnimated(DEMO_MEDICAL,'medical');
     };
   });
@@ -142,14 +178,22 @@ function _showDemoPicker(){
   modal.onclick=(e)=>{if(e.target===modal)closeModal(modal);};
 }
 
+function _setDemoTemplate(fmt){
+  App.noteFormat=fmt;cfg.set('ms-note-format',fmt);
+  if(D.fmtSel){D.fmtSel.value=fmt;D.fmtSel.dispatchEvent(new Event('change'));}
+}
+
 async function runDemoInstant(entries,type){
   await newSession();
   if(type==='dental'){
     addSpeaker('Dr. Chen','doctor');addSpeaker('Ms. Ramirez','patient');
-    /* Auto-select dental template */
-    App.noteFormat='dental_general';
-    cfg.set('ms-note-format','dental_general');
-    if(D.fmtSel){D.fmtSel.value='dental_general';D.fmtSel.dispatchEvent(new Event('change'));}
+    _setDemoTemplate('dental_general');
+  }else if(type==='radiology'){
+    addSpeaker('Dr. Morrison','doctor');
+    _setDemoTemplate('radiology_diagnostic');
+  }else if(type==='behavioral'){
+    addSpeaker('Dr. Kim','doctor');addSpeaker('Jessica','patient');
+    _setDemoTemplate('dap');
   }else{
     addSpeaker('Dr. Patel','doctor');addSpeaker('Mr. Robinson','patient');addSpeaker('Maria (MA)','other');
   }
@@ -198,8 +242,7 @@ async function runDemoAnimated(entries,type){
   App.demoRunning=true;await newSession();
   if(type==='dental'){
     addSpeaker('Dr. Chen','doctor');addSpeaker('Ms. Ramirez','patient');
-    App.noteFormat='dental_general';cfg.set('ms-note-format','dental_general');
-    if(D.fmtSel){D.fmtSel.value='dental_general';D.fmtSel.dispatchEvent(new Event('change'));}
+    _setDemoTemplate('dental_general');
   }else{
     addSpeaker('Dr. Patel','doctor');addSpeaker('Mr. Robinson','patient');addSpeaker('Maria (MA)','other');
     setActiveSpk(App.speakers[2].id);

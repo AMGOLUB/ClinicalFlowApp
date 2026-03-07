@@ -8,6 +8,7 @@ import { subOpenBillingPortal, subLogOut } from './subscription.js';
 import { TEMPLATE_CATEGORIES, getTemplateRegistry } from './templates.js';
 import { isDentalTemplate, renderDentalPreview, updateDentalSummary } from './dental-chart.js';
 import { updateNoteActions } from './notes.js';
+import { closePalette } from './dictionary-features.js';
 
 /* ── Ollama Integration ── */
 
@@ -173,6 +174,8 @@ export function initToggles(){
       document.querySelectorAll(`.toggle[data-setting="${s}"]`).forEach(x=>{x.classList.toggle('active',a);x.setAttribute('aria-checked',a);});
       if(s==='timestamps'||s==='highlightTerms')renderEntries();
       if(s==='showCopyEhr'||s==='showExportHl7'||s==='showNarrative'||s==='showSyncPms')updateNoteActions();
+      if(s==='dictionaryFeatures'){if(!a)closePalette();updateNoteActions();}
+      if(s==='noteLineActions')document.querySelectorAll('.note-line-actions').forEach(el=>{el.style.display=a?'':'none';});
     });
     t.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();t.click();}});
   });

@@ -204,6 +204,7 @@ function _toothTooltipHTML(term) {
 /* ── Event Delegation for Tooltips ── */
 
 function _handleTermHover(e) {
+  if (!App.settings.dictionaryFeatures) return;
   const span = e.target.closest('.medication-term, .medical-term, .procedure-term, .anatomy-term, .dental-term');
   if (!span) return;
   const text = span.textContent.trim();
@@ -333,6 +334,7 @@ function _insertPhrase(text) {
 }
 
 export function togglePalette() {
+  if (!App.settings.dictionaryFeatures) return;
   if (_paletteVisible) closePalette();
   else openPalette();
 }
@@ -427,6 +429,7 @@ function _hideAutocomplete() {
 
 function _handleNoteInput(e) {
   clearTimeout(_acTimer);
+  if (!App.settings.dictionaryFeatures) return;
   const el = e.target;
   if (!el.closest('.note-section-body')) return;
 
@@ -458,7 +461,7 @@ function _handleNoteInput(e) {
 /* ── Tooth Number Highlighting in Notes ── */
 
 export function addToothTooltips(container) {
-  if (!container) return;
+  if (!container || !App.settings.dictionaryFeatures) return;
   // Find #N patterns and wrap them with tooltip triggers
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
   const toothRegex = /#(\d{1,2})\b/g;
@@ -502,6 +505,7 @@ export function initDictionaryFeatures() {
     c.addEventListener('mouseout', _handleTermLeave);
     // Tooth number tooltips
     c.addEventListener('mouseover', (e) => {
+      if (!App.settings.dictionaryFeatures) return;
       const span = e.target.closest('.tooth-number-ref');
       if (!span) return;
       const html = _toothTooltipHTML(span.textContent);
