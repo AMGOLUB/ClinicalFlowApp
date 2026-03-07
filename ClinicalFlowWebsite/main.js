@@ -52,28 +52,11 @@
     btn.setAttribute('aria-label', 'Toggle dark mode');
     btn.setAttribute('title', 'Toggle dark mode');
     btn.innerHTML = ''
-      + '<div class="theme-toggle-track">'
-      +   '<div class="theme-toggle-stars">'
-      +     '<span class="theme-toggle-star"></span>'
-      +     '<span class="theme-toggle-star"></span>'
-      +     '<span class="theme-toggle-star"></span>'
-      +     '<span class="theme-toggle-star"></span>'
-      +   '</div>'
-      + '</div>'
+      + '<div class="theme-toggle-track"></div>'
       + '<div class="theme-toggle-orb">'
       +   '<span class="theme-toggle-crater"></span>'
       +   '<span class="theme-toggle-crater"></span>'
       +   '<span class="theme-toggle-crater"></span>'
-      +   '<div class="theme-toggle-rays">'
-      +     '<span class="theme-toggle-ray"></span>'
-      +     '<span class="theme-toggle-ray"></span>'
-      +     '<span class="theme-toggle-ray"></span>'
-      +     '<span class="theme-toggle-ray"></span>'
-      +     '<span class="theme-toggle-ray"></span>'
-      +     '<span class="theme-toggle-ray"></span>'
-      +     '<span class="theme-toggle-ray"></span>'
-      +     '<span class="theme-toggle-ray"></span>'
-      +   '</div>'
       + '</div>';
 
     // Place toggle next to the CTA buttons (right side of nav)

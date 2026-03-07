@@ -264,15 +264,9 @@
   border-radius: 10px;
   overflow: hidden;
 }
-/* Stars background (visible in dark mode) */
+/* Stars background — hidden (moon only) */
 .theme-toggle-stars {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-[data-theme="dark"] .theme-toggle-stars {
-  opacity: 1;
+  display: none;
 }
 .theme-toggle-star {
   position: absolute;
@@ -1946,10 +1940,11 @@ body.using-mouse *:focus { outline: none; }
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
-    margin-top: 2px;
+    padding: 14px 18px;
+    margin-top: 4px;
     border-top: 1px solid rgba(8, 145, 178, 0.08);
     list-style: none;
+    gap: 16px;
   }
   .nav-mobile-theme-label {
     font-size: 14px;
