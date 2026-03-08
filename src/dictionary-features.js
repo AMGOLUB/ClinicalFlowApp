@@ -2,8 +2,9 @@
    CLINICALFLOW — Dictionary-Powered Features
    Tooltips, phrase palette, autocomplete, tooth labels
    ============================================================ */
-import { App, tauriInvoke } from './state.js';
+import { App, cfg, tauriInvoke } from './state.js';
 import { D, toast, esc } from './ui.js';
+import { startInputDictation, isInputDictating, stopInputDictation } from './notes.js';
 import {
   MEDICATIONS_GENERIC, MEDICATIONS_BRAND,
   DENTAL_CONDITIONS, DENTAL_PROCEDURES, DENTAL_ANATOMY,
@@ -27,7 +28,7 @@ async function _loadDict(name) {
       if (!r.ok) return null;
       return r.json();
     }
-  } catch { return null; }
+  } catch(e) { console.warn('[Dict] Failed to load', name, e); return null; }
 }
 
 export async function loadDictionaries() {
@@ -42,6 +43,8 @@ export async function loadDictionaries() {
   _radDict = rad;
   _dictLoaded = true;
   _buildLookups();
+  // Fallback: if JSON dicts failed, build basic lookups from inline imports
+  if (_medMap.size === 0) _buildFallbackLookups();
 }
 
 /* ── Lookup Maps (built once after load) ── */
@@ -107,6 +110,28 @@ function _buildLookups() {
   if (_dentalDict?.tooth_numbering?.permanent_teeth) {
     for (const t of _dentalDict.tooth_numbering.permanent_teeth) {
       _toothMap.set(t.number, { name: t.name, type: t.type, location: t.location });
+    }
+  }
+}
+
+/* Fallback: build basic med lookups from inline imports when JSON dicts fail to load */
+function _buildFallbackLookups() {
+  console.debug('[Dict] Using fallback inline lookups');
+  for (const name of MEDICATIONS_GENERIC) {
+    if (!_medMap.has(name.toLowerCase())) _medMap.set(name.toLowerCase(), { generic: name, brand: '', class: '' });
+  }
+  for (const name of MEDICATIONS_BRAND) {
+    if (!_medMap.has(name.toLowerCase())) _medMap.set(name.toLowerCase(), { generic: name, brand: name, class: '' });
+  }
+  // Basic tooth numbering fallback
+  if (_toothMap.size === 0) {
+    const TOOTH_NAMES = ['','Central Incisor','Lateral Incisor','Canine','1st Premolar','2nd Premolar','1st Molar','2nd Molar','3rd Molar'];
+    const QUADS = [{ start: 1, side: 'Upper Right' }, { start: 9, side: 'Upper Left' }, { start: 17, side: 'Lower Left' }, { start: 25, side: 'Lower Right' }];
+    for (const q of QUADS) {
+      for (let i = 0; i < 8; i++) {
+        const num = q.start + i;
+        _toothMap.set(num, { name: TOOTH_NAMES[i + 1] || `Tooth ${num}`, type: i < 3 ? 'Anterior' : 'Posterior', location: q.side });
+      }
     }
   }
 }
@@ -290,27 +315,357 @@ function _getPhrases() {
   return phrases;
 }
 
+/* ── Favorite Phrases Persistence ── */
+
+function _favKey() {
+  const fmt = App.noteFormat || 'soap';
+  return `ms-favorite-phrases-${fmt}`;
+}
+
+function _loadFavorites() {
+  try {
+    const raw = cfg.get(_favKey(), '[]');
+    const arr = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+
+function _saveFavorites(favs) {
+  cfg.set(_favKey(), JSON.stringify(favs));
+}
+
+function _isFavorite(text) {
+  return _loadFavorites().includes(text);
+}
+
+function _toggleFavorite(text) {
+  const favs = _loadFavorites();
+  const idx = favs.indexOf(text);
+  if (idx >= 0) { favs.splice(idx, 1); }
+  else { favs.unshift(text); }
+  _saveFavorites(favs);
+  return idx < 0; // returns true if now favorited
+}
+
+function _addCustomPhrase(text) {
+  const trimmed = text.trim();
+  if (!trimmed) return false;
+  const favs = _loadFavorites();
+  if (favs.includes(trimmed)) return false;
+  favs.unshift(trimmed);
+  _saveFavorites(favs);
+  return true;
+}
+
+function _removeCustomPhrase(text) {
+  const favs = _loadFavorites();
+  const idx = favs.indexOf(text);
+  if (idx >= 0) { favs.splice(idx, 1); _saveFavorites(favs); }
+}
+
+function _isBuiltInPhrase(text) {
+  const phrases = _getPhrases();
+  for (const group of phrases) {
+    for (const p of group.items) {
+      if ((typeof p === 'string' ? p : p.phrase || p) === text) return true;
+    }
+  }
+  return false;
+}
+
 function _buildPalette() {
   if (_paletteEl) _paletteEl.remove();
   _paletteEl = document.createElement('div');
   _paletteEl.className = 'cf-phrase-palette';
-  _paletteEl.innerHTML = `<div class="cf-palette-header"><span>Quick Phrases</span><button class="cf-palette-close">&times;</button></div><div class="cf-palette-body"></div>`;
+  _paletteEl.innerHTML = `<div class="cf-palette-header"><span>Quick Phrases</span><div class="cf-palette-header-actions"><span class="cf-palette-grip" title="Drag to move">&#x2261;&#x2261;</span><button class="cf-palette-close">&times;</button></div></div><div class="cf-palette-body"></div>`;
   const body = _paletteEl.querySelector('.cf-palette-body');
+
+  // Custom phrase input
+  const inputRow = document.createElement('div');
+  inputRow.className = 'cf-palette-add-row';
+  inputRow.innerHTML = `<textarea class="cf-palette-add-input" placeholder="Add custom phrase..." maxlength="200" rows="1"></textarea><button class="cf-palette-mic-btn" title="Dictate phrase"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button><button class="cf-palette-add-btn" title="Add phrase">+</button>`;
+  const input = inputRow.querySelector('textarea');
+  input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 80) + 'px'; });
+  const addBtn = inputRow.querySelector('.cf-palette-add-btn');
+  const micBtn = inputRow.querySelector('.cf-palette-mic-btn');
+  micBtn.addEventListener('click', () => {
+    if (isInputDictating()) { stopInputDictation(); }
+    else { startInputDictation(input, micBtn); }
+  });
+  const doAdd = () => {
+    if (_addCustomPhrase(input.value)) {
+      input.value = '';
+      _buildPalette();
+      _paletteEl.classList.add('visible');
+      toast('Phrase added', 'success');
+    } else if (input.value.trim()) {
+      toast('Phrase already exists', 'warning');
+    }
+  };
+  addBtn.addEventListener('click', doAdd);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doAdd(); } });
+  body.appendChild(inputRow);
+
+  // Favorites section
+  const favs = _loadFavorites();
+  if (favs.length > 0) {
+    const favCat = document.createElement('div');
+    favCat.className = 'cf-palette-cat';
+    favCat.innerHTML = `<div class="cf-palette-cat-title cf-palette-fav-title">★ Favorites</div>`;
+    for (let fi = 0; fi < favs.length; fi++) {
+      const text = favs[fi];
+      const row = document.createElement('div');
+      row.className = 'cf-palette-item-row';
+      row.dataset.favIdx = fi;
+      const btn = document.createElement('button');
+      btn.className = 'cf-palette-item cf-palette-item--fav';
+      btn.textContent = text;
+      btn.addEventListener('click', () => _insertPhrase(text));
+      btn.addEventListener('dblclick', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        btn.contentEditable = 'true';
+        btn.classList.add('editing');
+        btn.focus();
+        // Select all text
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(btn);
+        sel.removeAllRanges(); sel.addRange(range);
+        const commit = () => {
+          btn.contentEditable = 'false';
+          btn.classList.remove('editing');
+          const newText = btn.textContent.trim();
+          if (newText && newText !== text) {
+            const favs = _loadFavorites();
+            const idx = favs.indexOf(text);
+            if (idx !== -1) { favs[idx] = newText; _saveFavorites(favs); }
+            toast('Phrase updated', 'success');
+          } else if (!newText) {
+            btn.textContent = text; // revert if emptied
+          }
+          btn.removeEventListener('blur', commit);
+        };
+        btn.addEventListener('blur', commit);
+        btn.addEventListener('keydown', (ke) => {
+          if (ke.key === 'Enter') { ke.preventDefault(); btn.blur(); }
+          if (ke.key === 'Escape') { btn.textContent = text; btn.blur(); }
+        });
+      });
+
+      // Drag handle
+      const drag = document.createElement('span');
+      drag.className = 'cf-palette-drag';
+      drag.title = 'Drag to reorder';
+      drag.textContent = '\u2261';
+      drag.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const rect = row.getBoundingClientRect();
+        const offsetY = e.clientY - rect.top;
+        const ghost = row.cloneNode(true);
+        ghost.classList.add('cf-palette-ghost');
+        ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:10000;pointer-events:none;opacity:0.85;`;
+        document.body.appendChild(ghost);
+        const placeholder = document.createElement('div');
+        placeholder.className = 'cf-palette-placeholder';
+        placeholder.style.height = rect.height + 'px';
+        row.parentElement.insertBefore(placeholder, row);
+        row.style.display = 'none';
+        let raf = 0;
+        const onMove = (ev) => {
+          ev.preventDefault();
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            ghost.style.top = (ev.clientY - offsetY) + 'px';
+            const el = document.elementFromPoint(ev.clientX, ev.clientY);
+            if (!el) return;
+            const target = el.closest('.cf-palette-item-row[data-fav-idx]');
+            if (target && target !== row) {
+              const tr = target.getBoundingClientRect();
+              if (ev.clientY < tr.top + tr.height / 2) target.parentElement.insertBefore(placeholder, target);
+              else target.parentElement.insertBefore(placeholder, target.nextSibling);
+            }
+          });
+        };
+        const onUp = () => {
+          cancelAnimationFrame(raf);
+          ghost.remove();
+          row.style.display = '';
+          placeholder.parentElement.insertBefore(row, placeholder);
+          placeholder.remove();
+          document.removeEventListener('pointermove', onMove);
+          document.removeEventListener('pointerup', onUp);
+          // Read new order from DOM and persist
+          const newFavs = [];
+          favCat.querySelectorAll('.cf-palette-item-row[data-fav-idx]').forEach(r => {
+            const idx = parseInt(r.dataset.favIdx, 10);
+            if (favs[idx] !== undefined) newFavs.push(favs[idx]);
+          });
+          _saveFavorites(newFavs);
+        };
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onUp);
+      });
+
+      const star = document.createElement('button');
+      star.className = 'cf-palette-star active';
+      star.textContent = '★';
+      star.title = 'Remove from favorites';
+      star.addEventListener('click', (e) => {
+        e.stopPropagation();
+        _toggleFavorite(text);
+        _buildPalette();
+        _paletteEl.classList.add('visible');
+      });
+      row.appendChild(drag);
+      row.appendChild(btn);
+      row.appendChild(star);
+      // If it's a custom phrase (not in built-in list), show delete button
+      if (!_isBuiltInPhrase(text)) {
+        const del = document.createElement('button');
+        del.className = 'cf-palette-delete';
+        del.textContent = '×';
+        del.title = 'Delete custom phrase';
+        del.addEventListener('click', (e) => {
+          e.stopPropagation();
+          _removeCustomPhrase(text);
+          _buildPalette();
+          _paletteEl.classList.add('visible');
+          toast('Phrase removed', 'success');
+        });
+        row.appendChild(del);
+      }
+      favCat.appendChild(row);
+    }
+    body.appendChild(favCat);
+  }
+
+  // Built-in phrase categories
   const phrases = _getPhrases();
   for (const group of phrases) {
     const cat = document.createElement('div');
     cat.className = 'cf-palette-cat';
     cat.innerHTML = `<div class="cf-palette-cat-title">${esc(group.category)}</div>`;
     for (const phrase of group.items) {
+      const text = typeof phrase === 'string' ? phrase : phrase.phrase || phrase;
+      const row = document.createElement('div');
+      row.className = 'cf-palette-item-row';
       const btn = document.createElement('button');
       btn.className = 'cf-palette-item';
-      btn.textContent = typeof phrase === 'string' ? phrase : phrase.phrase || phrase;
-      btn.addEventListener('click', () => _insertPhrase(typeof phrase === 'string' ? phrase : phrase.phrase || phrase));
-      cat.appendChild(btn);
+      btn.textContent = text;
+      btn.addEventListener('click', () => _insertPhrase(text));
+      const star = document.createElement('button');
+      star.className = 'cf-palette-star' + (_isFavorite(text) ? ' active' : '');
+      star.textContent = _isFavorite(text) ? '★' : '☆';
+      star.title = _isFavorite(text) ? 'Remove from favorites' : 'Add to favorites';
+      star.addEventListener('click', (e) => {
+        e.stopPropagation();
+        _toggleFavorite(text);
+        _buildPalette();
+        _paletteEl.classList.add('visible');
+      });
+      row.appendChild(btn);
+      row.appendChild(star);
+      cat.appendChild(row);
     }
     body.appendChild(cat);
   }
   _paletteEl.querySelector('.cf-palette-close').addEventListener('click', closePalette);
+
+  // ── Draggable window ──
+  const header = _paletteEl.querySelector('.cf-palette-header');
+  header.style.cursor = 'grab';
+  let _dragState = null;
+  header.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.cf-palette-close')) return;
+    e.preventDefault();
+    header.style.cursor = 'grabbing';
+    header.setPointerCapture(e.pointerId);
+    const rect = _paletteEl.getBoundingClientRect();
+    // Switch from CSS-positioned to explicit top/left on first drag
+    _paletteEl.style.right = 'auto';
+    _paletteEl.style.bottom = 'auto';
+    _paletteEl.style.left = rect.left + 'px';
+    _paletteEl.style.top = rect.top + 'px';
+    _dragState = { startX: e.clientX, startY: e.clientY, origLeft: rect.left, origTop: rect.top };
+    _curX = rect.left; _curY = rect.top; _targetX = rect.left; _targetY = rect.top;
+    _paletteEl.classList.add('dragging');
+    _animFrame = requestAnimationFrame(_renderLoop);
+  });
+  const SNAP_DIST = 48; // px — snap zone near edges
+  const SNAP_PAD = 12;  // px — gap from edge when snapped
+  let _snappedEdge = null;
+  let _targetX = 0, _targetY = 0, _curX = 0, _curY = 0;
+  let _animFrame = 0;
+
+  function _renderLoop() {
+    if (!_dragState) return;
+    // Lerp current position toward target — 0.25 = smooth, responsive
+    _curX += (_targetX - _curX) * 0.25;
+    _curY += (_targetY - _curY) * 0.25;
+    // Snap to exact pixel when close enough to avoid endless sub-pixel jitter
+    if (Math.abs(_targetX - _curX) < 0.5) _curX = _targetX;
+    if (Math.abs(_targetY - _curY) < 0.5) _curY = _targetY;
+    _paletteEl.style.left = _curX + 'px';
+    _paletteEl.style.top = _curY + 'px';
+    _animFrame = requestAnimationFrame(_renderLoop);
+  }
+
+  header.addEventListener('pointermove', (e) => {
+    if (!_dragState) return;
+    const dx = e.clientX - _dragState.startX;
+    const dy = e.clientY - _dragState.startY;
+    let newLeft = _dragState.origLeft + dx;
+    let newTop = _dragState.origTop + dy;
+    const w = _paletteEl.offsetWidth, h = _paletteEl.offsetHeight;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    newLeft = Math.max(0, Math.min(vw - w, newLeft));
+    newTop = Math.max(0, Math.min(vh - h, newTop));
+    // Snap to edges
+    _snappedEdge = null;
+    if (newLeft < SNAP_DIST) { newLeft = SNAP_PAD; _snappedEdge = 'l'; }
+    else if (newLeft > vw - w - SNAP_DIST) { newLeft = vw - w - SNAP_PAD; _snappedEdge = (_snappedEdge || '') + 'r'; }
+    if (newTop < SNAP_DIST) { newTop = SNAP_PAD; _snappedEdge = (_snappedEdge || '') + 't'; }
+    else if (newTop > vh - h - SNAP_DIST) { newTop = vh - h - SNAP_PAD; _snappedEdge = (_snappedEdge || '') + 'b'; }
+    _paletteEl.classList.toggle('snapping', !!_snappedEdge);
+    _targetX = newLeft;
+    _targetY = newTop;
+  });
+  const endDrag = () => {
+    if (!_dragState) return;
+    _dragState = null;
+    cancelAnimationFrame(_animFrame);
+    // Settle to final target
+    _paletteEl.style.left = _targetX + 'px';
+    _paletteEl.style.top = _targetY + 'px';
+    header.style.cursor = 'grab';
+    _paletteEl.classList.remove('dragging');
+    // Animate snap landing
+    if (_snappedEdge) {
+      _paletteEl.classList.add('snap-land');
+      setTimeout(() => _paletteEl.classList.remove('snap-land'), 250);
+    }
+    _paletteEl.classList.remove('snapping');
+    _snappedEdge = null;
+    // Remember position
+    try { localStorage.setItem('cf-palette-pos', JSON.stringify({ left: parseInt(_paletteEl.style.left), top: parseInt(_paletteEl.style.top) })); } catch(e) {}
+  };
+  header.addEventListener('pointerup', endDrag);
+  header.addEventListener('pointercancel', endDrag);
+
+  // Restore saved position
+  try {
+    const saved = JSON.parse(localStorage.getItem('cf-palette-pos'));
+    if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
+      const w = 320, h = 440; // max dimensions
+      const left = Math.max(0, Math.min(window.innerWidth - w, saved.left));
+      const top = Math.max(0, Math.min(window.innerHeight - h, saved.top));
+      _paletteEl.style.right = 'auto';
+      _paletteEl.style.bottom = 'auto';
+      _paletteEl.style.left = left + 'px';
+      _paletteEl.style.top = top + 'px';
+    }
+  } catch(e) {}
+
   document.body.appendChild(_paletteEl);
 }
 

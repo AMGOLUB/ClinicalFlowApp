@@ -29,7 +29,13 @@ serve(async (req) => {
   const { data: { user }, error } = await supabase.auth.getUser(token);
   if (error || !user) return jsonResponse({ error: 'Invalid token' }, 401);
 
+  // Require explicit confirmation in the request body
   try {
+    const body = await req.json().catch(() => ({}));
+    if (body?.confirm !== true) {
+      return jsonResponse({ error: 'Must send { "confirm": true } to delete account' }, 400);
+    }
+
     // Look up Stripe IDs before deleting the profile
     const { data: profile } = await supabase
       .from('profiles')

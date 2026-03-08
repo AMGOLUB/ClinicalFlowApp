@@ -3,7 +3,7 @@
    ============================================================ */
 import { App, cfg, tauriInvoke, __TAURI_READY__, getAbortCtrl, setAbortCtrl, GENERATION_TIMEOUT_MS, CORRECTIONS_DICT } from './state.js';
 import { D, toast, updConn, updStatus, esc, fmt, fmtDate, fmtDT, wc, wait } from './ui.js';
-import { applyLiveCorrections, MED_RX, MED_TERMS } from './transcript.js';
+import { applyLiveCorrections, MED_RX, MED_TERMS, hlTerms } from './transcript.js';
 import { buildKeyterms } from './audio.js';
 import { ROLES } from './speakers.js';
 import { addToothTooltips } from './dictionary-features.js';
@@ -336,7 +336,7 @@ async function streamClaudeResponse(prompt,renderEl,temperature,maxTokens){
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':App.claudeKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     signal:ac.signal,
-    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:maxTokens||2048,temperature:temperature||0.3,stream:true,messages:[{role:'user',content:prompt}]})
+    body:JSON.stringify({model:App.cloudModel||'claude-haiku-4-5-20251001',max_tokens:maxTokens||2048,temperature:temperature||0.3,stream:true,messages:[{role:'user',content:prompt}]})
   });
   if(!response.ok){
     const err=await response.text();
@@ -375,6 +375,7 @@ export function parseOllamaResponse(text){
 
 /* Note Generation — routes to Cloud AI, Ollama, or rule-based */
 let _generating=false;
+
 export async function generateNote(){
   if(_generating){return;}
   if(App.entries.length===0){toast('No transcript to generate from.','warning');return;}
@@ -1041,9 +1042,9 @@ async function _startDictation(txtSpan,micBtn){
     noteContent.addEventListener('click',_dictClickHandler,true);
   }
 
-  if(tauriInvoke){
+  if(tauriInvoke||window.__TAURI__){
     const key=App.dgKey;
-    if(!key){toast('No Deepgram API key — set it in Settings','error');_stopDictation();return;}
+    if(!key){toast('No Deepgram API key — set it in Settings for dictation','error');_stopDictation();return;}
     try{
       await tauriInvoke('start_recording',{mode:'stream',language:App.language});
 
@@ -1095,7 +1096,8 @@ async function _startDictation(txtSpan,micBtn){
       _stopDictation();
     }
   }else{
-    // Browser fallback: SpeechRecognition
+    // Browser fallback: SpeechRecognition (not available in WKWebView)
+    if(window.__TAURI__){toast('Dictation requires a Deepgram API key in Tauri mode. Add one in Settings.','warning',5000);_stopDictation();return;}
     const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(!SR){toast('Speech recognition not available in this browser','error');_stopDictation();return;}
     _dictRecognition=new SR();
@@ -1146,9 +1148,121 @@ function _stopDictation(){
   toast('Dictation stopped','info',1500);
 }
 
+/* ── Input Field Dictation (for <input> elements) ── */
+let _inputDictSocket=null;
+let _inputDictRecognition=null;
+let _inputDictPcmUnlisten=null;
+let _inputDictKA=null;
+let _inputDictTarget=null;
+let _inputDictMicBtn=null;
+let _inputDictActive=false;
+
+export function isInputDictating(){ return _inputDictActive; }
+
+export async function startInputDictation(inputEl,micBtn){
+  if(App.isRecording){toast('Stop recording before using dictation','warning');return;}
+  if(_inputDictActive){stopInputDictation();return;}
+  if(App.dictationActive){_stopDictation();}
+  _inputDictTarget=inputEl;
+  _inputDictMicBtn=micBtn;
+  _inputDictActive=true;
+  if(micBtn)micBtn.classList.add('cf-mic-active');
+
+  if(tauriInvoke||window.__TAURI__){
+    const key=App.dgKey;
+    if(!key){toast('Set a Deepgram API key in Settings for dictation','error');stopInputDictation();return;}
+    try{
+      await tauriInvoke('start_recording',{mode:'stream',language:App.language});
+      const p=new URLSearchParams({model:'nova-3-medical',language:App.language,smart_format:'false',punctuate:'false',interim_results:'true',utterance_end_ms:'1500',encoding:'linear16',sample_rate:'16000',channels:'1'});
+      const url='wss://api.deepgram.com/v1/listen?'+p.toString();
+      _inputDictSocket=new WebSocket(url,['token',key]);
+      let committed='';
+      _inputDictSocket.onopen=()=>{
+        committed=inputEl.value;
+        toast('Dictating...','success',2000);
+        _inputDictKA=setInterval(()=>{if(_inputDictSocket&&_inputDictSocket.readyState===WebSocket.OPEN)_inputDictSocket.send(JSON.stringify({type:'KeepAlive'}));},8000);
+      };
+      _inputDictSocket.onmessage=ev=>{
+        if(typeof ev.data!=='string')return;
+        try{
+          const data=JSON.parse(ev.data);
+          if(data.type!=='Results')return;
+          const txRaw=data.channel.alternatives[0].transcript;
+          if(!txRaw||!txRaw.trim()||!_inputDictTarget)return;
+          const tx=_processDictText(txRaw);
+          if(data.is_final){
+            committed=committed+(committed?' ':'')+tx.trim();
+            committed=_capitalizeSentenceStart(committed);
+            _inputDictTarget.value=committed;
+          }else{
+            _inputDictTarget.value=_capitalizeSentenceStart(committed+(committed?' ':'')+tx);
+          }
+          _inputDictTarget.dispatchEvent(new Event('input',{bubbles:true}));
+        }catch(err){console.error('[InputDict] parse:',err);}
+      };
+      _inputDictSocket.onerror=err=>{console.error('[InputDict] error:',err);toast('Dictation connection failed','error');stopInputDictation();};
+      _inputDictSocket.onclose=()=>{clearInterval(_inputDictKA);_inputDictKA=null;};
+      _inputDictPcmUnlisten=await tauriListen('audio-pcm',ev=>{
+        if(!_inputDictSocket||_inputDictSocket.readyState!==WebSocket.OPEN)return;
+        const b64=ev.payload;const raw=atob(b64);const bytes=new Uint8Array(raw.length);
+        for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+        _inputDictSocket.send(bytes.buffer);
+      });
+    }catch(e){
+      console.error('[InputDict] start failed:',e);
+      toast('Dictation failed: '+e,'error');
+      stopInputDictation();
+    }
+  }else{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){toast('Speech recognition not available','error');stopInputDictation();return;}
+    _inputDictRecognition=new SR();
+    _inputDictRecognition.continuous=true;
+    _inputDictRecognition.interimResults=true;
+    _inputDictRecognition.lang=App.language;
+    let committed=inputEl.value;
+    _inputDictRecognition.onresult=ev=>{
+      let interim='',final='';
+      for(let i=ev.resultIndex;i<ev.results.length;i++){
+        if(ev.results[i].isFinal)final+=ev.results[i][0].transcript;
+        else interim+=ev.results[i][0].transcript;
+      }
+      if(final){
+        final=_processDictText(final);
+        committed=committed+(committed?' ':'')+final;
+        committed=_capitalizeSentenceStart(committed);
+        _inputDictTarget.value=committed;
+      }else if(interim){
+        interim=_processDictText(interim);
+        _inputDictTarget.value=_capitalizeSentenceStart(committed+(committed?' ':'')+interim);
+      }
+      _inputDictTarget.dispatchEvent(new Event('input',{bubbles:true}));
+    };
+    _inputDictRecognition.onerror=e=>{if(e.error!=='no-speech')toast('Dictation error: '+e.error,'error');};
+    _inputDictRecognition.onend=()=>{if(_inputDictActive)stopInputDictation();};
+    _inputDictRecognition.start();
+    toast('Dictating...','success',2000);
+  }
+}
+
+export function stopInputDictation(){
+  _inputDictActive=false;
+  _inputDictTarget=null;
+  if(_inputDictMicBtn){_inputDictMicBtn.classList.remove('cf-mic-active');_inputDictMicBtn=null;}
+  if(_inputDictSocket){
+    clearInterval(_inputDictKA);_inputDictKA=null;
+    if(_inputDictSocket.readyState===WebSocket.OPEN){try{_inputDictSocket.send(JSON.stringify({type:'CloseStream'}));}catch(e){}}
+    _inputDictSocket.close();_inputDictSocket=null;
+  }
+  if(_inputDictPcmUnlisten){_inputDictPcmUnlisten();_inputDictPcmUnlisten=null;}
+  if(tauriInvoke)tauriInvoke('stop_recording').catch(()=>{});
+  if(_inputDictRecognition){try{_inputDictRecognition.stop();}catch(e){}_inputDictRecognition=null;}
+}
+
 function _buildLineEl(text,body,key){
   const row=document.createElement('div');row.className='note-line';
-  const txt=document.createElement('span');txt.className='note-line-text';txt.contentEditable='true';txt.spellcheck=true;txt.textContent=text;
+  const txt=document.createElement('span');txt.className='note-line-text';txt.contentEditable='true';txt.spellcheck=true;
+  if(App.settings.dictionaryFeatures&&App.settings.highlightTerms&&text){txt.innerHTML=hlTerms(esc(text));txt.dataset.plain=text;}else{txt.textContent=text;}
   const acts=document.createElement('span');acts.className='note-line-actions';
 
   const mkBtn=(cls,title,label)=>{const b=document.createElement('button');b.className='nl-btn '+cls;b.title=title;b.textContent=label;b.type='button';return b;};
@@ -1292,6 +1406,11 @@ function _buildLineEl(text,body,key){
 
   // Sync on text edit
   txt.addEventListener('input',()=>_syncSectionData(key));
+  // Strip highlighting on focus (clean editing), restore on blur
+  if(App.settings.dictionaryFeatures&&App.settings.highlightTerms){
+    txt.addEventListener('focus',()=>{txt.textContent=txt.innerText;});
+    txt.addEventListener('blur',()=>{const t=txt.innerText;if(t.trim())txt.innerHTML=hlTerms(esc(t));});
+  }
 
   return row;
 }
@@ -1341,8 +1460,8 @@ export function renderNoteSec(nd){
     });
     el.appendChild(hdr);el.appendChild(body);D.noteSec.appendChild(el);
   });
-  /* Add tooth number tooltips for dental templates */
-  if(isDentalTemplate(App.noteFormat)) addToothTooltips(D.noteSec);
+  /* Add tooth number tooltips */
+  if(App.settings.dictionaryFeatures) addToothTooltips(D.noteSec);
   /* Auto-populate dental chart from AI-generated findings (AI first → regex fallback) */
   if(isDentalTemplate(App.noteFormat)){
     const fullText=nd.sections.map(s=>s.content).join('\n');
@@ -1358,6 +1477,8 @@ export function renderNoteSec(nd){
       if(dp)dp.style.display='none';
     }
   }
+  // Signal that note was rendered so session can be saved
+  window.dispatchEvent(new CustomEvent('clinicalflow:note-rendered'));
 }
 
 /* PDF Export */

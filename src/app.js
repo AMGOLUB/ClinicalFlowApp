@@ -184,7 +184,7 @@ function _setDemoTemplate(fmt){
 }
 
 async function runDemoInstant(entries,type){
-  await newSession();
+  if(await newSession()===false)return;
   if(type==='dental'){
     addSpeaker('Dr. Chen','doctor');addSpeaker('Ms. Ramirez','patient');
     _setDemoTemplate('dental_general');
@@ -239,7 +239,7 @@ function _populatePerioDemo(){
 }
 
 async function runDemoAnimated(entries,type){
-  App.demoRunning=true;await newSession();
+  App.demoRunning=true;if(await newSession()===false)return;
   if(type==='dental'){
     addSpeaker('Dr. Chen','doctor');addSpeaker('Ms. Ramirez','patient');
     _setDemoTemplate('dental_general');
@@ -517,6 +517,8 @@ function initEvents(){
 
   const refreshArchBtn=document.getElementById('refreshArchiveBtn');
   if(refreshArchBtn)refreshArchBtn.addEventListener('click',()=>loadArchiveList());
+  const feedbackLink=document.getElementById('feedbackLink');
+  if(feedbackLink)feedbackLink.addEventListener('click',e=>{e.preventDefault();const url='https://clinicalflow.us/feedback.html';if(window.__TAURI__?.shell){window.__TAURI__.shell.open(url).catch(()=>window.open(url,'_blank'));}else{window.open(url,'_blank');}});
   initSidebarToggle();
   initPanelResize();
 
@@ -586,6 +588,8 @@ function initEvents(){
     });
     claudeVerifyToggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();claudeVerifyToggle.click();}});
   }
+  const cloudModelSel=document.getElementById('cloudModelSelect');
+  if(cloudModelSel)cloudModelSel.addEventListener('change',()=>{App.cloudModel=cloudModelSel.value;cfg.set('ms-cloud-model',cloudModelSel.value);toast('Model updated to '+cloudModelSel.selectedOptions[0]?.textContent,'success',2000);});
 
   /* Custom template modal */
   const customTmplBtn=document.getElementById('customTemplateBtn');
@@ -636,20 +640,10 @@ async function initApp(){
     await cfg.load();
   }
 
-  cacheDOM();loadTheme();loadApiKey();loadOllamaSettings();loadClaudeKey();loadAccountSettings();loadEhrSettings();initToggles();initFmtSel();initKeys();initEvents();initEhrSettings();renderPmsSettings();initDemo();
-  _populateLanguageSelect();
-  hideDownloadBtns();
-  loadCorrectionsDictionary();
-  initDictionaryFeatures();
-  ollamaCheckWithRetry(3,2000).then(connected=>{
-    if(connected){
-      console.debug('[ClinicalFlow] Ollama connected:',App.ollamaModels.length,'models');
-    }else if(App.aiEngine==='ollama'){
-      toast('Ollama not detected. Start it with "ollama serve" or switch to Cloud AI in Settings.','warning',8000);
-    }
-  }).catch(e=>console.warn('[ClinicalFlow] Ollama check failed:',e));
-  if(!App.dgKey&&App.transcriptionMode==='online')toast('Add an API key in Settings for online transcription, or switch to offline mode.','warning',6000);
-  const saved=await getSavedSession();
+  cacheDOM();loadTheme();
+
+  // Session was pre-fetched in auth.js during wizard/subscription checks
+  const saved=await (App._savedSessionPromise||getSavedSession());
   if(saved){
     const age=Date.now()-new Date(saved.savedAt).getTime();
     const mins=Math.round(age/60000);
@@ -663,6 +657,21 @@ async function initApp(){
       if(recover){restoreSession(saved);}else{clearSavedSession();}
     }
   }
+
+  loadApiKey();loadOllamaSettings();loadClaudeKey();loadAccountSettings();loadEhrSettings();initToggles();initFmtSel();initKeys();initEvents();initEhrSettings();renderPmsSettings();initDemo();
+  _populateLanguageSelect();
+  hideDownloadBtns();
+  loadCorrectionsDictionary();
+  initDictionaryFeatures();
+  window.addEventListener('clinicalflow:note-rendered',()=>saveSession());
+  ollamaCheckWithRetry(3,2000).then(connected=>{
+    if(connected){
+      console.debug('[ClinicalFlow] Ollama connected:',App.ollamaModels.length,'models');
+    }else if(App.aiEngine==='ollama'){
+      toast('Ollama not detected. Start it with "ollama serve" or switch to Cloud AI in Settings.','warning',8000);
+    }
+  }).catch(e=>console.warn('[ClinicalFlow] Ollama check failed:',e));
+  if(!App.dgKey&&App.transcriptionMode==='online')toast('Add an API key in Settings for online transcription, or switch to offline mode.','warning',6000);
   if(window.__TAURI__)loadArchiveList();
 
   if(window.__TAURI__ && tauriListen){

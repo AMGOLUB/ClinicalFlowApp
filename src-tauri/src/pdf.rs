@@ -28,34 +28,40 @@ pub fn html_to_pdf(html_content: &str, output_path: &Path) -> Result<(), String>
         .map_err(|e| format!("Failed to write temp HTML for PDF: {}", e))?;
 
     let file_url = format!("file://{}", temp_html.display());
-    tab.navigate_to(&file_url)
-        .map_err(|e| format!("Failed to navigate to HTML: {}", e))?;
 
-    tab.wait_until_navigated()
-        .map_err(|e| format!("PDF navigation timeout: {}", e))?;
+    // Ensure temp file is cleaned up even if PDF generation fails
+    let result = (|| -> Result<(), String> {
+        tab.navigate_to(&file_url)
+            .map_err(|e| format!("Failed to navigate to HTML: {}", e))?;
 
-    // Generate PDF — US Letter, 0.4in margins, print backgrounds
-    let pdf_options = PrintToPdfOptions {
-        landscape: Some(false),
-        print_background: Some(true),
-        margin_top: Some(0.4),
-        margin_bottom: Some(0.4),
-        margin_left: Some(0.4),
-        margin_right: Some(0.4),
-        paper_width: Some(8.5),
-        paper_height: Some(11.0),
-        ..Default::default()
-    };
+        tab.wait_until_navigated()
+            .map_err(|e| format!("PDF navigation timeout: {}", e))?;
 
-    let pdf_data = tab
-        .print_to_pdf(Some(pdf_options))
-        .map_err(|e| format!("Failed to generate PDF: {}", e))?;
+        // Generate PDF — US Letter, 0.4in margins, print backgrounds
+        let pdf_options = PrintToPdfOptions {
+            landscape: Some(false),
+            print_background: Some(true),
+            margin_top: Some(0.4),
+            margin_bottom: Some(0.4),
+            margin_left: Some(0.4),
+            margin_right: Some(0.4),
+            paper_width: Some(8.5),
+            paper_height: Some(11.0),
+            ..Default::default()
+        };
 
-    std::fs::write(output_path, &pdf_data)
-        .map_err(|e| format!("Failed to write PDF file: {}", e))?;
+        let pdf_data = tab
+            .print_to_pdf(Some(pdf_options))
+            .map_err(|e| format!("Failed to generate PDF: {}", e))?;
 
-    // Clean up temp file
+        std::fs::write(output_path, &pdf_data)
+            .map_err(|e| format!("Failed to write PDF file: {}", e))?;
+
+        Ok(())
+    })();
+
+    // Always clean up temp file
     let _ = std::fs::remove_file(&temp_html);
 
-    Ok(())
+    result
 }

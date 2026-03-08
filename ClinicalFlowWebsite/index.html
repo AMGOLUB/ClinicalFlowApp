@@ -83,7 +83,7 @@
 
     <div class="hero-visual">
       <div class="hero-screenshot">
-        <img src="screenshot-hero.png" alt="ClinicalFlow application — live transcript with speaker labels on the left, AI-generated SOAP note on the right" width="2000" height="1125" loading="eager">
+        <img src="screenshot-hero.png" alt="ClinicalFlow application — live transcript with speaker labels on the left, AI-generated SOAP note on the right" width="5120" height="2880" loading="eager">
       </div>
     </div>
   </div>
@@ -146,15 +146,15 @@
     <div class="problem-stats">
       <div class="problem-stat reveal reveal-delay-1">
         <div class="problem-stat-number text-gradient">1.84 hrs</div>
-        <div class="problem-stat-label">Per day spent on EHR documentation outside of work hours alone, per a study of 301,603 U.S. physicians <em>(JAMA Internal Medicine, 2019)</em></div>
+        <div class="problem-stat-label">Per day spent on EHR documentation outside of work hours alone, per a study of 301,603 U.S. physicians <em>(<a href="https://jamanetwork.com/journals/jamainternalmedicine/fullarticle/2790396" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">JAMA Internal Medicine, 2022</a>)</em></div>
       </div>
       <div class="problem-stat reveal reveal-delay-2">
         <div class="problem-stat-number text-gradient">62%</div>
-        <div class="problem-stat-label">Of physicians identify excessive documentation requirements as their leading cause of burnout <em>(athenahealth Physician Sentiment Survey)</em></div>
+        <div class="problem-stat-label">Of physicians identify excessive documentation requirements as their leading cause of burnout <em>(<a href="https://www.athenahealth.com/press-releases/us-physicians-surveyed-feel-burned-out-on-a-regular-basis" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">athenahealth Physician Sentiment Survey, 2024</a>)</em></div>
       </div>
       <div class="problem-stat reveal reveal-delay-3">
         <div class="problem-stat-number text-gradient">16 min</div>
-        <div class="problem-stat-label">Average EHR time per patient encounter, across 100 million encounters and 155,000 physicians <em>(Annals of Internal Medicine, 2020)</em></div>
+        <div class="problem-stat-label">Average EHR time per patient encounter, across 100 million encounters and 155,000 physicians <em>(<a href="https://www.acpjournals.org/doi/10.7326/M18-3684" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">Annals of Internal Medicine, 2020</a>)</em></div>
       </div>
     </div>
   </div>
@@ -346,7 +346,7 @@
         </ul>
       </div>
       <div class="feature-visual">
-        <img src="screenshot-panels.png" alt="Full app view showing transcript and clinical note panels side by side with Export PDF button" loading="lazy">
+        <img src="screenshot-export.png" alt="Export toolbar showing regenerate, copy, download, copy EHR, export PDF, export HL7, and sync PMS buttons" loading="lazy">
       </div>
     </div>
 
@@ -457,48 +457,51 @@
       <p class="reveal">An interactive SVG dental chart that integrates directly with AI note generation and billing codes.</p>
     </div>
 
-    <!-- Dental capability cards -->
-    <div class="security-grid" style="margin-top:60px">
-      <div class="dental-card reveal reveal-delay-1">
-        <div class="feature-icon">
-          <!-- Tooth icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 5.5c-1.5-2-4-2.5-5.5-1S5 7.5 7 10c1.5 2 3 4 5 7 2-3 3.5-5 5-7 2-2.5 1-4-0.5-5.5S13.5 3.5 12 5.5z"/>
-          </svg>
+    <!-- Dental: cards left, screenshot right -->
+    <div class="dental-layout" style="margin-top:60px; display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center">
+      <!-- Cards column -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+        <div class="dental-card reveal reveal-delay-1">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5.5c-1.5-2-4-2.5-5.5-1S5 7.5 7 10c1.5 2 3 4 5 7 2-3 3.5-5 5-7 2-2.5 1-4-0.5-5.5S13.5 3.5 12 5.5z"/>
+            </svg>
+          </div>
+          <h4>32 + 20 Tooth Charts</h4>
+          <p>Full adult (32-tooth) and primary (20-tooth) charts with one-click toggle between permanent and deciduous dentition.</p>
         </div>
-        <h4>32 + 20 Tooth Charts</h4>
-        <p>Full adult (32-tooth) and primary (20-tooth) charts with one-click toggle between permanent and deciduous dentition.</p>
+        <div class="dental-card reveal reveal-delay-2">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/>
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+            </svg>
+          </div>
+          <h4>8 Clinical States</h4>
+          <p>Healthy, Decay/Caries, Missing, Restored, Implant, Root Canal, Fracture, and Impacted &mdash; each with a distinct color for instant visual identification.</p>
+        </div>
+        <div class="dental-card reveal reveal-delay-3">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+          </div>
+          <h4>5-Surface Marking</h4>
+          <p>M, O, D, B, L for posterior and M, I, D, F, L for anterior teeth. Anatomical validation prevents impossible surface combinations.</p>
+        </div>
+        <div class="dental-card reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/>
+            </svg>
+          </div>
+          <h4>AI-Integrated</h4>
+          <p>Dental findings serialize directly into the AI prompt for note generation and parse back from AI responses. Acronym protection for FPD, RPD, SDF. Chart SVG and findings table export to PDF.</p>
+        </div>
       </div>
-      <div class="dental-card reveal reveal-delay-2">
-        <div class="feature-icon">
-          <!-- Palette icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/>
-            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
-          </svg>
-        </div>
-        <h4>8 Clinical States</h4>
-        <p>Healthy, Decay/Caries, Missing, Restored, Implant, Root Canal, Fracture, and Impacted &mdash; each with a distinct color for instant visual identification.</p>
-      </div>
-      <div class="dental-card reveal reveal-delay-3">
-        <div class="feature-icon">
-          <!-- Grid icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-          </svg>
-        </div>
-        <h4>5-Surface Marking</h4>
-        <p>M, O, D, B, L for posterior and M, I, D, F, L for anterior teeth. Anatomical validation prevents impossible surface combinations.</p>
-      </div>
-      <div class="dental-card reveal">
-        <div class="feature-icon">
-          <!-- Sparkle icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/>
-          </svg>
-        </div>
-        <h4>AI-Integrated</h4>
-        <p>Dental findings serialize directly into the AI prompt for note generation and parse back from AI responses. Acronym protection for FPD, RPD, SDF. Chart SVG and findings table export to PDF.</p>
+      <!-- Screenshot column -->
+      <div class="reveal" style="display:flex; align-items:center">
+        <img src="screenshot-dental.png" alt="Interactive dental chart showing 32-tooth adult chart with color-coded conditions, perio tab, and upper/lower arch view" loading="lazy" style="width:100%; border-radius:12px; box-shadow: 0 20px 50px rgba(0,0,0,.3);">
       </div>
     </div>
 
@@ -509,49 +512,53 @@
       <p class="reveal">Toggle perio mode to overlay probing depths, bleeding, recession, mobility, and furcation data directly on the chart &mdash; enter measurements by voice or click.</p>
     </div>
 
-    <div class="security-grid" style="margin-top:60px">
-      <div class="dental-card reveal reveal-delay-1">
-        <div class="feature-icon">
-          <!-- Ruler icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/>
-            <path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/>
-          </svg>
-        </div>
-        <h4>6-Point Probing Depths</h4>
-        <p>Record MB, B, DB, ML, L, and DL depths per tooth. Color-coded pills &mdash; green (1&ndash;3 mm), yellow (4&ndash;5 mm), red (6+ mm) &mdash; overlay directly on the chart for instant visual assessment.</p>
+    <!-- Perio: screenshot left, cards right -->
+    <div class="dental-layout" style="margin-top:60px; display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center">
+      <!-- Screenshot column -->
+      <div class="reveal" style="display:flex; align-items:center">
+        <img src="screenshot-perio.png" alt="Periodontal charting with color-coded probing depths, bleeding on probing indicators, and voice-driven entry" loading="lazy" style="width:100%; border-radius:12px; box-shadow: 0 20px 50px rgba(0,0,0,.3);">
       </div>
-      <div class="dental-card reveal reveal-delay-2">
-        <div class="feature-icon">
-          <!-- Mic icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-            <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
-          </svg>
+      <!-- Cards column -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+        <div class="dental-card reveal reveal-delay-1">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/>
+              <path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/>
+            </svg>
+          </div>
+          <h4>6-Point Probing Depths</h4>
+          <p>Record MB, B, DB, ML, L, and DL depths per tooth. Color-coded pills &mdash; green (1&ndash;3 mm), yellow (4&ndash;5 mm), red (6+ mm) &mdash; overlay directly on the chart for instant visual assessment.</p>
         </div>
-        <h4>Voice-Driven Entry</h4>
-        <p>Say &ldquo;three two four&rdquo; and probing depths auto-fill for the selected tooth. The perio voice parser recognizes spoken numbers and maps them to the correct surfaces &mdash; hands-free charting during exams.</p>
-      </div>
-      <div class="dental-card reveal reveal-delay-3">
-        <div class="feature-icon">
-          <!-- Activity icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
+        <div class="dental-card reveal reveal-delay-2">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+          </div>
+          <h4>Voice-Driven Entry</h4>
+          <p>Say &ldquo;three two four&rdquo; and probing depths auto-fill for the selected tooth. The perio voice parser recognizes spoken numbers and maps them to the correct surfaces &mdash; hands-free charting during exams.</p>
         </div>
-        <h4>BOP, Recession &amp; More</h4>
-        <p>Track bleeding on probing per site, recession measurements, mobility grades (0&ndash;3), and furcation involvement (Class I&ndash;III). All indicators render as visual overlays on each tooth.</p>
-      </div>
-      <div class="dental-card reveal">
-        <div class="feature-icon">
-          <!-- File-check icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-            <polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/>
-          </svg>
+        <div class="dental-card reveal reveal-delay-3">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h4>BOP, Recession &amp; More</h4>
+          <p>Track bleeding on probing per site, recession measurements, mobility grades (0&ndash;3), and furcation involvement (Class I&ndash;III). All indicators render as visual overlays on each tooth.</p>
         </div>
-        <h4>Documentation Scoring</h4>
-        <p>After note generation, a template-specific checklist scores your documentation completeness &mdash; verifying chief complaint, probing depths, BOP, bone loss, AAP staging, consent, and more.</p>
+        <div class="dental-card reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+              <polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/>
+            </svg>
+          </div>
+          <h4>Documentation Scoring</h4>
+          <p>After note generation, a template-specific checklist scores your documentation completeness &mdash; verifying chief complaint, probing depths, BOP, bone loss, AAP staging, consent, and more.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -1069,7 +1076,7 @@
         <ul class="mode-features">
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>macOS 11.0 or later (Apple Silicon or Intel)</span>
+            <span>macOS 11.0+ (Apple Silicon or Intel) or Windows 10+</span>
           </li>
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1092,11 +1099,11 @@
       <div class="mode-card reveal reveal-delay-2">
         <div class="mode-badge">Offline Mode</div>
         <h3>Recommended Specs</h3>
-        <p>Local Whisper and Ollama models require more compute. A recent Mac with 16 GB+ RAM is ideal.</p>
+        <p>Local Whisper and Ollama models require more compute. A recent Mac or Windows PC with 16 GB+ RAM is ideal.</p>
         <ul class="mode-features">
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Apple Silicon Mac (M1 or later) recommended for best performance</span>
+            <span>Apple Silicon Mac (M1+) or Windows with dedicated GPU recommended</span>
           </li>
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1191,7 +1198,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
         </div>
         <h3>Cloud When You Want It. Not When You Need It.</h3>
-        <p>Online mode gives you Deepgram Nova-3 Medical with real-time speaker diarization and Claude Haiku for note generation &mdash; <strong>under 1 cent per encounter</strong>. Switch between online and offline with a single toggle. No vendor lock-in. No "enterprise plan required" for basic features.</p>
+        <p>Online mode gives you Deepgram Nova-3 Medical with real-time speaker diarization and Claude Haiku for note generation &mdash; <strong>~$0.10 per encounter</strong>. Switch between online and offline with a single toggle. No vendor lock-in. No "enterprise plan required" for basic features.</p>
       </div>
 
     </div>

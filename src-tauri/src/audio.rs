@@ -588,7 +588,16 @@ Hounsfield, multiplanar reconstruction, maximum intensity projection.";
 
 // --- Helper: detect whisper hallucinations on silence/low-energy audio ---
 
-fn is_hallucination(text: &str) -> bool {
+/// Languages that use Latin script — non-ASCII filter applies only to these.
+/// Non-Latin languages (ja, zh, ko, ar, hi, etc.) naturally have high non-ASCII
+/// content and must skip that check.
+fn is_latin_script_lang(lang: &str) -> bool {
+    matches!(lang, "en" | "es" | "fr" | "de" | "pt" | "it" | "nl" | "pl" | "ro"
+        | "sv" | "da" | "no" | "fi" | "cs" | "sk" | "hr" | "hu" | "tr" | "vi"
+        | "id" | "ms" | "tl" | "sw" | "ca" | "eu" | "gl" | "af" | "sq" | "lt" | "lv" | "et")
+}
+
+fn is_hallucination(text: &str, lang: &str) -> bool {
     let t = text.trim();
     // Empty or very short single-word outputs are suspect
     if t.is_empty() { return true; }
@@ -623,13 +632,16 @@ fn is_hallucination(text: &str) -> bool {
             return true;
         }
     }
-    // Non-ASCII gibberish: if >20% of chars are non-ASCII, likely hallucination
-    // (CJK, Cyrillic, Arabic etc. when expecting English medical transcription)
-    let total_alpha: usize = t.chars().filter(|c| c.is_alphabetic()).count();
-    if total_alpha > 0 {
-        let non_ascii: usize = t.chars().filter(|c| c.is_alphabetic() && !c.is_ascii()).count();
-        if non_ascii as f64 / total_alpha as f64 > 0.2 {
-            return true;
+    // Non-ASCII density check — only for Latin-script languages.
+    // For non-Latin languages (Japanese, Chinese, Korean, Arabic, Hindi, etc.)
+    // high non-ASCII content is expected and legitimate.
+    if is_latin_script_lang(lang) {
+        let total_alpha: usize = t.chars().filter(|c| c.is_alphabetic()).count();
+        if total_alpha > 0 {
+            let non_ascii: usize = t.chars().filter(|c| c.is_alphabetic() && !c.is_ascii()).count();
+            if non_ascii as f64 / total_alpha as f64 > 0.2 {
+                return true;
+            }
         }
     }
     // Repeated punctuation/dots (". . . . . ." or "...")
@@ -797,8 +809,8 @@ pub async fn start_recording(
                     }
                 }
 
-                chunk_buf.lock().unwrap().extend_from_slice(&resampled);
-                session_buf.lock().unwrap().extend_from_slice(&resampled);
+                if let Ok(mut buf) = chunk_buf.lock() { buf.extend_from_slice(&resampled); }
+                if let Ok(mut buf) = session_buf.lock() { buf.extend_from_slice(&resampled); }
             },
             |err| tracing::error!("Audio input error: {}", err),
             None,
@@ -849,8 +861,8 @@ pub async fn start_recording(
                         }
                     }
 
-                    chunk_buf.lock().unwrap().extend_from_slice(&resampled);
-                    session_buf.lock().unwrap().extend_from_slice(&resampled);
+                    if let Ok(mut buf) = chunk_buf.lock() { buf.extend_from_slice(&resampled); }
+                    if let Ok(mut buf) = session_buf.lock() { buf.extend_from_slice(&resampled); }
                 },
                 |err| tracing::error!("Audio input error: {}", err),
                 None,
@@ -889,12 +901,12 @@ pub async fn start_recording(
 
                 // Check max session duration
                 {
-                    let total = *total_samples_loop.lock().unwrap();
+                    let total = total_samples_loop.lock().map(|t| *t).unwrap_or(0);
                     if total >= MAX_SESSION_SAMPLES {
                         tracing::warn!("Max session duration reached (4 hours), auto-stopping");
                         is_recording.store(false, Ordering::SeqCst);
-                        if let Some(writer) = wav_writer_loop.lock().unwrap().take() {
-                            let _ = writer.finalize();
+                        if let Ok(mut guard) = wav_writer_loop.lock() {
+                            if let Some(writer) = guard.take() { let _ = writer.finalize(); }
                         }
                         let _ = app_handle.emit("recording_max_duration", ());
                         break;
@@ -902,7 +914,7 @@ pub async fn start_recording(
                 }
 
                 let samples: Vec<i16> = {
-                    let mut buf = chunk_buffer.lock().unwrap();
+                    let Ok(mut buf) = chunk_buffer.lock() else { continue; };
                     if buf.is_empty() { continue; }
                     let data = buf.clone();
                     buf.clear();
@@ -932,12 +944,12 @@ pub async fn start_recording(
 
                 // Check max session duration
                 {
-                    let total = *total_samples_loop.lock().unwrap();
+                    let total = total_samples_loop.lock().map(|t| *t).unwrap_or(0);
                     if total >= MAX_SESSION_SAMPLES {
                         tracing::warn!("Max session duration reached (4 hours), auto-stopping");
                         is_recording.store(false, Ordering::SeqCst);
-                        if let Some(writer) = wav_writer_loop.lock().unwrap().take() {
-                            let _ = writer.finalize();
+                        if let Ok(mut guard) = wav_writer_loop.lock() {
+                            if let Some(writer) = guard.take() { let _ = writer.finalize(); }
                         }
                         let _ = app_handle.emit("recording_max_duration", ());
                         break;
@@ -945,10 +957,9 @@ pub async fn start_recording(
                 }
 
                 let chunk_samples = current_chunk.load(Ordering::SeqCst) as usize;
-                let buf_len = chunk_buffer.lock().unwrap().len();
+                let buf_len = chunk_buffer.lock().map(|b| b.len()).unwrap_or(0);
                 if buf_len < chunk_samples {
                     if buf_len > 0 && buf_len % 8000 < 150 {
-                        // Log occasionally while waiting for chunk to fill
                         tracing::info!("[whisper] Buffer: {}/{} samples ({:.1}s/{:.1}s)", buf_len, chunk_samples, buf_len as f64 / 16000.0, chunk_samples as f64 / 16000.0);
                     }
                     continue;
@@ -956,7 +967,7 @@ pub async fn start_recording(
 
                 let overlap = 5000; // ~0.3s overlap at 16kHz
                 let chunk: Vec<i16> = {
-                    let mut buf = chunk_buffer.lock().unwrap();
+                    let Ok(mut buf) = chunk_buffer.lock() else { continue; };
                     let chunk = buf[..chunk_samples].to_vec();
                     let drain_to = if chunk_samples > overlap { chunk_samples - overlap } else { chunk_samples };
                     buf.drain(..drain_to);
@@ -991,7 +1002,7 @@ pub async fn start_recording(
 
                 // ── Adaptive performance monitoring ──
                 {
-                    let mut times = inference_times.lock().unwrap();
+                    let Ok(mut times) = inference_times.lock() else { continue; };
                     if times.len() >= PERF_WINDOW_SIZE {
                         times.remove(0);
                     }
@@ -1028,7 +1039,7 @@ pub async fn start_recording(
                     Ok(text) => {
                         let text = text.trim().to_string();
                         tracing::info!("[whisper-server] Transcribed: {} chars", text.len());
-                        if !text.is_empty() && !is_hallucination(&text) {
+                        if !text.is_empty() && !is_hallucination(&text, &whisper_lang) {
                             let _ = app_handle.emit("transcription", TranscriptChunk {
                                 text,
                                 is_partial: false,
@@ -1110,7 +1121,7 @@ pub async fn stop_recording(
             match send_to_whisper_server(server_port, &tmp_wav_path, &final_lang).await {
                 Ok(text) => {
                     let text = text.trim().to_string();
-                    if !text.is_empty() && !is_hallucination(&text) {
+                    if !text.is_empty() && !is_hallucination(&text, &final_lang) {
                         let _ = app.emit(
                             "transcription",
                             TranscriptChunk {

@@ -173,10 +173,17 @@ pub async fn archive_session(
 
     if let Some(audio_src) = audio_source_path {
         let audio_src_path = PathBuf::from(&audio_src);
-        if audio_src_path.exists() {
+        let sessions_dir = base.join("sessions");
+        // Reject traversal attempts; path is app-constructed so string check is sufficient
+        let src_str = audio_src_path.to_string_lossy();
+        if src_str.contains("..") {
+            tracing::warn!("Audio source path rejected: contains ..");
+        } else if audio_src_path.starts_with(&sessions_dir) && audio_src_path.exists() {
             let wav_path = archive_dir.join(format!("{}.wav", filename));
             fs::rename(&audio_src_path, &wav_path)
                 .map_err(|e| format!("Failed to move audio: {}", e))?;
+        } else if audio_src_path.exists() {
+            tracing::warn!("Audio source path rejected: outside sessions directory");
         }
     }
 
@@ -316,6 +323,10 @@ pub async fn load_corrections(app: AppHandle, language: Option<String>) -> Resul
 
 #[tauri::command]
 pub async fn load_dictionary(app: AppHandle, name: String) -> Result<String, String> {
+    // Reject path traversal and invalid characters
+    if name.contains("..") || name.contains('/') || name.contains('\\') || name.is_empty() {
+        return Err("Invalid dictionary name".into());
+    }
     let filename = format!("{}.json", name);
     let resource_path = app
         .path()
@@ -376,7 +387,40 @@ pub async fn export_and_open_html(
 }
 
 #[tauri::command]
-pub async fn save_text_file(path: String, content: String) -> Result<(), String> {
+pub async fn save_text_file(app: AppHandle, path: String, content: String) -> Result<(), String> {
+    let target = std::path::Path::new(&path);
+
+    // Block obvious traversal attempts
+    let path_str = target.to_string_lossy();
+    if path_str.contains("..") {
+        return Err("Invalid path: directory traversal not allowed".into());
+    }
+
+    // Canonicalize parent to resolve symlinks
+    let parent = target.parent().ok_or("Invalid path: no parent directory")?;
+    let canon_parent = parent.canonicalize()
+        .map_err(|e| format!("Invalid path: {}", e))?;
+
+    // Allow: app data dir, user home (Desktop, Documents, Downloads, etc.)
+    let app_data = app_data_dir(&app)?;
+    let home = dirs::home_dir().ok_or("Cannot determine home directory")?;
+
+    let allowed = canon_parent.starts_with(&app_data)
+        || canon_parent.starts_with(&home);
+
+    if !allowed {
+        return Err("Save rejected: path must be within your home directory or app data".into());
+    }
+
+    // Block writing to dotfiles/config directories within home
+    let rel = canon_parent.strip_prefix(&home).unwrap_or(&canon_parent);
+    let first_component = rel.components().next()
+        .map(|c| c.as_os_str().to_string_lossy().to_string())
+        .unwrap_or_default();
+    if first_component.starts_with('.') && !canon_parent.starts_with(&app_data) {
+        return Err("Save rejected: cannot write to hidden/config directories".into());
+    }
+
     fs::write(&path, &content)
         .map_err(|e| format!("Failed to save file: {}", e))
 }
@@ -586,10 +630,16 @@ pub async fn archive_session_encrypted(
 
     if let Some(audio_src) = audio_source_path {
         let audio_src_path = PathBuf::from(&audio_src);
-        if audio_src_path.exists() {
+        let sessions_dir = base.join("sessions");
+        let src_str = audio_src_path.to_string_lossy();
+        if src_str.contains("..") {
+            tracing::warn!("Audio source path rejected: contains ..");
+        } else if audio_src_path.starts_with(&sessions_dir) && audio_src_path.exists() {
             let wav_path = archive_dir.join(format!("{}.wav", filename));
             fs::rename(&audio_src_path, &wav_path)
                 .map_err(|e| format!("Failed to move audio: {}", e))?;
+        } else if audio_src_path.exists() {
+            tracing::warn!("Audio source path rejected: outside sessions directory");
         }
     }
 

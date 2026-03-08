@@ -6,11 +6,13 @@ import { D, toast, showConfirm } from './ui.js';
 import { ollamaCheck } from './settings.js';
 import { checkSubscriptionPrePin, checkTrialWarning, initSubGate, subShowGate, subWaitForGateClose, syncSessionToCfg, migrateSessionFromCfg } from './subscription.js';
 import { LANGUAGES } from './languages.js';
+import { getSavedSession } from './session.js';
 
 /* Auto-lock state */
 let _autoLockTimer=null;
 let _autoLockMs=5*60*1000;
 let _appLocked=false;
+let _unlockGraceUntil=0; // timestamp — don't re-lock within grace period after unlock
 
 function _cacheLockDOM(){
   const g=id=>document.getElementById(id);
@@ -51,6 +53,7 @@ function _hideLockScreen(){
   const L=_cacheLockDOM();
   L.screen.style.display='none';
   _appLocked=false;
+  _unlockGraceUntil=Date.now()+10000; // 10s grace — don't re-lock immediately after unlock
 }
 
 function _waitForPinCreate(){
@@ -87,9 +90,16 @@ function _waitForPinEntry(){
       L.error.textContent='';
       if(!pin){L.error.textContent='Enter your PIN';return;}
       L.unlockBtn.disabled=true;L.unlockBtn.textContent='Verifying...';
-      tauriInvoke('authenticate',{pin}).then(ok=>{
-        if(ok){
+      tauriInvoke('authenticate',{pin}).then(res=>{
+        if(res.success){
           ac.abort();resolve();
+        }else if(res.locked){
+          const mins=Math.ceil((res.lockout_seconds||900)/60);
+          L.error.textContent=`Too many attempts. Locked for ${mins} minute${mins>1?'s':''}.`;
+          L.pinInput.value='';L.pinInput.focus();
+          L.unlockBtn.disabled=true;L.unlockBtn.textContent='Locked';
+          setTimeout(()=>{L.unlockBtn.disabled=false;L.unlockBtn.textContent='Unlock';L.error.textContent='';},
+            (res.lockout_seconds||900)*1000);
         }else{
           L.error.textContent='Incorrect PIN';
           L.pinInput.classList.add('shake');
@@ -157,6 +167,7 @@ export function _startAutoLock(){
 
 export async function lockApp(){
   if(_appLocked)return;
+  if(Date.now()<_unlockGraceUntil){_resetAutoLock();return;} // don't re-lock within grace period
   _appLocked=true;
   clearTimeout(_autoLockTimer);
   if(tauriInvoke){
@@ -345,8 +356,16 @@ export async function checkAuthAndInit(initApp){
   _initTauri();
 
   if(!__TAURI_READY__){
-    await initApp();
-    return;
+    // Tauri globals may not be injected yet — poll briefly
+    for(let i=0;i<10&&!__TAURI_READY__;i++){
+      await new Promise(r=>setTimeout(r,50));
+      _initTauri();
+    }
+    if(!__TAURI_READY__){
+      console.warn('[ClinicalFlow] Tauri not detected — running in browser mode');
+      await initApp();
+      return;
+    }
   }
 
   // Step 1: Pre-PIN subscription check (login BEFORE PIN)
@@ -383,7 +402,7 @@ export async function checkAuthAndInit(initApp){
       isFirstLaunch=true;
       _showLockScreen('create');
       await _waitForPinCreate();
-      _hideLockScreen();
+      // Don't hide lock screen yet — wait until we know if wizard is needed
     }else{
       _showLockScreen('enter');
       await _waitForPinEntry();
@@ -396,6 +415,9 @@ export async function checkAuthAndInit(initApp){
   // Step 3: Initialize config (needs PIN in AppState for decryption)
   cfg.init(window.__TAURI__ ? Config : ConfigFallback);
   await cfg.load();
+
+  // Pre-fetch saved session now (runs during wizard/sub checks, ready by initApp)
+  App._savedSessionPromise=getSavedSession();
 
   // Step 4: Sync pre-PIN session data into cfg
   if(hasEnv){
@@ -410,9 +432,13 @@ export async function checkAuthAndInit(initApp){
     const welcomeDone=await tauriInvoke('check_welcome_completed');
     if(!welcomeDone){
       wizResult=await showWelcomeWizard();
+      if(isFirstLaunch) _hideLockScreen();
+    }else if(isFirstLaunch){
+      _hideLockScreen();
     }
   }catch(e){
     console.error('[ClinicalFlow] Welcome check failed:',e);
+    if(isFirstLaunch) _hideLockScreen();
   }
 
   await initApp();

@@ -8,6 +8,7 @@ src-tauri/target/
 src/env.js
 .env
 .env.*
+.claude/settings.local.json
 
 # Infrastructure doc (contains credentials)
 docs/INFRASTRUCTURE.md

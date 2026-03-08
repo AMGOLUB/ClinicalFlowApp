@@ -30,11 +30,17 @@ serve(async (req) => {
   if (error || !user) return jsonResponse({ error: 'Invalid token' }, 401);
 
   try {
-    // Accept optional return_url from request body
-    let returnUrl = 'https://clinicalflow.us/account.html';
+    // Accept optional return_url from request body (whitelisted only)
+    const ALLOWED_RETURN_URLS = [
+      'https://clinicalflow.us/account.html',
+      'https://clinicalflow.us/welcome.html',
+    ];
+    let returnUrl = ALLOWED_RETURN_URLS[0];
     try {
       const body = await req.json();
-      if (body?.return_url) returnUrl = body.return_url;
+      if (body?.return_url && ALLOWED_RETURN_URLS.includes(body.return_url)) {
+        returnUrl = body.return_url;
+      }
     } catch { /* no body or invalid JSON — use default */ }
 
     const { data: profile } = await supabase

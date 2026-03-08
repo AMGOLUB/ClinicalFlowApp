@@ -12,6 +12,9 @@
   
   <!-- Favicon (inline SVG data URI) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230ACDCF'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'>C</text></svg>">
+
+  <!-- Instant theme restore (before CSS paints) -->
+  <script>try{var t=localStorage.getItem('cf-theme-cache');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 </head>
 
 <body>
@@ -81,6 +84,11 @@
 
         <button class="btn btn-primary btn-lg sub-gate-submit sub-gate-web-login" id="subWebLoginBtn">Log in on Website</button>
         <p class="sub-gate-web-login-hint">Opens your browser — supports Google, email &amp; password</p>
+
+        <div class="sub-gate-divider"><span>or sign in with email</span></div>
+        <input type="email" class="input" id="subGateEmail" placeholder="Email address" autocomplete="email" style="margin-bottom:8px;">
+        <input type="password" class="input" id="subGatePassword" placeholder="Password" autocomplete="current-password" style="margin-bottom:12px;">
+        <button class="btn btn-secondary btn-lg sub-gate-submit" id="subGateEmailLogin">Sign In</button>
 
         <div class="sub-gate-error" id="subLoginError" style="display:none"></div>
 
@@ -574,6 +582,7 @@
           <div class="sidebar-demo-hint">
             Triple-click <span>?</span> to load a sample encounter (medical or dental)
           </div>
+          <div class="sidebar-demo-hint" style="margin-top:8px;"><a href="#" id="feedbackLink" style="color:var(--accent);text-decoration:none;font-size:11px;">Send Feedback</a></div>
           <div class="sidebar-demo-hint" style="margin-top:6px;opacity:0.5;">ClinicalFlow v1.0.0</div>
         </div>
       </div>
@@ -1074,6 +1083,25 @@
   </div>
 
 
+  <!-- Recording Choice Modal (Resume / Start Fresh / Cancel) -->
+  <div class="modal-overlay" id="recChoiceModal">
+    <div class="modal" role="dialog" aria-labelledby="recChoiceTitle" aria-describedby="recChoiceDesc">
+      <div class="modal-title" id="recChoiceTitle">Continue recording?</div>
+      <div class="modal-desc" id="recChoiceDesc">You have an existing transcript. Resume recording to add to it, or clear the transcript and start fresh.</div>
+      <div class="modal-actions" style="flex-direction:column;gap:8px">
+        <button class="btn btn-primary btn-md" id="recChoiceResume" style="width:100%">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Resume recording
+        </button>
+        <button class="btn btn-secondary btn-md" id="recChoiceNew" style="width:100%">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          Start fresh
+        </button>
+        <button class="btn btn-secondary btn-md" id="recChoiceCancel" style="width:100%;opacity:0.7">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Generic Confirm Modal (replaces native confirm() which is broken in WKWebView) -->
   <div class="modal-overlay" id="genericConfirmModal">
     <div class="modal" role="dialog" aria-labelledby="genericConfirmTitle" aria-describedby="genericConfirmDesc">
@@ -1417,6 +1445,18 @@
               </div>
             </div>
 
+            <div class="settings-row settings-row-stacked" style="margin-top: 12px;">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Claude Model</div>
+                <div class="settings-row-desc">Choose the model for note generation</div>
+              </div>
+              <select class="select" id="cloudModelSelect" style="margin-top:var(--space-1);" aria-label="Claude model">
+                <option value="claude-haiku-4-5-20251001">Haiku 4.5 — Fast, ~1¢/note</option>
+                <option value="claude-sonnet-4-6">Sonnet 4.6 — Balanced, ~5¢/note</option>
+                <option value="claude-opus-4-6">Opus 4.6 — Premium, ~25¢/note</option>
+              </select>
+            </div>
+
             <div class="settings-row" style="margin-top: 12px;">
               <div class="settings-row-info">
                 <div class="settings-row-label">Verification pass</div>
@@ -1428,7 +1468,7 @@
             </div>
 
             <div class="ollama-help">
-              Uses Claude Haiku 4.5 for fast, accurate clinical notes. Typical cost: ~1 cent per encounter. Your transcript data is sent to Anthropic's API — do not use if your facility prohibits cloud processing of clinical audio.
+              Your transcript data is sent to Anthropic's API — do not use if your facility prohibits cloud processing of clinical audio.
             </div>
           </div>
 

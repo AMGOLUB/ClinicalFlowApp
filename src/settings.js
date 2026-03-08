@@ -111,6 +111,9 @@ export function loadClaudeKey(){
   App.claudeVerify=cfg.get('ms-claude-verify','1')==='1';
   const cvt=document.getElementById('settingClaudeVerify');
   if(cvt){cvt.classList.toggle('active',App.claudeVerify);cvt.setAttribute('aria-checked',App.claudeVerify);}
+  App.cloudModel=cfg.get('ms-cloud-model','claude-haiku-4-5-20251001');
+  const cmSel=document.getElementById('cloudModelSelect');
+  if(cmSel)cmSel.value=App.cloudModel;
   updClaudeStatus();
 }
 

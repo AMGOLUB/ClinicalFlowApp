@@ -19,17 +19,35 @@ export function getTokenFromRequest(req: Request): string | null {
   return auth.slice(7);
 }
 
-/** Standard CORS headers for all Edge Functions. */
+/** Allowed CORS origins. */
+const ALLOWED_ORIGINS = [
+  'https://clinicalflow.us',
+  'https://seuinmmslazvibotoupm.supabase.co',
+  'http://tauri.localhost', // Tauri v2 desktop webview
+];
+
+/** Build CORS headers for a given request. */
+export function getCorsHeaders(req?: Request): Record<string, string> {
+  const origin = req?.headers.get('Origin') || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
+  };
+}
+
+/** Legacy static corsHeaders (for OPTIONS handlers that don't have req). */
 export const corsHeaders: Record<string, string> = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://clinicalflow.us',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
 };
 
 /** JSON response helper. */
-export function jsonResponse(data: unknown, status = 200): Response {
+export function jsonResponse(data: unknown, status = 200, req?: Request): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    headers: { 'Content-Type': 'application/json', ...getCorsHeaders(req) },
   });
 }

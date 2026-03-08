@@ -2269,6 +2269,9 @@ section img:not(.nav-logo-icon img):not(.footer img) {
 
   /* ── Problem stat number ── */
   .problem-stat-number { font-size: 36px; }
+
+  /* ── Dental side-by-side → stacked ── */
+  .dental-layout { grid-template-columns: 1fr !important; gap: 32px !important; }
 }
 
 @media (max-width: 480px) {

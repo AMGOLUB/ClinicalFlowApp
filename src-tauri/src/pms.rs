@@ -87,13 +87,13 @@ pub async fn pms_test_connection(
             let result = _test_mysql_connection(&config).await;
             match &result {
                 Ok(_) => {
-                    *state.connected.lock().unwrap() = true;
-                    *state.system.lock().unwrap() = config.system.clone();
-                    *state.last_error.lock().unwrap() = None;
+                    *state.connected.lock().map_err(|e| format!("Lock poisoned: {}", e))? = true;
+                    *state.system.lock().map_err(|e| format!("Lock poisoned: {}", e))? = config.system.clone();
+                    *state.last_error.lock().map_err(|e| format!("Lock poisoned: {}", e))? = None;
                 }
                 Err(e) => {
-                    *state.connected.lock().unwrap() = false;
-                    *state.last_error.lock().unwrap() = Some(e.clone());
+                    *state.connected.lock().map_err(|e| format!("Lock poisoned: {}", e))? = false;
+                    *state.last_error.lock().map_err(|e| format!("Lock poisoned: {}", e))? = Some(e.clone());
                 }
             }
             result
@@ -111,7 +111,7 @@ pub async fn pms_sync_perio(
     payload: ClinicalPayload,
     state: tauri::State<'_, PmsState>,
 ) -> Result<SyncResult, String> {
-    if !*state.connected.lock().unwrap() {
+    if !*state.connected.lock().map_err(|e| format!("Lock poisoned: {}", e))? {
         return Err("Not connected to PMS. Test connection first.".into());
     }
 
@@ -133,7 +133,7 @@ pub async fn pms_sync_procedures(
     payload: ClinicalPayload,
     state: tauri::State<'_, PmsState>,
 ) -> Result<SyncResult, String> {
-    if !*state.connected.lock().unwrap() {
+    if !*state.connected.lock().map_err(|e| format!("Lock poisoned: {}", e))? {
         return Err("Not connected to PMS. Test connection first.".into());
     }
 
@@ -154,7 +154,7 @@ pub async fn pms_sync_note(
     payload: ClinicalPayload,
     state: tauri::State<'_, PmsState>,
 ) -> Result<SyncResult, String> {
-    if !*state.connected.lock().unwrap() {
+    if !*state.connected.lock().map_err(|e| format!("Lock poisoned: {}", e))? {
         return Err("Not connected to PMS. Test connection first.".into());
     }
 
@@ -175,7 +175,7 @@ pub async fn pms_sync_all(
     payload: ClinicalPayload,
     state: tauri::State<'_, PmsState>,
 ) -> Result<SyncResult, String> {
-    if !*state.connected.lock().unwrap() {
+    if !*state.connected.lock().map_err(|e| format!("Lock poisoned: {}", e))? {
         return Err("Not connected to PMS. Test connection first.".into());
     }
 
@@ -193,9 +193,9 @@ pub async fn pms_sync_all(
 pub async fn pms_status(
     state: tauri::State<'_, PmsState>,
 ) -> Result<serde_json::Value, String> {
-    let connected = *state.connected.lock().unwrap();
-    let system = state.system.lock().unwrap().clone();
-    let last_error = state.last_error.lock().unwrap().clone();
+    let connected = *state.connected.lock().map_err(|e| format!("Lock poisoned: {}", e))?;
+    let system = state.system.lock().map_err(|e| format!("Lock poisoned: {}", e))?.clone();
+    let last_error = state.last_error.lock().map_err(|e| format!("Lock poisoned: {}", e))?.clone();
 
     Ok(serde_json::json!({
         "connected": connected,
@@ -215,15 +215,50 @@ pub async fn pms_status(
    - commlog: general clinical communication log
    ══════════════════════════════════════════════════════════════ */
 
-async fn _build_mysql_url(config: &PmsConfig) -> String {
-    format!(
+/// Percent-encode special characters in a MySQL URL component
+fn url_encode_component(s: &str) -> String {
+    let mut encoded = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            ':' | '/' | '@' | '?' | '#' | '%' | ' ' => {
+                for b in c.to_string().as_bytes() {
+                    encoded.push_str(&format!("%{:02X}", b));
+                }
+            }
+            _ => encoded.push(c),
+        }
+    }
+    encoded
+}
+
+/// Validate that the host is a reasonable hostname or IP, not a URL injection vector
+fn validate_host(host: &str) -> Result<(), String> {
+    if host.is_empty() {
+        return Err("Host cannot be empty".to_string());
+    }
+    if host.contains('/') || host.contains('@') || host.contains('?') || host.contains('#') {
+        return Err("Invalid characters in host".to_string());
+    }
+    if host.len() > 253 {
+        return Err("Host too long".to_string());
+    }
+    Ok(())
+}
+
+async fn _build_mysql_url(config: &PmsConfig) -> Result<String, String> {
+    validate_host(&config.host)?;
+    Ok(format!(
         "mysql://{}:{}@{}:{}/{}",
-        config.username, config.password, config.host, config.port, config.database
-    )
+        url_encode_component(&config.username),
+        url_encode_component(&config.password),
+        config.host,
+        config.port,
+        url_encode_component(&config.database),
+    ))
 }
 
 async fn _test_mysql_connection(config: &PmsConfig) -> Result<SyncResult, String> {
-    let url = _build_mysql_url(config).await;
+    let url = _build_mysql_url(config).await?;
 
     let pool = mysql_async::Pool::new(url.as_str());
     let mut conn = pool.get_conn().await.map_err(|e| format!("Connection failed: {}", e))?;
@@ -250,7 +285,7 @@ async fn _test_mysql_connection(config: &PmsConfig) -> Result<SyncResult, String
 }
 
 async fn _sync_opendental_perio(config: &PmsConfig, payload: &ClinicalPayload) -> Result<SyncResult, String> {
-    let url = _build_mysql_url(config).await;
+    let url = _build_mysql_url(config).await?;
     let pool = mysql_async::Pool::new(url.as_str());
     let mut conn = pool.get_conn().await.map_err(|e| format!("Connection failed: {}", e))?;
 
@@ -353,7 +388,7 @@ async fn _sync_opendental_perio(config: &PmsConfig, payload: &ClinicalPayload) -
 }
 
 async fn _sync_opendental_procedures(config: &PmsConfig, payload: &ClinicalPayload) -> Result<SyncResult, String> {
-    let url = _build_mysql_url(config).await;
+    let url = _build_mysql_url(config).await?;
     let pool = mysql_async::Pool::new(url.as_str());
     let mut conn = pool.get_conn().await.map_err(|e| format!("Connection failed: {}", e))?;
 
@@ -388,7 +423,7 @@ async fn _sync_opendental_procedures(config: &PmsConfig, payload: &ClinicalPaylo
 }
 
 async fn _sync_opendental_note(config: &PmsConfig, payload: &ClinicalPayload) -> Result<SyncResult, String> {
-    let url = _build_mysql_url(config).await;
+    let url = _build_mysql_url(config).await?;
     let pool = mysql_async::Pool::new(url.as_str());
     let mut conn = pool.get_conn().await.map_err(|e| format!("Connection failed: {}", e))?;
 

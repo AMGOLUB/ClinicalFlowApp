@@ -78,7 +78,7 @@ export function showConfirm(title,desc,okLabel='Delete'){
 }
 
 /* Theme */
-export function setTheme(t){App.theme=t;D.html.setAttribute('data-theme',t);cfg.set('ms-theme',t);D.themeSw.querySelectorAll('.theme-option').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));}
+export function setTheme(t){App.theme=t;D.html.setAttribute('data-theme',t);cfg.set('ms-theme',t);try{localStorage.setItem('cf-theme-cache',t);}catch(e){}D.themeSw.querySelectorAll('.theme-option').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));}
 export function loadTheme(){setTheme(cfg.get('ms-theme','light'));}
 
 /* Connection Indicator */

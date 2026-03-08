@@ -9,6 +9,7 @@ export let tauriListen = null;
 
 export function _initTauri() {
   const t = window.__TAURI__;
+  console.debug('[ClinicalFlow] _initTauri: __TAURI__=', !!t, 'core=', !!(t&&t.core), 'event=', !!(t&&t.event));
   if (t && t.core && t.event) {
     tauriInvoke = t.core.invoke.bind(t.core);
     tauriListen = t.event.listen.bind(t.event);
@@ -118,7 +119,7 @@ export const App = {
   speakers:[], nextSpkId:1, activeSpkId:null, lastSpkChange:0, silStart:null, silThresh:1500,
   entries:[], nextEntryId:1,
   noteGenerated:false, noteFormat:'soap', noteSections:{}, codingResults:null,
-  settings:{autoScroll:true, timestamps:true, autoDetect:true, highlightTerms:false, autoCoding:true, dentalChartInExport:true, dentalFindingsInExport:true, showCopyEhr:false, showExportHl7:false, showNarrative:false, showSyncPms:false, showDocScore:false, dictionaryFeatures:false, noteLineActions:true},
+  settings:{autoScroll:true, timestamps:true, autoDetect:true, highlightTerms:true, autoCoding:true, dentalChartInExport:true, dentalFindingsInExport:true, showCopyEhr:false, showExportHl7:false, showNarrative:false, showSyncPms:false, showDocScore:false, dictionaryFeatures:true, noteLineActions:true},
   dictationTarget:null, dictationActive:false,
   theme:'light', language:'en-US', demoRunning:false,
   aiEngine:'cloud',
@@ -129,6 +130,7 @@ export const App = {
   ollamaVerify:false,
   claudeKey:'',
   claudeVerify:true,
+  cloudModel:'claude-haiku-4-5-20251001',
   lastWavPath:null,
   dentalChart:{ mode:'adult', teeth:{} }
 };

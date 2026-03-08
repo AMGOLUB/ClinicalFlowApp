@@ -3,7 +3,7 @@
    ============================================================ */
 import { App, tauriInvoke, cfg } from './state.js';
 import { getWhisperCode } from './languages.js';
-import { D, fmt, toast, updConn, updStatus, showDownloadBtns, wait } from './ui.js';
+import { D, fmt, toast, updConn, updStatus, showDownloadBtns, showConfirm, openModal, closeModal, wait } from './ui.js';
 import { addSpeaker, setActiveSpk, renderSpeakers } from './speakers.js';
 import { removePartial } from './transcript.js';
 import { initAudio, startAudioRecording, stopAudioRecording, pauseAudioRecording, resumeAudioRecording,
@@ -11,14 +11,48 @@ import { initAudio, startAudioRecording, stopAudioRecording, pauseAudioRecording
          startDeepgram, stopDeepgram, startWhisper, stopWhisper,
          pauseWhisper, resumeWhisper,
          startWebSpeech, stopWebSpeech } from './audio.js';
-import { newSession } from './session.js'; // circular — safe: only called at runtime
+import { newSession, clearSavedSession } from './session.js'; // circular — safe: only called at runtime
+
+function showRecChoice(){
+  if(!window.__TAURI__){
+    const r=confirm('Resume recording into the current transcript?\n\nOK = Resume, Cancel = Start fresh');
+    return Promise.resolve(r?'resume':'new');
+  }
+  return new Promise(resolve=>{
+    const modal=document.getElementById('recChoiceModal');
+    const resumeBtn=document.getElementById('recChoiceResume');
+    const newBtn=document.getElementById('recChoiceNew');
+    const cancelBtn=document.getElementById('recChoiceCancel');
+    function cleanup(result){closeModal(modal);resumeBtn.removeEventListener('click',onResume);newBtn.removeEventListener('click',onNew);cancelBtn.removeEventListener('click',onCancel);resolve(result);}
+    function onResume(){cleanup('resume');}
+    function onNew(){cleanup('new');}
+    function onCancel(){cleanup('cancel');}
+    resumeBtn.addEventListener('click',onResume);
+    newBtn.addEventListener('click',onNew);
+    cancelBtn.addEventListener('click',onCancel);
+    openModal(modal);
+  });
+}
 
 export async function startRecording(){
   try{
     if(App.entries.length>0){
-      newSession();
-      await wait(150);
-      toast('Previous session cleared — starting fresh','info',2000);
+      const choice=await showRecChoice();
+      if(choice==='cancel')return;
+      if(choice==='new'){
+        const sure=await showConfirm('Clear transcript?','This will permanently delete the current transcript entries. Speakers and settings will be kept.','Clear transcript');
+        if(!sure)return;
+        App.entries=[];App.nextEntryId=1;
+        App.noteGenerated=false;App.noteSections={};App.codingResults=null;
+        clearSavedSession();
+        D.txEntries.innerHTML='';D.txEmpty.style.display='flex';D.txEntries.style.display='none';
+        D.noteSec.innerHTML='';D.noteSec.style.display='none';D.noteEmpty.style.display='flex';D.noteGen.style.display='none';
+        if(D.codingPanel){D.codingPanel.innerHTML='';D.codingPanel.style.display='none';}
+        ['regenBtn','copyBtn','expPdfBtn'].forEach(k=>{if(D[k])D[k].style.display='none';});
+        if(D.expBtn)D.expBtn.style.display='none';if(D.genBtn)D.genBtn.style.display='none';
+        toast('Transcript cleared','info',2000);
+      }
+      // choice==='resume' → keep entries, just start recording
     }
 
     console.debug('[REC] startRecording — mode:',App.transcriptionMode,'hasKey:',!!App.dgKey,'tauri:',!!tauriInvoke);
@@ -77,7 +111,7 @@ export function pauseRecording(){
     if(App.engine==='whisper')pauseWhisper();else if(App.engine==='deepgram'){if(tauriInvoke)pauseWhisper();stopDeepgram();}else{try{App.recognition.stop();}catch(e){}}
     pauseAudioRecording();stopTimer();resetWave();removePartial();updStatus('paused');
     D.pauseBtn.querySelector('.icon-pause').style.display='none';
-    D.pauseBtn.querySelector('.icon-play').style.display=''
+    D.pauseBtn.querySelector('.icon-play').style.display='';
     D.pauseBtn.setAttribute('aria-label','Resume recording');
     toast('Paused','warning');
   }

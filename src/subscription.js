@@ -845,6 +845,37 @@ export function initSubGate(cfg) {
     });
   }
 
+  // In-app email/password login
+  const emailLoginBtn = document.getElementById('subGateEmailLogin');
+  if (emailLoginBtn) {
+    emailLoginBtn.addEventListener('click', async () => {
+      const email = document.getElementById('subGateEmail')?.value?.trim();
+      const password = document.getElementById('subGatePassword')?.value;
+      const errEl = document.getElementById('subLoginError');
+      if (!email || !password) {
+        if (errEl) { errEl.textContent = 'Enter email and password'; errEl.style.display = ''; }
+        return;
+      }
+      emailLoginBtn.disabled = true; emailLoginBtn.textContent = 'Signing in...';
+      if (errEl) errEl.style.display = 'none';
+      try {
+        const result = _gateCfg ? await subLogIn(email, password, _gateCfg) : await subLogInPrePin(email, password);
+        if (result.success) {
+          subHideGate();
+        } else {
+          if (errEl) { errEl.textContent = result.error || 'Login failed'; errEl.style.display = ''; }
+        }
+      } catch (e) {
+        if (errEl) { errEl.textContent = e.message || 'Login failed'; errEl.style.display = ''; }
+      }
+      emailLoginBtn.disabled = false; emailLoginBtn.textContent = 'Sign In';
+    });
+    // Allow Enter key in password field
+    document.getElementById('subGatePassword')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') emailLoginBtn.click();
+    });
+  }
+
   // Deep-link listener for browser-based login callback (clinicalflow://auth-callback)
   if (window.__TAURI__?.event) {
     window.__TAURI__.event.listen('deep-link-received', (e) => {

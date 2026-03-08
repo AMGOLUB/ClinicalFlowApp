@@ -5,32 +5,46 @@ import { App, tauriInvoke, cfg, getAbortCtrl, setAbortCtrl } from './state.js';
 import { D, toast, showConfirm, fmtDT, esc, updStatus, showDownloadBtns, hideDownloadBtns } from './ui.js';
 import { renderEntries, clearTx, updWordCount } from './transcript.js';
 import { renderSpeakers, updSpkCount } from './speakers.js';
+import { renderNoteSec } from './notes.js';
 import { stopRecording, resetTimer, updateRecUI } from './recording.js'; // circular — safe: only called at runtime
 
 /* Session Auto-Save & Recovery */
+let _saveTimer=null;
+function _buildSessionData(){
+  return {
+    entries:App.entries,
+    speakers:App.speakers,
+    nextEntryId:App.nextEntryId,
+    nextSpkId:App.nextSpkId,
+    activeSpkId:App.activeSpkId,
+    elapsed:App.elapsed,
+    sessionStartTime:App.sessionStartTime?.toISOString()||null,
+    noteFormat:App.noteFormat,
+    noteSections:App.noteSections,
+    noteGenerated:App.noteGenerated,
+    codingResults:App.codingResults,
+    dentalChart:App.dentalChart,
+    savedAt:new Date().toISOString()
+  };
+}
 export function saveSession(){
   try{
-    const data={
-      entries:App.entries,
-      speakers:App.speakers,
-      nextEntryId:App.nextEntryId,
-      nextSpkId:App.nextSpkId,
-      activeSpkId:App.activeSpkId,
-      elapsed:App.elapsed,
-      sessionStartTime:App.sessionStartTime?.toISOString()||null,
-      noteFormat:App.noteFormat,
-      dentalChart:App.dentalChart,
-      savedAt:new Date().toISOString()
-    };
     if(window.__TAURI__){
-      tauriInvoke('save_session_encrypted',{sessionJson:JSON.stringify(data)}).catch(e=>console.warn('[ClinicalFlow] Session save failed:',e));
+      // Debounce encrypted saves (PBKDF2 + AES is expensive) — at most once per 2s
+      if(_saveTimer)clearTimeout(_saveTimer);
+      _saveTimer=setTimeout(()=>{
+        _saveTimer=null;
+        const data=_buildSessionData();
+        tauriInvoke('save_session_encrypted',{sessionJson:JSON.stringify(data)}).catch(e=>console.warn('[ClinicalFlow] Session save failed:',e));
+      },2000);
     }else{
-      localStorage.setItem('ms-active-session',JSON.stringify(data));
+      localStorage.setItem('ms-active-session',JSON.stringify(_buildSessionData()));
     }
   }catch(e){console.warn('[ClinicalFlow] Auto-save failed:',e);}
 }
 
 export function clearSavedSession(){
+  if(_saveTimer){clearTimeout(_saveTimer);_saveTimer=null;}
   if(window.__TAURI__){
     tauriInvoke('clear_session').catch(e=>console.warn('[ClinicalFlow] Session clear failed:',e));
   }else{
@@ -62,11 +76,23 @@ export function restoreSession(data){
   App.elapsed=data.elapsed||0;
   App.sessionStartTime=data.sessionStartTime?new Date(data.sessionStartTime):null;
   App.noteFormat=data.noteFormat||'soap';
+  App.noteSections=data.noteSections||{};
+  App.noteGenerated=!!data.noteGenerated;
+  App.codingResults=data.codingResults||null;
   App.dentalChart=data.dentalChart||{mode:'adult',teeth:{}};
   renderEntries();renderSpeakers();updSpkCount();updWordCount();
   if(App.entries.length>0){
     D.genBtn.style.display='inline-flex';
     showDownloadBtns();
+  }
+  // Restore generated note if it was saved
+  if(App.noteGenerated&&App.noteSections?.sections?.length>0){
+    renderNoteSec(App.noteSections);
+    D.noteEmpty.style.display='none';
+    D.noteSec.style.display='block';
+    D.noteGen.style.display='none';
+    ['regenBtn','copyBtn','expPdfBtn'].forEach(k=>{if(D[k])D[k].style.display='inline-flex';});
+    if(D.expBtn)D.expBtn.style.display='inline-flex';
   }
   toast(`Session restored — ${App.entries.length} entries recovered`,'success',4000);
 }
@@ -96,7 +122,11 @@ export async function newSession(){
         audioSourcePath:App.lastWavPath||null
       });
       toast('Previous session archived','info',2000);
-    }catch(e){console.warn('[ClinicalFlow] Archive failed:',e);}
+    }catch(e){
+      console.error('[ClinicalFlow] Archive failed:',e);
+      toast('Failed to archive session — data not cleared','error',6000);
+      return false; // Do NOT clear the session if archival failed
+    }
   }
 
   App.entries=[];App.nextEntryId=1;App.speakers=[];App.nextSpkId=1;App.activeSpkId=null;
@@ -116,14 +146,15 @@ export async function newSession(){
   renderSpeakers();updSpkCount();updWordCount();updStatus('ready');D.actSpkBadge.style.display='none';
   toast('New session started','info');
   if(window.__TAURI__)loadArchiveList();
+  return true;
 }
 
 /* Archive Management */
 export async function loadArchiveList(){
   if(!window.__TAURI__)return;
+  const sec=document.getElementById('pastSessionsSection');
+  if(sec)sec.style.display='';
   try{
-    const sec=document.getElementById('pastSessionsSection');
-    if(sec)sec.style.display='';
     const sessions=await tauriInvoke('list_archived_sessions');
     const container=document.getElementById('archiveList');
     if(!container)return;

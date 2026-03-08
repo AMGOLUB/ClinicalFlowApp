@@ -42,6 +42,12 @@ serve(async (req) => {
     const priceId = PRICE_MAP[plan];
     if (!priceId) return jsonResponse({ error: `Unknown plan: ${plan}` }, 400);
 
+    // Validate seats — must be a reasonable integer (1–100)
+    const seatsNum = Number(seats);
+    if (!Number.isInteger(seatsNum) || seatsNum < 1 || seatsNum > 100) {
+      return jsonResponse({ error: 'Seats must be between 1 and 100' }, 400);
+    }
+
     // ── Get or create Stripe customer ──
     const { data: profile } = await supabase
       .from('profiles')
@@ -65,7 +71,7 @@ serve(async (req) => {
 
     // ── Create checkout session ──
     const isTeam = plan.startsWith('team_');
-    const quantity = isTeam ? Math.max(1, seats) : 1;
+    const quantity = isTeam ? seatsNum : 1;
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
