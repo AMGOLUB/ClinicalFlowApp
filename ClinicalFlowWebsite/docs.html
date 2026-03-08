@@ -601,29 +601,53 @@
     <article id="ollama" class="docs-article">
       <h2>Ollama (Local AI)</h2>
       <p>Ollama runs AI models entirely on your local machine. No data leaves your computer. It&rsquo;s free, open-source, and supports dozens of models.</p>
+      <div class="docs-callout docs-callout--warning">
+        <strong>Ollama is not bundled with ClinicalFlow.</strong> You must install it separately (free, one-time setup). Without Ollama, offline AI note generation is not available &mdash; you can still use the rule-based fallback or switch to Cloud AI mode.
+      </div>
 
-      <h3>Installation</h3>
+      <h3>Installation &mdash; macOS</h3>
       <ol>
-        <li>Download Ollama from <a href="https://ollama.com/download" target="_blank" rel="noopener">ollama.com/download</a></li>
-        <li>Install and launch it (it runs in the background)</li>
-        <li>Open Terminal and pull a model: <code>ollama pull llama3.1:8b</code></li>
-        <li>In ClinicalFlow Settings &rarr; AI Note Generation &rarr; select <strong>Ollama</strong></li>
-        <li>Click <strong>Test</strong> to verify the connection, then <strong>Refresh</strong> to load available models.</li>
+        <li>Go to <a href="https://ollama.com/download/mac" target="_blank" rel="noopener">ollama.com/download/mac</a> and download the installer.</li>
+        <li>Open the downloaded <code>.dmg</code> file and drag Ollama to your Applications folder.</li>
+        <li>Launch Ollama from Applications. You&rsquo;ll see a small llama icon appear in your menu bar &mdash; this means Ollama is running in the background.</li>
+        <li>Open <strong>Terminal</strong> (search &ldquo;Terminal&rdquo; in Spotlight) and run:
+          <br><code>ollama pull llama3.1:8b</code>
+          <br>This downloads the recommended model (~4.7 GB). Wait for it to complete.</li>
+        <li>Verify it worked by running: <code>ollama list</code> &mdash; you should see <code>llama3.1:8b</code> in the list.</li>
+        <li>Open ClinicalFlow &rarr; Settings &rarr; AI Note Generation &rarr; select <strong>Ollama</strong>.</li>
+        <li>Click <strong>Test</strong> to verify the connection, then <strong>Refresh</strong> to load your models.</li>
+      </ol>
+
+      <h3>Installation &mdash; Windows</h3>
+      <ol>
+        <li>Go to <a href="https://ollama.com/download/windows" target="_blank" rel="noopener">ollama.com/download/windows</a> and download the installer.</li>
+        <li>Run <code>OllamaSetup.exe</code> and follow the prompts. Ollama will start automatically and appear in your system tray.</li>
+        <li>Open <strong>Command Prompt</strong> or <strong>PowerShell</strong> (search &ldquo;cmd&rdquo; in Start) and run:
+          <br><code>ollama pull llama3.1:8b</code>
+          <br>This downloads the recommended model (~4.7 GB). Wait for it to complete.</li>
+        <li>Verify it worked by running: <code>ollama list</code> &mdash; you should see <code>llama3.1:8b</code> in the list.</li>
+        <li>Open ClinicalFlow &rarr; Settings &rarr; AI Note Generation &rarr; select <strong>Ollama</strong>.</li>
+        <li>Click <strong>Test</strong> to verify the connection, then <strong>Refresh</strong> to load your models.</li>
       </ol>
 
       <h3>Recommended Models</h3>
       <table class="docs-table">
-        <thead><tr><th>Model</th><th>Size</th><th>Quality</th><th>Speed</th></tr></thead>
+        <thead><tr><th>Model</th><th>Command</th><th>Size</th><th>Quality</th><th>Speed</th></tr></thead>
         <tbody>
-          <tr><td><code>llama3.1:8b</code></td><td>4.7 GB</td><td>Good</td><td>Fast</td></tr>
-          <tr><td><code>mistral:7b</code></td><td>4.1 GB</td><td>Good</td><td>Fast</td></tr>
-          <tr><td><code>gemma2:9b</code></td><td>5.4 GB</td><td>Very Good</td><td>Medium</td></tr>
-          <tr><td><code>llama3.1:70b</code></td><td>39 GB</td><td>Excellent</td><td>Slow (needs 64GB+ RAM)</td></tr>
+          <tr><td><code>llama3.1:8b</code></td><td><code>ollama pull llama3.1:8b</code></td><td>4.7 GB</td><td>Good</td><td>Fast</td></tr>
+          <tr><td><code>mistral:7b</code></td><td><code>ollama pull mistral:7b</code></td><td>4.1 GB</td><td>Good</td><td>Fast</td></tr>
+          <tr><td><code>gemma2:9b</code></td><td><code>ollama pull gemma2:9b</code></td><td>5.4 GB</td><td>Very Good</td><td>Medium</td></tr>
+          <tr><td><code>llama3.1:70b</code></td><td><code>ollama pull llama3.1:70b</code></td><td>39 GB</td><td>Excellent</td><td>Slow (needs 64GB+ RAM)</td></tr>
         </tbody>
       </table>
+      <p>For most clinical use, <code>llama3.1:8b</code> provides the best balance of quality and speed. It runs well on machines with 8 GB of RAM.</p>
+
+      <h3>Making Ollama Start Automatically</h3>
+      <p><strong>macOS:</strong> Ollama starts automatically on login by default. If it doesn&rsquo;t, open Ollama from Applications and check &ldquo;Start at login&rdquo; in the menu bar icon preferences.</p>
+      <p><strong>Windows:</strong> Ollama runs as a background service and starts automatically after installation. If it&rsquo;s not running, search for &ldquo;Ollama&rdquo; in the Start menu and launch it.</p>
 
       <h3>Configuration</h3>
-      <p>Default server URL: <code>http://localhost:11434</code>. ClinicalFlow includes 3 automatic retries for transient failures.</p>
+      <p>Default server URL: <code>http://localhost:11434</code>. ClinicalFlow includes 3 automatic retries for transient failures. You can change the URL in Settings if you run Ollama on a different machine or port.</p>
     </article>
 
     <article id="rule-based" class="docs-article">
