@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security &amp; Privacy — ClinicalFlow</title>
+  <meta name="description" content="Learn how ClinicalFlow protects patient data with local-first architecture, AES-256 encryption, and HIPAA-aligned design. Your clinical data never leaves your device.">
+  <meta property="og:title" content="Security &amp; Privacy — ClinicalFlow">
+  <meta property="og:description" content="Local-first architecture. AES-256 encryption. Zero PHI on our servers. See exactly how ClinicalFlow protects your patients and your practice.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="logo.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       SECURITY PAGE — Trust-building, visual layout
+       ═══════════════════════════════════════════════════════════ */
+
+    /* ─── Hero ─── */
+    .sec-hero {
+      padding: calc(var(--nav-height) + 80px) 0 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .sec-hero::before {
+      content: '';
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 900px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(8,145,178,0.10) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .sec-hero h1 {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .sec-hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin: 0 auto;
+      position: relative;
+      line-height: 1.65;
+    }
+
+    /* ─── Section headers ─── */
+    .sec-section {
+      padding: 0 0 var(--section-gap);
+    }
+    .sec-section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .sec-section-header h2 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .sec-section-header p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ─── Pillar cards (3-col) ─── */
+    .pillar-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .pillar-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    .pillar-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+    }
+    .pillar-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--glow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .pillar-icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--accent);
+    }
+    .pillar-card h4 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .pillar-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ─── Data flow section (2-col) ─── */
+    .flow-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .flow-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      box-shadow: var(--shadow-card);
+    }
+    .flow-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .flow-card h3 svg {
+      width: 22px;
+      height: 22px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .flow-card .flow-subtitle {
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .flow-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .flow-card ul {
+      padding-left: 18px;
+      margin: 0;
+    }
+    .flow-card li {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 6px;
+    }
+    .flow-card li:last-child { margin-bottom: 0; }
+
+    /* ─── Encryption detail table ─── */
+    .enc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 auto;
+      max-width: 1000px;
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .enc-table th,
+    .enc-table td {
+      text-align: left;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .enc-table th {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: rgba(8,145,178,0.04);
+    }
+    .enc-table tr:last-child td { border-bottom: none; }
+    .enc-table code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: rgba(8,145,178,0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    /* ─── AI disclaimer section ─── */
+    .ai-disclaimer {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .ai-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px;
+      box-shadow: var(--shadow-card);
+    }
+    .ai-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ai-card h3 svg {
+      width: 28px;
+      height: 28px;
+      color: #E97A1F;
+      flex-shrink: 0;
+    }
+    .ai-card > p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+    .ai-warning {
+      background: rgba(233,122,31,0.06);
+      border-left: 4px solid #E97A1F;
+      border-radius: 0 10px 10px 0;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    .ai-warning p {
+      font-size: 15px;
+      color: var(--text-primary);
+      line-height: 1.7;
+      margin: 0;
+      font-weight: 500;
+    }
+    .ai-checks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .ai-check {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .ai-check svg {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .ai-check span {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ─── HIPAA section ─── */
+    .hipaa-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .hipaa-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    .hipaa-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+    }
+    .hipaa-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--glow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .hipaa-icon svg {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+    }
+    .hipaa-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .hipaa-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ─── FAQ section ─── */
+    .faq-list {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+    .faq-item:last-child { margin-bottom: 0; }
+    .faq-q {
+      padding: 24px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      user-select: none;
+      transition: color 0.2s;
+    }
+    .faq-q:hover { color: var(--accent); }
+    .faq-q svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      transition: transform 0.3s;
+      color: var(--text-tertiary);
+    }
+    .faq-item.open .faq-q svg {
+      transform: rotate(180deg);
+    }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+    }
+    .faq-item.open .faq-a {
+      max-height: 600px;
+      padding: 0 28px 24px;
+    }
+    .faq-a p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin: 0 0 12px;
+    }
+    .faq-a p:last-child { margin-bottom: 0; }
+
+    /* ─── CTA section ─── */
+    .sec-cta {
+      text-align: center;
+      padding: 80px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sec-cta::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(8,145,178,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .sec-cta h2 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .sec-cta p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto 32px;
+      position: relative;
+      line-height: 1.6;
+    }
+    .sec-cta .btn-group {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* ─── Scroll reveal ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .pillar-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .flow-grid { grid-template-columns: 1fr; }
+      .hipaa-grid { grid-template-columns: 1fr; }
+      .ai-checks { grid-template-columns: 1fr; }
+      .ai-card { padding: 28px 24px; }
+      .sec-cta .btn-group { flex-direction: column; align-items: center; }
+      .sec-hero { padding: calc(var(--nav-height) + 48px) 0 48px; }
+      .sec-hero h1 { font-size: clamp(28px, 7vw, 40px); }
+      .sec-hero p { font-size: 16px; }
+      .sec-section-header h2 { font-size: 26px; }
+      .sec-section-header p { font-size: 15px; }
+      .sec-cta { padding: 60px 0 80px; }
+      .sec-cta h2 { font-size: 26px; }
+      .sec-cta p { font-size: 15px; }
+      .pillar-card { padding: 24px 20px; }
+      .flow-card { padding: 24px 20px; }
+      .hipaa-card { padding: 24px 20px; }
+      .enc-table th, .enc-table td { padding: 12px 16px; font-size: 13px; }
+    }
+    @media (max-width: 480px) {
+      .hipaa-card { flex-direction: column; gap: 12px; }
+      .sec-cta .btn-group .btn { width: 100%; max-width: 300px; }
+    }
+  </style>
+<script>/* Theme FOUC prevention */(function(){var t=localStorage.getItem("cf-theme")||"light";if(t==="dark")document.documentElement.setAttribute("data-theme","dark")})()</script>
+</head>
+<body>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     NAVIGATION
+     ════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon"><img src="logo.png" alt="ClinicalFlow"></div>
+      Clinical<span>Flow</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#download">Download</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="docs.html">Docs</a></li>
+    </ul>
+    <div class="nav-cta nav-cta--loading">
+      <a href="login.html" class="btn btn--ghost btn--sm">Log In</a>
+      <a href="signup.html" class="btn btn--primary btn--sm">Sign Up Free</a>
+    </div>
+    <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     HERO
+     ════════════════════════════════════════════════════════════ -->
+<section class="sec-hero">
+  <div class="container">
+    <span class="badge reveal" style="margin-bottom:24px; display:inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Security &amp; Privacy
+    </span>
+    <h1 class="reveal">Your patients' data<br>never leaves your device.</h1>
+    <p class="reveal">ClinicalFlow is built from the ground up with a local-first architecture. Transcripts, notes, and patient information are processed and stored entirely on your computer &mdash; not on our servers, not in the cloud. We can&rsquo;t see it because we never have it.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     THREE PILLARS
+     ════════════════════════════════════════════════════════════ -->
+<section class="sec-section">
+  <div class="container">
+    <div class="sec-section-header reveal">
+      <h2>Security by architecture, not by promise</h2>
+      <p>We didn&rsquo;t bolt security on after the fact. ClinicalFlow&rsquo;s core architecture makes data exposure structurally impossible in the default configuration.</p>
+    </div>
+
+    <div class="pillar-grid">
+      <div class="pillar-card reveal">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+        </div>
+        <h4>Local-first processing</h4>
+        <p>Audio recording, transcription, and note generation all happen on your machine. In offline mode, ClinicalFlow makes <strong>zero outbound network connections</strong> with clinical data. Your computer is the server.</p>
+      </div>
+
+      <div class="pillar-card reveal reveal-delay-1">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h4>AES-256 encryption</h4>
+        <p>Your settings and API keys are encrypted with a PIN-derived key using AES-256-GCM and PBKDF2 with 100,000 iterations. Even if someone copies your config file, they cannot read it without your PIN.</p>
+      </div>
+
+      <div class="pillar-card reveal reveal-delay-2">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h4>Zero PHI on our servers</h4>
+        <p>Our servers store only your email, subscription status, and license key. We <strong>never</strong> receive transcripts, clinical notes, patient names, dental charts, audio recordings, or any Protected Health Information.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     DATA FLOW — OFFLINE vs ONLINE
+     ════════════════════════════════════════════════════════════ -->
+<section class="sec-section">
+  <div class="container">
+    <div class="sec-section-header reveal">
+      <h2>Where does your data go?</h2>
+      <p>Complete transparency about every data flow in both modes. No fine print.</p>
+    </div>
+
+    <div class="flow-grid">
+      <div class="flow-card reveal">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Offline Mode
+        </h3>
+        <div class="flow-subtitle">Maximum privacy &mdash; zero network connections</div>
+        <ul>
+          <li><strong>Audio</strong> &rarr; Captured and processed locally (never saved to disk)</li>
+          <li><strong>Transcription</strong> &rarr; Whisper model runs on your CPU/GPU</li>
+          <li><strong>Note generation</strong> &rarr; Ollama (local AI) or rule-based engine</li>
+          <li><strong>Storage</strong> &rarr; Notes saved to your local filesystem</li>
+          <li><strong>PDF export</strong> &rarr; Generated locally via your browser engine</li>
+        </ul>
+        <p style="margin-top:16px"><strong>Data that leaves your device: nothing.</strong></p>
+      </div>
+
+      <div class="flow-card reveal reveal-delay-1">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Online Mode
+        </h3>
+        <div class="flow-subtitle">Cloud AI for higher quality &mdash; using your own API keys</div>
+        <ul>
+          <li><strong>Audio</strong> &rarr; Streamed to Deepgram (your API key, direct connection)</li>
+          <li><strong>Transcription</strong> &rarr; Deepgram processes and returns text</li>
+          <li><strong>Note generation</strong> &rarr; Transcript text sent to Anthropic Claude (your API key)</li>
+          <li><strong>Storage</strong> &rarr; Notes saved to your local filesystem</li>
+          <li><strong>Our servers</strong> &rarr; Never involved in the clinical data flow</li>
+        </ul>
+        <p style="margin-top:16px"><strong>Data routes directly from your device to the AI provider. We are never an intermediary.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     ENCRYPTION DETAILS
+     ════════════════════════════════════════════════════════════ -->
+<section class="sec-section">
+  <div class="container">
+    <div class="sec-section-header reveal">
+      <h2>Encryption at every layer</h2>
+      <p>A detailed look at how each category of data is protected.</p>
+    </div>
+
+    <table class="enc-table reveal">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Location</th>
+          <th>Encryption</th>
+          <th>Who can access</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Transcripts &amp; clinical notes</strong></td>
+          <td>Your device only</td>
+          <td>OS-level (FileVault / BitLocker recommended)</td>
+          <td>Only you</td>
+        </tr>
+        <tr>
+          <td><strong>API keys &amp; settings</strong></td>
+          <td>Your device &mdash; <code>config.json</code></td>
+          <td>AES-256-GCM + PBKDF2 (100k iterations, PIN-derived)</td>
+          <td>Only you (requires your PIN)</td>
+        </tr>
+        <tr>
+          <td><strong>Auth tokens &amp; license</strong></td>
+          <td>Your device &mdash; <code>session.json</code></td>
+          <td>AES-256-GCM (app-key encrypted)</td>
+          <td>The application</td>
+        </tr>
+        <tr>
+          <td><strong>Account data</strong></td>
+          <td>Our server (Supabase)</td>
+          <td>TLS 1.2+ in transit, encrypted at rest, Row Level Security</td>
+          <td>You + our server (email &amp; subscription only)</td>
+        </tr>
+        <tr>
+          <td><strong>Payment info</strong></td>
+          <td>Stripe (PCI DSS Level 1)</td>
+          <td>Stripe&rsquo;s infrastructure</td>
+          <td>Stripe only &mdash; we never see full card numbers</td>
+        </tr>
+        <tr>
+          <td><strong>Audio recordings</strong></td>
+          <td>Processed in memory, never written to disk</td>
+          <td>N/A &mdash; ephemeral</td>
+          <td>Only you during the session</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     AI RESPONSIBILITY DISCLAIMER
+     ════════════════════════════════════════════════════════════ -->
+<section class="sec-section">
+  <div class="container">
+    <div class="sec-section-header reveal">
+      <h2>AI-generated notes require your review</h2>
+      <p>ClinicalFlow is a documentation assistant, not a replacement for clinical judgment.</p>
+    </div>
+
+    <div class="ai-disclaimer">
+      <div class="ai-card reveal">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Important: AI can hallucinate
+        </h3>
+        <p>All AI systems &mdash; including the models used by ClinicalFlow &mdash; can generate content that sounds plausible but is factually incorrect. This is known as &ldquo;hallucination&rdquo; and is an inherent limitation of current AI technology, not a bug specific to ClinicalFlow.</p>
+
+        <div class="ai-warning">
+          <p>You must review every AI-generated note for accuracy before signing, filing, or submitting it to any medical record system. AI-generated notes are drafts &mdash; not finalized clinical documentation. The signing clinician bears full responsibility for the accuracy and completeness of any note entered into the patient&rsquo;s medical record.</p>
+        </div>
+
+        <p>ClinicalFlow includes a built-in <strong>two-pass verification system</strong> that runs a second AI review to check for hallucinations, contradictions, omissions, and miscategorizations. While this significantly reduces errors, it does not eliminate them entirely. Verification is an aid, not a guarantee.</p>
+
+        <p><strong>What hallucination can look like in clinical notes:</strong></p>
+        <div class="ai-checks">
+          <div class="ai-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <span><strong>Fabricated findings</strong> &mdash; &ldquo;Lungs clear to auscultation&rdquo; when no lung exam was discussed</span>
+          </div>
+          <div class="ai-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <span><strong>Incorrect medications</strong> &mdash; wrong dosages, drug names, or frequencies inserted from model training data</span>
+          </div>
+          <div class="ai-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <span><strong>Contradictions</strong> &mdash; &ldquo;Patient denies chest pain&rdquo; in HPI but &ldquo;chest pain&rdquo; listed in the Assessment</span>
+          </div>
+          <div class="ai-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <span><strong>Omissions</strong> &mdash; lab orders or referrals discussed but missing from the Plan section</span>
+          </div>
+        </div>
+
+        <p style="margin-top:24px">By using ClinicalFlow, you acknowledge that AI-generated notes are preliminary drafts intended to accelerate your workflow &mdash; not to replace your clinical expertise, judgment, or responsibility. Always read the full note against the transcript before signing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     HIPAA SECTION
+     ════════════════════════════════════════════════════════════ -->
+<section class="sec-section">
+  <div class="container">
+    <div class="sec-section-header reveal">
+      <h2>Designed with HIPAA in mind</h2>
+      <p>ClinicalFlow&rsquo;s local-first architecture inherently minimizes HIPAA risk by keeping PHI off external servers entirely.</p>
+    </div>
+
+    <div class="hipaa-grid">
+      <div class="hipaa-card reveal">
+        <div class="hipaa-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div>
+          <h4>No PHI in transit to us</h4>
+          <p>Because clinical data is processed locally, there is no PHI transmission to ClinicalFlow servers &mdash; eliminating the primary HIPAA risk vector for cloud-based documentation tools.</p>
+        </div>
+      </div>
+
+      <div class="hipaa-card reveal reveal-delay-1">
+        <div class="hipaa-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <h4>Access controls</h4>
+          <p>PIN-based encryption for application data, separate session authentication, and automatic token expiration ensure that only authorized users access the application.</p>
+        </div>
+      </div>
+
+      <div class="hipaa-card reveal">
+        <div class="hipaa-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div>
+          <h4>Audit capability</h4>
+          <p>Local activity logging supports compliance documentation requirements. All data access events stay on your device for your records.</p>
+        </div>
+      </div>
+
+      <div class="hipaa-card reveal reveal-delay-1">
+        <div class="hipaa-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        </div>
+        <div>
+          <h4>Data portability</h4>
+          <p>Export notes as PDF or plain text at any time. No vendor lock-in, no data hostage. Your documentation is yours to move freely.</p>
+        </div>
+      </div>
+
+      <div class="hipaa-card reveal">
+        <div class="hipaa-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div>
+          <h4>Encryption at rest</h4>
+          <p>AES-256-GCM encryption for settings and credentials. We recommend enabling FileVault (macOS) or BitLocker (Windows) for full-disk encryption of clinical files.</p>
+        </div>
+      </div>
+
+      <div class="hipaa-card reveal reveal-delay-1">
+        <div class="hipaa-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <h4>BAA available</h4>
+          <p>If your organization requires a Business Associate Agreement, contact us at <strong>privacy@clinicalflow.us</strong>. We are committed to supporting your compliance needs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FAQ
+     ════════════════════════════════════════════════════════════ -->
+<section class="sec-section">
+  <div class="container">
+    <div class="sec-section-header reveal">
+      <h2>Frequently asked security questions</h2>
+      <p>Straight answers to the questions we hear most from providers and compliance officers.</p>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <div class="faq-q">
+          Does ClinicalFlow store patient data on its servers?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">
+          <p><strong>No. Never.</strong> All clinical data &mdash; transcripts, notes, dental charts, patient information, audio &mdash; stays exclusively on your local device. Our servers only store your email address, subscription status, and license key. We have no mechanism to access, view, or retrieve your clinical data because it is never transmitted to us.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q">
+          Is ClinicalFlow HIPAA compliant?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>ClinicalFlow is <strong>designed with HIPAA compliance in mind</strong> and our local-first architecture inherently minimizes the risk vectors that most cloud-based documentation tools face. In offline mode, no PHI ever leaves your device, which eliminates the most common compliance concerns.</p>
+          <p>However, HIPAA compliance is a shared responsibility. Each healthcare organization should conduct their own risk assessment. If you choose to use optional cloud AI features (Deepgram, Claude), you are sending data to third-party providers using your own API keys, and you should ensure those providers meet your compliance requirements. We are happy to provide a BAA upon request.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q">
+          What happens if I use online mode &mdash; is my data safe?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>In online mode, audio and transcript data flow <strong>directly from your device to the AI provider</strong> (Deepgram for transcription, Anthropic for note generation) using your own API keys. ClinicalFlow&rsquo;s servers are never involved in this data flow &mdash; we are not an intermediary, relay, or proxy.</p>
+          <p>Both Deepgram and Anthropic offer enterprise-grade security, SOC 2 compliance, and HIPAA-eligible plans. We recommend reviewing their privacy policies and, if applicable, obtaining BAAs directly from them for your practice.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q">
+          Can I be sued for using AI-generated notes?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>The legal standard for clinical documentation has not changed: <strong>the signing clinician is responsible for the accuracy of the medical record.</strong> Whether you type a note yourself, dictate it, or use an AI assistant, the same standard of care applies.</p>
+          <p>ClinicalFlow generates <strong>draft notes</strong> that you must review, edit, and approve before signing. If you treat AI output as a starting point &mdash; carefully reviewing it against the encounter &mdash; you are using the tool as intended. The risk arises when clinicians sign notes without reading them, regardless of how the note was produced.</p>
+          <p>We strongly recommend: (1) always reviewing the full note against the transcript, (2) using ClinicalFlow&rsquo;s built-in verification pass, and (3) making corrections before signing. This workflow is consistent with established standards for dictation and scribe-assisted documentation.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q">
+          What if my computer is stolen?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>ClinicalFlow&rsquo;s configuration and API keys are encrypted with your PIN (AES-256-GCM). Without your PIN, this data cannot be decrypted. For maximum protection of clinical files, we strongly recommend enabling full-disk encryption on your computer:</p>
+          <p><strong>macOS:</strong> System Settings &rarr; Privacy &amp; Security &rarr; FileVault &rarr; Turn On<br>
+          <strong>Windows:</strong> Settings &rarr; Privacy &amp; Security &rarr; Device Encryption &rarr; Turn On (or enable BitLocker)</p>
+          <p>With full-disk encryption enabled, all data on a stolen device is unreadable without your system password.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q">
+          Does ClinicalFlow use my data to train AI models?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">
+          <p><strong>No.</strong> We do not train any AI models on your clinical data. We never have access to your clinical data in the first place. When using cloud AI providers (Deepgram, Anthropic) with your own API keys, their data retention and training policies apply &mdash; both providers offer options to opt out of training. Anthropic&rsquo;s API usage is not used for model training by default.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q">
+          How do I delete all my data?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">
+          <p><strong>Local data:</strong> Delete the ClinicalFlow application data folder on your device. On macOS: <code style="font-family:'JetBrains Mono',monospace;font-size:13px;background:rgba(8,145,178,0.06);padding:2px 6px;border-radius:4px;color:var(--accent);">~/Library/Application Support/com.clinicalflow.ai/</code>. This permanently removes all local transcripts, notes, and encrypted settings.</p>
+          <p><strong>Server data:</strong> Use the &ldquo;Delete Account&rdquo; option in your account settings, or email privacy@clinicalflow.us. We will permanently delete your account, profile, and license data within 30 days.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CTA
+     ════════════════════════════════════════════════════════════ -->
+<section class="sec-cta">
+  <div class="container">
+    <h2 class="reveal">Questions about security?</h2>
+    <p class="reveal">We&rsquo;re happy to discuss your organization&rsquo;s specific compliance requirements. Reach out to our security team or read our full legal policies.</p>
+    <div class="btn-group reveal">
+      <a href="mailto:privacy@clinicalflow.us" class="btn btn--primary btn--lg">Contact Security Team</a>
+      <a href="privacy-policy.html" class="btn btn--ghost btn--lg">Privacy Policy</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon"><img src="logo.png" alt="ClinicalFlow"></div>
+          Clinical<span>Flow</span>
+        </a>
+        <p>AI-powered clinical documentation for healthcare providers. Transcribe encounters, generate structured notes, and reclaim time for patient care.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#templates">Templates</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="index.html#download">Download</a>
+        <a href="get-started.html">Get Started</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="docs.html">Documentation</a>
+        <a href="docs.html#transcription">Transcription</a>
+        <a href="docs.html#troubleshooting">Troubleshooting</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="about.html">About</a>
+        <a href="security.html">Security</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 ClinicalFlow. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+// ── Scroll reveal ──────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Nav scroll effect ──────────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('nav');
+  if (window.scrollY > 40) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+}, { passive: true });
+
+// ── FAQ accordion ──────────────────────────
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.parentElement;
+    const wasOpen = item.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    // Toggle clicked
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="main.js"></script>
+<script src="auth-nav.js"></script>
+</body>
+</html>
